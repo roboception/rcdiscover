@@ -24,7 +24,9 @@ include(cmake/optimization_flags.cmake)
 
 # - Standard definitions -
 
-add_definitions(-Wall)
+if (CMAKE_COMPILER_IS_GNUCC)
+  add_definitions(-Wall)
+endif ()
 
 # - Build individual parts -
 

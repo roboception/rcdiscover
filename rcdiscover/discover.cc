@@ -17,18 +17,128 @@
 
 #ifdef WIN32
 #include <winsock2.h>
+#include <iphlpapi.h>
 #else
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
 #endif
 
+#include <vector>
 #include <string.h>
 #include <errno.h>
 
 namespace rcdiscover
 {
+
+namespace
+{
+
+#ifdef WIN32
+inline void close(int sock)
+{
+    closesocket(sock);
+}
+#endif
+
+inline std::string geterror(int errnum)
+{
+#ifdef WIN32
+    char tmp[256];
+    strerror_s(tmp, 256, errnum);
+    return std::string(tmp);
+#else
+    char tmp[256];
+    return std::string(strerror_r(errnum, tmp, 256));
+#endif
+}
+
+/*
+  Returns a vector with broadcast IPs of all interfaces for sending the request
+  via directed broadcast to each interface explicitely.
+*/
+
+std::vector<uint32_t> getBroadcastIPs()
+{
+  std::vector<uint32_t> list;
+
+#ifdef WIN32
+  // get ip table (need to try several times due to race condition)
+  MIB_IPADDRTABLE *iptab=0;
+
+  {
+    ULONG len=0;
+    for (int i=0; i<5; i++)
+    {
+      DWORD ipRet=GetIpAddrTable(iptab, &len, false);
+      if (ipRet == ERROR_INSUFFICIENT_BUFFER)
+      {
+        free(iptab);
+        iptab=reinterpret_cast<MIB_IPADDRTABLE *>(malloc(len));
+      }
+      else if (ipRet == NO_ERROR)
+      {
+        break;
+      }
+      else
+      {
+        free(iptab);
+        iptab=0;
+        break;
+      }
+    }
+  }
+
+  // extract and store broadcast addresses
+
+  if (iptab != 0)
+  {
+    for (DWORD i=0; i<iptab->dwNumEntries; i++)
+    {
+      const MIB_IPADDRROW &row = iptab->table[i];
+
+      uint32_t baddr=row.dwAddr&row.dwMask;
+      if (row.dwBCastAddr)
+      {
+        baddr|=~row.dwMask;
+      }
+
+      list.push_back(baddr);
+    }
+
+    free(iptab);
+  }
+#else
+  struct ifaddrs *ifap=0;
+  if (getifaddrs(&ifap) == 0)
+  {
+    struct ifaddrs *p=ifap;
+    while (p != 0)
+    {
+      if (p->ifa_addr != 0)
+      {
+        struct sockaddr *b=p->ifa_broadaddr;
+
+        if (b != 0 && b->sa_family == AF_INET)
+        {
+          list.push_back(reinterpret_cast<struct sockaddr_in *>(b)->sin_addr.s_addr);
+        }
+      }
+
+      p=p->ifa_next;
+    }
+
+    freeifaddrs(ifap);
+  }
+#endif
+
+  return list;
+}
+
+}
 
 Discover::Discover()
 {
@@ -38,7 +148,7 @@ Discover::Discover()
 
   if (sock == -1)
   {
-    throw std::ios_base::failure(std::string(strerror(errno)));
+    throw std::ios_base::failure(geterror(errno));
   }
 
   // bind an arbitrary port to it
@@ -53,24 +163,29 @@ Discover::Discover()
   if (bind(sock, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) != 0)
   {
     close(sock);
-    throw std::ios_base::failure(std::string(strerror(errno)));
+    throw std::ios_base::failure(geterror(errno));
   }
 
   // configure for broadcasting
 
   int yes=1;
-  if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(yes)) != 0)
+  if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char *>(&yes), sizeof(yes)) != 0)
   {
     close(sock);
-    throw std::ios_base::failure(std::string(strerror(errno)));
+    throw std::ios_base::failure(geterror(errno));
   }
 
   // configure socket as non blocking
 
+#ifdef WIN32
+  u_long imode=1;
+  if (ioctlsocket(sock, FIONBIO, &imode) != 0)
+#else
   if (fcntl(sock, F_SETFL, O_RDWR|O_NONBLOCK) == -1)
+#endif
   {
     close(sock);
-    throw std::ios_base::failure(std::string(strerror(errno)));
+    throw std::ios_base::failure(geterror(errno));
   }
 }
 
@@ -81,21 +196,31 @@ Discover::~Discover()
 
 void Discover::broadcastRequest()
 {
+  std::vector<uint32_t> list=getBroadcastIPs();
+
   // send discover cmd message as broadcast
 
   uint8_t discovery_cmd[8]={0x42, 0x11, 0, 0x02, 0, 0, 0, 1};
 
   struct sockaddr_in addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sin_addr.s_addr=htonl(-1); // broadcast to local network
-  addr.sin_port=htons(3956); // GigE Vision control port
-  addr.sin_family=PF_INET;
 
-  if (sendto(sock, discovery_cmd, 8, 0, reinterpret_cast<struct sockaddr *>(&addr),
-             sizeof(addr)) != 8)
+  for (size_t i = 0; i < list.size(); i++)
   {
-    close(sock);
-    throw std::ios_base::failure(std::string(strerror(errno)));
+    // uint32_t v=ntohl(list[i]);
+	// std::cout << ((v>>24)&0xff) << "." << ((v>>16)&0xff) << "." << ((v>>8)&0xff) << "." << (v&0xff)
+	//           << std::endl;
+
+    memset(&addr, 0, sizeof(addr));
+	addr.sin_addr.s_addr = list[i]; // directed broadcast to subnet
+	addr.sin_port = htons(3956); // GigE Vision control port
+	addr.sin_family = PF_INET;
+
+	if (sendto(sock, reinterpret_cast<char *>(discovery_cmd), 8, 0, reinterpret_cast<struct sockaddr *>(&addr),
+	           sizeof(addr)) != 8)
+	{
+	  close(sock);
+	  throw std::ios_base::failure(geterror(errno));
+	}
   }
 }
 
@@ -127,10 +252,14 @@ bool Discover::getResponse(DeviceInfo &info, int timeout)
       uint8_t p[600];
 
       struct sockaddr_in addr;
-      socklen_t naddr=sizeof(addr);
-      memset(&addr, 0, naddr);
+#ifdef WIN32
+	  int naddr = sizeof(addr);
+#else
+	  socklen_t naddr = sizeof(addr);
+#endif
+	  memset(&addr, 0, naddr);
 
-      int n=recvfrom(sock, p, sizeof(p), 0, reinterpret_cast<struct sockaddr *>(&addr), &naddr);
+      int n=recvfrom(sock, reinterpret_cast<char *>(p), sizeof(p), 0, reinterpret_cast<struct sockaddr *>(&addr), &naddr);
 
       // check if received package is a valid discovery acknowledge
 

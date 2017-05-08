@@ -17,6 +17,10 @@
 #include <iostream>
 #include <iomanip>
 
+#ifdef WIN32
+#include <winsock2.h>
+#endif
+
 namespace
 {
 
@@ -46,6 +50,11 @@ std::string ip2string(const uint32_t ip)
 
 int main(int argc, char *argv[])
 {
+#ifdef WIN32
+	WSADATA wsaData;
+	WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+
   std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
 
   rcdiscover::Discover discover;
@@ -73,6 +82,10 @@ int main(int argc, char *argv[])
 
     std::cout << std::endl;
   }
+
+#ifdef WIN32
+  ::WSACleanup();
+#endif
 
   return 0;
 }
