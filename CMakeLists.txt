@@ -11,8 +11,13 @@ include(cmake/project_version.cmake)
 enable_testing()
 
 include_directories(${CMAKE_SOURCE_DIR})
-
 # - Find manditory packages -
+
+SET(wxWidgets_USE_STATIC ON)
+find_package(wxWidgets COMPONENTS core base adv)
+if(wxWidgets_FOUND)
+    include(${wxWidgets_USE_FILE})
+endif(wxWidgets_FOUND)
 
 # - Configuration for code optimization -
 
@@ -27,6 +32,8 @@ include(cmake/optimization_flags.cmake)
 if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-Wall)
 endif ()
+
+add_definitions(-std=c++11)
 
 # - Build individual parts -
 
