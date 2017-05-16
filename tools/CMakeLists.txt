@@ -14,9 +14,12 @@ endif (WIN32)
 if(wxWidgets_FOUND)
     include_directories(${wxWidgets_INCLUDE_DIRS})
     add_executable(rcdiscover-gui rcdiscover-gui.cc)
+    message(WARN ${wxWidgets_LIBRARIES})
     target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
 
     if (WIN32)
+	# avoid console window opening in background
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
         target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib)
     endif (WIN32)
 else(wxWidgets_FOUND)

@@ -14,7 +14,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 # - Find manditory packages -
 
 SET(wxWidgets_USE_STATIC ON)
-find_package(wxWidgets COMPONENTS core base adv)
+find_package(wxWidgets COMPONENTS adv core base)
 if(wxWidgets_FOUND)
     include(${wxWidgets_USE_FILE})
 endif(wxWidgets_FOUND)
@@ -36,6 +36,11 @@ endif ()
 add_definitions(-std=c++11)
 
 # - Build individual parts -
+
+if (WIN32)
+	message(WARN test)
+  add_definitions(-DWIN32)
+endif ()
 
 add_subdirectory(rcdiscover)
 add_subdirectory(tools)

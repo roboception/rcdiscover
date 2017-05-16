@@ -13,7 +13,6 @@
 #include "rcdiscover/deviceinfo.h"
 #include "utils.h"
 
-#include <future>
 #include <vector>
 #include <algorithm>
 
@@ -238,7 +237,6 @@ class RcDiscoverFrame : public wxFrame
   private:
     wxDataViewListCtrl *device_list_;
     wxButton *discover_button_;
-    std::future<void> discover_future_;
 };
 
 wxBEGIN_EVENT_TABLE(RcDiscoverFrame, wxFrame)
