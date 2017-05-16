@@ -19,6 +19,8 @@
 #include <wx/wx.h> // wxWidgets core
 #include <wx/dataview.h> // wxDataViewListCtrl
 
+#include "resources/visard_65_128.xpm"
+
 wxDEFINE_EVENT(wxEVT_COMMAND_DISCOVERY_COMPLETED, wxThreadEvent);
 
 enum
@@ -116,10 +118,13 @@ class RcDiscoverFrame : public wxFrame
   public:
     RcDiscoverFrame(const wxString& title,
                     const wxPoint& pos) :
-      wxFrame(NULL, wxID_ANY, title, pos, wxSize(510,300)),
+      wxFrame(NULL, wxID_ANY, title, pos, wxSize(550,350)),
       device_list_(nullptr),
       discover_button_(nullptr)
     {
+      wxIcon icon_128(visard_65_128_xpm);
+      SetIcon(icon_128);
+
       wxMenu *menuFile = new wxMenu();
       menuFile->Append(wxID_EXIT);
 
