@@ -13,13 +13,25 @@ endif (WIN32)
 
 if(wxWidgets_FOUND)
     include_directories(${wxWidgets_INCLUDE_DIRS})
-    add_executable(rcdiscover-gui rcdiscover-gui.cc)
-    message(WARN ${wxWidgets_LIBRARIES})
+
+    if (WIN32)
+	if(MINGW)
+            set(CMAKE_RC_COMPILER_INIT windres)
+	    ENABLE_LANGUAGE(RC)
+	    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+	endif(MINGW)
+
+    	add_executable(rcdiscover-gui rcdiscover-gui.cc resources/resources.rc)
+
+	# avoid console window opening in background
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
+    else (WIN32)
+    	add_executable(rcdiscover-gui rcdiscover-gui.cc)
+    endif(WIN32)
+
     target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
 
     if (WIN32)
-	# avoid console window opening in background
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
         target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib)
     endif (WIN32)
 else(wxWidgets_FOUND)
