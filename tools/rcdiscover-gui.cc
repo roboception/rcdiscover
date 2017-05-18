@@ -18,8 +18,11 @@
 
 #include <wx/wx.h> // wxWidgets core
 #include <wx/dataview.h> // wxDataViewListCtrl
+#include <wx/mstream.h> // wxMemoryInputStream
+#include <wx/animate.h> // wxAnimation
 
-#include "resources/visard_65_128.xpm"
+#include "resources/logo_128.xpm"
+#include "resources/logo_32_rotate.h"
 
 wxDEFINE_EVENT(wxEVT_COMMAND_DISCOVERY_COMPLETED, wxThreadEvent);
 
@@ -75,7 +78,14 @@ class DiscoverThread : public wxThread
 
         std::sort(device_list.begin(), device_list.end(),
                   [](const wxVector<wxVariant>& lhs, const wxVector<wxVariant>& rhs) {
-          return lhs[0].GetString() < rhs[0].GetString();
+          for (size_t i = 0; i < lhs.size(); ++i)
+          {
+            if (lhs[i].GetString() != rhs[i].GetString())
+            {
+              return lhs[i].GetString() < rhs[i].GetString();
+            }
+          }
+          return false;
         });
 
         auto it = std::unique(device_list.begin(), device_list.end(),
@@ -122,8 +132,11 @@ class RcDiscoverFrame : public wxFrame
       device_list_(nullptr),
       discover_button_(nullptr)
     {
-      wxIcon icon_128(visard_65_128_xpm);
+      wxIcon icon_128(logo_128_xpm);
       SetIcon(icon_128);
+
+      wxMemoryInputStream gif_stream(logo_32_rotate_gif, sizeof(logo_32_rotate_gif));
+      spinner_.Load(gif_stream, wxANIMATION_TYPE_GIF);
 
       wxMenu *menuFile = new wxMenu();
       menuFile->Append(wxID_EXIT);
@@ -144,8 +157,14 @@ class RcDiscoverFrame : public wxFrame
 
       auto *button_box = new wxBoxSizer(wxHORIZONTAL);
       discover_button_ = new wxButton(panel, ID_DiscoverButton, "Start Discovery");
-      button_box->Add(discover_button_, 1, wxEXPAND);
-      vbox->Add(button_box, 0, wxLEFT | wxTOP, 10);
+      button_box->Add(discover_button_, 1);
+
+      button_box->Add(-1, 0, wxEXPAND);
+
+      spinner_ctrl_ = new wxAnimationCtrl(panel, wxID_ANY, spinner_, wxPoint(-1,-1), wxSize(32,32));
+      button_box->Add(spinner_ctrl_, 0);
+
+      vbox->Add(button_box, 0, wxALL, 10);
 
       auto *data_box = new wxBoxSizer(wxHORIZONTAL);
 
@@ -173,6 +192,7 @@ class RcDiscoverFrame : public wxFrame
       device_list_->SetToolTip("Double-click row to open WebGUI in browser.");
 
       data_box->Add(device_list_, 1, wxEXPAND);
+
       vbox->Add(data_box, 1, wxLEFT | wxRIGHT | wxEXPAND, 10);
 
       panel->SetSizer(vbox);
@@ -193,6 +213,7 @@ class RcDiscoverFrame : public wxFrame
     void onDiscoverButton(wxCommandEvent&)
     {
       discover_button_->Disable();
+      spinner_ctrl_->Play();
 
       auto *thread = new DiscoverThread(this);
       if (thread->Run() != wxTHREAD_NO_ERROR)
@@ -215,6 +236,7 @@ class RcDiscoverFrame : public wxFrame
         device_list_->AppendItem(d);
       }
 
+      spinner_ctrl_->Stop();
       discover_button_->Enable();
     }
 
@@ -242,6 +264,8 @@ class RcDiscoverFrame : public wxFrame
   private:
     wxDataViewListCtrl *device_list_;
     wxButton *discover_button_;
+    wxAnimation spinner_;
+    wxAnimationCtrl *spinner_ctrl_;
 };
 
 wxBEGIN_EVENT_TABLE(RcDiscoverFrame, wxFrame)
