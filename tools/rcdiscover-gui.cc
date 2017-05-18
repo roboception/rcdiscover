@@ -207,6 +207,10 @@ class RcDiscoverFrame : public wxFrame
       Connect(ID_DataViewListCtrl,
               wxEVT_DATAVIEW_ITEM_ACTIVATED,
               wxDataViewEventHandler(RcDiscoverFrame::onDeviceDoubleClick));
+
+      // start discovery on startup
+      wxCommandEvent evt;
+      onDiscoverButton(evt);
     }
 
   private:
