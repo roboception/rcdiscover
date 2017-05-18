@@ -18,7 +18,7 @@ if(wxWidgets_FOUND)
 	if(MINGW)
             set(CMAKE_RC_COMPILER_INIT windres)
 	    ENABLE_LANGUAGE(RC)
-	    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+	    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT> <INCLUDES>")
 	endif(MINGW)
 
     	add_executable(rcdiscover-gui rcdiscover-gui.cc resources/resources.rc)
