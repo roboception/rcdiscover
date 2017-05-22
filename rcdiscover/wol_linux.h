@@ -46,9 +46,21 @@ class WOL_Linux : public WOL<WOL_Linux>
     class Socket
     {
       public:
-        Socket(int domain, int type, int protocol)
+        static Socket socketUDP()
         {
-          sock = socket(domain, type, protocol);
+          return Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        }
+
+        static Socket socketRaw()
+        {
+          return Socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW);
+        }
+
+      public:
+        Socket(int domain, int type, int protocol) :
+          sock_(-1)
+        {
+          sock_ = socket(domain, type, protocol);
           if (sock == -1)
           {
             if (errno == EPERM)
@@ -60,18 +72,71 @@ class WOL_Linux : public WOL<WOL_Linux>
           }
         }
 
+        Socket(Socket&& other) :
+          sock_(-1)
+        {
+          std::swap(sock_, other.sock_);
+        }
+
+        Socket& operator=(Socket&& other)
+        {
+          std::swap(sock_, other.sock_);
+          return *this;
+        }
+
+        Socket(const Socket&) = delete;
+        Socket& operator=(const Socket&) = delete;
+
         ~Socket()
         {
-          close(sock);
+          if (sock_ != -1)
+          {
+            close(sock_);
+          }
         }
 
         const int &getHandle() const
         {
-          return sock;
+          return sock_;
+        }
+
+        void bind(const sockaddr_in& sockaddr)
+        {
+          if (::bind(sock_, (const sockaddr *)(&sockaddr), sizeof(sockaddr)) == -1)
+          {
+            throw WOLException("Error while binding to socket", errno);
+          }
+        }
+
+        template<typename SockAddrT>
+        void sendto(const std::vector<uint8_t>& sendbuf,
+                    const SockAddrT& sockaddr)
+        {
+          if (::sendto(sock_,
+                     static_cast<const void *>(sendbuf.data()),
+                     sendbuf.size(),
+                     0,
+                     reinterpret_cast<const sockaddr *>(&sockaddr),
+                     (socklen_t)sizeof(SockAddrT)) == -1)
+           {
+             throw WOLException("Error while sending data", errno);
+           }
+        }
+
+        void enableBroadcast()
+        {
+          if (setsockopt(sock,
+                        SOL_SOCKET,
+                        SO_BROADCAST,
+                        reinterpret_cast<const char *>(&yes),
+                        sizeof(yes)) == -1)
+          {
+            throw WOLException("Error while setting socket options", errno);
+          }
         }
 
       private:
-        int sock;
+        int sock_;
     };
 
   public:
@@ -86,7 +151,7 @@ class WOL_Linux : public WOL<WOL_Linux>
   protected:
     void send_raw(const std::array<uint8_t, 4> *password) const
     {
-      Socket sock(AF_PACKET, SOCK_RAW, IPPROTO_RAW);
+      auto sock = Socket::socketRaw();
 
       ifaddrs *addrs;
       getifaddrs(&addrs);
@@ -148,83 +213,38 @@ class WOL_Linux : public WOL<WOL_Linux>
 
         this->appendMagicPacket(sendbuf, password);
 
-        if (sendto(sock.getHandle(),
-               static_cast<void *>(sendbuf.data()), sendbuf.size(),
-               0,
-               reinterpret_cast<sockaddr *>(&socketaddress), sizeof(socketaddress)) == -1)
+        socket.sendto(sendbuf, socketaddress);
+      }
+
+      freeifaddrs(addrs);
+      addrs = nullptr;
+    }
+
+    std::vector<uint32_t> getBroadcastIPs() const
+    {
+      std::vector<uint32_t> ips;
+
+      ifaddrs *addrs;
+      getifaddrs(&addrs);
+
+      for(ifaddrs *addr = addrs;
+          addr != nullptr;
+          addr = addr->ifa_next)
+      {
+        auto baddr = addr->ifa_ifu.ifu_broadaddr;
+        if (addr->ifa_name != nullptr &&
+            addr->ifa_addr != nullptr &&
+            addr->ifa_addr->sa_family == AF_INET &&
+            baddr != nullptr)
         {
-          throw WOLException("Error while sending UDP packet", errno);
+          ips.push_back(reinterpret_cast<struct sockaddr_in *>(baddr)->sin_addr.s_addr);
         }
       }
 
       freeifaddrs(addrs);
-    }
+      addrs = nullptr;
 
-    void send_udp(const std::array<uint8_t, 4> *password) const
-    {
-      Socket sock(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-      sockaddr_in addr{};
-      addr.sin_family = AF_INET;
-      addr.sin_addr.s_addr = htonl(INADDR_ANY);
-      addr.sin_port = htons(0);
-
-      if (bind(sock.getHandle(), reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) == -1)
-      {
-        throw WOLException("Error while binding to socket", errno);
-      }
-
-      const bool broadcast = !getIP();
-
-      std::vector<uint32_t> ips;
-      if (broadcast)
-      {
-        ifaddrs *addrs;
-        getifaddrs(&addrs);
-
-        for(ifaddrs *addr = addrs;
-            addr != nullptr;
-            addr = addr->ifa_next)
-        {
-          auto baddr = addr->ifa_ifu.ifu_broadaddr;
-          if (addr->ifa_name != nullptr &&
-              addr->ifa_addr != nullptr &&
-              addr->ifa_addr->sa_family == AF_INET &&
-              baddr != nullptr)
-          {
-            ips.push_back(reinterpret_cast<struct sockaddr_in *>(baddr)->sin_addr.s_addr);
-          }
-        }
-
-        const int yes=1;
-        if (setsockopt(sock.getHandle(), SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char *>(&yes), sizeof(yes)) != 0)
-        {
-          throw WOLException("Error while setting socket options", errno);
-        }
-      }
-      else
-      {
-        ips.push_back(*reinterpret_cast<const uint32_t *>(&getIP()[0]));
-      }
-
-      for (const auto ip : ips)
-      {
-        addr.sin_addr.s_addr = ip;
-        addr.sin_port = htons(getPort());
-
-        std::vector<uint8_t> sendbuf;
-        appendMagicPacket(sendbuf, password);
-
-        if (sendto(sock.getHandle(),
-                   static_cast<void *>(sendbuf.data()),
-                   sendbuf.size(),
-                   0,
-                   reinterpret_cast<sockaddr *>(&addr),
-                   (socklen_t)sizeof(sockaddr_in)) != static_cast<int>(sendbuf.size()))
-        {
-          throw WOLException("Error while sending broadcast UDP packet", errno);
-        }
-      }
+      return ips;
     }
 };
 

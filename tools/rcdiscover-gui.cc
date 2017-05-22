@@ -14,7 +14,7 @@
 #include "rcdiscover/wol_exception.h"
 
 #ifdef WIN32
-
+#include "rcdiscover/wol_windows.h"
 #else
 #include "rcdiscover/wol_linux.h"
 #endif
@@ -36,7 +36,7 @@
 wxDEFINE_EVENT(wxEVT_COMMAND_DISCOVERY_COMPLETED, wxThreadEvent);
 
 #ifdef WIN32
-
+typedef rcdiscover::WOL_Windows WOL;
 #else
 typedef rcdiscover::WOL_Linux WOL;
 #endif
@@ -68,11 +68,6 @@ class DiscoverThread : public wxThread
 
       try
       {
-#ifdef WIN32
-        WSADATA wsaData;
-        WSAStartup(MAKEWORD(2, 2), &wsaData);
-#endif
-
         rcdiscover::Discover discover;
         discover.broadcastRequest();
 
@@ -120,10 +115,6 @@ class DiscoverThread : public wxThread
           return true;
         });
         device_list.erase(it, device_list.end());
-
-#ifdef WIN32
-        ::WSACleanup();
-#endif
       }
       catch(const std::exception& ex)
       {
@@ -308,17 +299,19 @@ class RcDiscoverFrame : public wxFrame
 
       wxMenu menu;
 
-      menu.Append(ID_OpenWebGUI, "Open WebGUI");
-      menu.AppendSeparator();
-      menu.Append(ID_Reset_Params, "Reset parameters");
-      menu.Append(ID_Reset_GigE, "Reset GigE");
-      menu.Append(ID_Reset_All, "Reset all");
-      menu.Append(ID_Switch_Partition, "Switch partition");
-
       if (menu_event_item_->second >= 0)
       {
-        menu.Append(wxCOPY, "Copy");
+        menu.Append(wxCOPY, "&Copy");
       }
+      menu.AppendSeparator();
+      menu.Append(ID_OpenWebGUI, "Open &WebGUI");
+      menu.AppendSeparator();
+      menu.Append(ID_Reset_Params, "Reset &parameters");
+      menu.Append(ID_Reset_GigE, "Reset &GigE");
+      menu.Append(ID_Reset_All, "Reset &all");
+      menu.Append(ID_Switch_Partition, "&Switch partition");
+
+
 
       PopupMenu(&menu);
     }
@@ -490,9 +483,29 @@ class RcDiscoverApp : public wxApp
   public:
     virtual bool OnInit() override
     {
+#ifdef WIN32
+      ::WSADATA wsaData;
+      int result;
+      if ((result = ::WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
+      {
+        std::ostringstream oss;
+        oss << "WSAStartup failed: " << result;
+        wxMessageBox(oss.str(), "Error", wxOK | wxICON_ERROR);
+      }
+#endif
+
       auto *frame = new RcDiscoverFrame("rc_discover", wxPoint(50,50));
       frame->Show(true);
       return true;
+    }
+
+    virtual int OnExit() override
+    {
+#ifdef WIN32
+      ::WSACleanup();
+#endif
+
+      return 0;
     }
 };
 

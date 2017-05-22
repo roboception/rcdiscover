@@ -17,6 +17,12 @@
 #include <memory>
 #include <cstdint>
 
+#ifdef WIN32
+#include <winsock2.h>
+#else
+#include <sys/socket.h>
+#endif
+
 namespace rcdiscover
 {
 template<typename Derived>
@@ -74,7 +80,7 @@ class WOL
       }
       else
       {
-        getDerived().send_udp(nullptr);
+        send_udp(nullptr);
       }
     }
 
@@ -86,7 +92,7 @@ class WOL
       }
       else
       {
-        getDerived().send_udp(&password);
+        send_udp(&password);
       }
     }
 
@@ -170,6 +176,42 @@ class WOL
         result[i] = static_cast<uint8_t>((data >> (i*8)) & 0xFF);
       }
       return result;
+    }
+
+    void send_udp(const std::array<uint8_t, 4> *password) const
+    {
+      auto sock = Derived::Socket::socketUDP();
+
+      sockaddr_in addr{};
+      addr.sin_family = AF_INET;
+      addr.sin_addr.s_addr = htonl(INADDR_ANY);
+      addr.sin_port = htons(0);
+
+      sock.bind(addr);
+
+      const bool broadcast = !ip_;
+
+      std::vector<uint32_t> ips;
+      if (broadcast)
+      {
+        ips = getDerived().getBroadcastIPs();
+        sock.enableBroadcast();
+      }
+      else
+      {
+        ips.push_back(*reinterpret_cast<const uint32_t *>(&(*ip_)[0]));
+      }
+
+      for (const auto ip : ips)
+      {
+        addr.sin_addr.s_addr = ip;
+        addr.sin_port = htons(getPort());
+
+        std::vector<uint8_t> sendbuf;
+        appendMagicPacket(sendbuf, password);
+
+        sock.sendto(sendbuf, addr);
+      }
     }
 
   private:
