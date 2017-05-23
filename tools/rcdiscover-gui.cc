@@ -44,6 +44,7 @@ typedef rcdiscover::WOL_Linux WOL;
 enum
 {
   ID_DiscoverButton = wxID_HIGHEST + 1,
+  ID_ResetButton,
   ID_DataViewListCtrl,
   ID_OpenWebGUI,
   ID_Reset_Params,
@@ -142,6 +143,7 @@ class RcDiscoverFrame : public wxFrame
       wxFrame(NULL, wxID_ANY, title, pos, wxSize(550,350)),
       device_list_(nullptr),
       discover_button_(nullptr),
+      reset_button_(nullptr),
       menu_event_item_(nullptr)
     {
       wxIcon icon_128(logo_128_xpm);
@@ -170,6 +172,8 @@ class RcDiscoverFrame : public wxFrame
       auto *button_box = new wxBoxSizer(wxHORIZONTAL);
       discover_button_ = new wxButton(panel, ID_DiscoverButton, "Rerun Discovery");
       button_box->Add(discover_button_, 1);
+      reset_button_ = new wxButton(panel, ID_ResetButton, "Reset rc_visard");
+      button_box->Add(reset_button_, 1);
 
       button_box->Add(-1, 0, wxEXPAND);
 
@@ -247,10 +251,23 @@ class RcDiscoverFrame : public wxFrame
     }
 
   private:
-    void onDiscoverButton(wxCommandEvent&)
+    void setBusy()
     {
       discover_button_->Disable();
+      reset_button_->Disable();
       spinner_ctrl_->Play();
+    }
+
+    void clearBusy()
+    {
+      discover_button_->Enable();
+      reset_button_->Enable();
+      spinner_ctrl_->Stop();
+    }
+
+    void onDiscoverButton(wxCommandEvent&)
+    {
+      setBusy();
 
       auto *thread = new DiscoverThread(this);
       if (thread->Run() != wxTHREAD_NO_ERROR)
@@ -258,7 +275,8 @@ class RcDiscoverFrame : public wxFrame
         std::cerr << "Could not spawn thread" << std::endl;
         delete thread;
         thread = nullptr;
-        discover_button_->Enable();
+
+        clearBusy();
       }
     }
 
@@ -273,8 +291,7 @@ class RcDiscoverFrame : public wxFrame
         device_list_->AppendItem(d);
       }
 
-      spinner_ctrl_->Stop();
-      discover_button_->Enable();
+      clearBusy();
     }
 
     void onDeviceDoubleClick(wxDataViewEvent& event)
@@ -302,16 +319,14 @@ class RcDiscoverFrame : public wxFrame
       if (menu_event_item_->second >= 0)
       {
         menu.Append(wxCOPY, "&Copy");
+        menu.AppendSeparator();
       }
-      menu.AppendSeparator();
       menu.Append(ID_OpenWebGUI, "Open &WebGUI");
       menu.AppendSeparator();
       menu.Append(ID_Reset_Params, "Reset &parameters");
       menu.Append(ID_Reset_GigE, "Reset &GigE");
       menu.Append(ID_Reset_All, "Reset &all");
       menu.Append(ID_Switch_Partition, "&Switch partition");
-
-
 
       PopupMenu(&menu);
     }
@@ -468,6 +483,7 @@ class RcDiscoverFrame : public wxFrame
   private:
     wxDataViewListCtrl *device_list_;
     wxButton *discover_button_;
+    wxButton *reset_button_;
     wxAnimation spinner_;
     wxAnimationCtrl *spinner_ctrl_;
     std::unique_ptr<std::pair<int, int>> menu_event_item_;

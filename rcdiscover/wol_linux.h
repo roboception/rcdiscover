@@ -61,7 +61,7 @@ class WOL_Linux : public WOL<WOL_Linux>
           sock_(-1)
         {
           sock_ = socket(domain, type, protocol);
-          if (sock == -1)
+          if (sock_ == -1)
           {
             if (errno == EPERM)
             {
@@ -100,9 +100,9 @@ class WOL_Linux : public WOL<WOL_Linux>
           return sock_;
         }
 
-        void bind(const sockaddr_in& sockaddr)
+        void bind(const sockaddr_in& addr)
         {
-          if (::bind(sock_, (const sockaddr *)(&sockaddr), sizeof(sockaddr)) == -1)
+          if (::bind(sock_, reinterpret_cast<const sockaddr *>(&addr), sizeof(sockaddr)) == -1)
           {
             throw WOLException("Error while binding to socket", errno);
           }
@@ -110,13 +110,13 @@ class WOL_Linux : public WOL<WOL_Linux>
 
         template<typename SockAddrT>
         void sendto(const std::vector<uint8_t>& sendbuf,
-                    const SockAddrT& sockaddr)
+                    const SockAddrT& addr)
         {
           if (::sendto(sock_,
                      static_cast<const void *>(sendbuf.data()),
                      sendbuf.size(),
                      0,
-                     reinterpret_cast<const sockaddr *>(&sockaddr),
+                     reinterpret_cast<const sockaddr *>(&addr),
                      (socklen_t)sizeof(SockAddrT)) == -1)
            {
              throw WOLException("Error while sending data", errno);
@@ -125,7 +125,8 @@ class WOL_Linux : public WOL<WOL_Linux>
 
         void enableBroadcast()
         {
-          if (setsockopt(sock,
+          const int yes = 1;
+          if (setsockopt(sock_,
                         SOL_SOCKET,
                         SO_BROADCAST,
                         reinterpret_cast<const char *>(&yes),
@@ -213,7 +214,7 @@ class WOL_Linux : public WOL<WOL_Linux>
 
         this->appendMagicPacket(sendbuf, password);
 
-        socket.sendto(sendbuf, socketaddress);
+        sock.sendto(sendbuf, socketaddress);
       }
 
       freeifaddrs(addrs);

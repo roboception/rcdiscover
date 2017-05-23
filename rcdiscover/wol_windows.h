@@ -88,11 +88,11 @@ class WOL_Windows : public WOL<WOL_Windows>
           return sock_;
         }
 
-        void bind(const sockaddr_in& sockaddr)
+        void bind(const sockaddr_in& addr)
         {
           if (::bind(sock_,
-                      reinterpret_cast<const struct sockaddr *>(&sockaddr),
-                      sizeof(sockaddr)) == SOCKET_ERROR)
+                      reinterpret_cast<const struct sockaddr *>(&addr),
+                      sizeof(addr)) == SOCKET_ERROR)
           {
             throw WOLException("Error while binding to socket", ::WSAGetLastError());
           }
@@ -100,14 +100,14 @@ class WOL_Windows : public WOL<WOL_Windows>
 
         template<typename SockAddrT>
         void sendto(const std::vector<uint8_t>& sendbuf,
-                    const SockAddrT& sockaddr)
+                    const SockAddrT& addr)
         {
           if (::sendto(sock_,
                      reinterpret_cast<const char *>(sendbuf.data()),
                      sendbuf.size(),
                      0,
-                     reinterpret_cast<const struct sockaddr *>(&sockaddr),
-                     sizeof(SockAddrT)) == SOCKET_ERROR)
+                     reinterpret_cast<const struct sockaddr *>(&addr),
+                     sizeof(addr)) == SOCKET_ERROR)
            {
              throw WOLException("Error while sending data", ::WSAGetLastError());
            }
