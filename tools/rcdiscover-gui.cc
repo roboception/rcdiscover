@@ -11,6 +11,8 @@
 
 #include "rcdiscover-gui/discover-frame.h"
 
+#include <sstream>
+
 #include "wx/app.h"
 #include "wx/msgdlg.h"
 
@@ -19,6 +21,9 @@ class RcDiscoverApp : public wxApp
   public:
     virtual bool OnInit() override
     {
+      SetAppName("rc_discover");
+      SetVendorName("Roboception");
+
 #ifdef WIN32
       ::WSADATA wsaData;
       int result;

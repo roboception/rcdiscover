@@ -9,7 +9,16 @@
 * Author: Raphael Schaller
 */
 
+// placed here to make sure to include winsock2.h before windows.h
+#include "rcdiscover/discover.h"
+
 #include "discover-thread.h"
+
+#include "event_ids.h"
+#include "../utils.h"
+
+#include <vector>
+#include <algorithm>
 
 #include <wx/window.h>
 

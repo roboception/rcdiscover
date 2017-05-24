@@ -9,6 +9,15 @@
 * Author: Raphael Schaller
 */
 
+// placed here to make sure to include winsock2.h before windows.h
+#ifdef WIN32
+#include "rcdiscover/wol_windows.h"
+typedef rcdiscover::WOL_Windows WOL;
+#else
+#include "rcdiscover/wol_linux.h"
+typedef rcdiscover::WOL_Linux WOL;
+#endif
+
 #include "reset-dialog.h"
 
 #include "event_ids.h"
@@ -25,14 +34,6 @@
 #include <wx/dataview.h>
 #include <wx/msgdlg.h>
 #include <wx/valgen.h>
-
-#ifdef WIN32
-#include "rcdiscover/wol_windows.h"
-typedef rcdiscover::WOL_Windows WOL;
-#else
-#include "rcdiscover/wol_linux.h"
-typedef rcdiscover::WOL_Linux WOL;
-#endif
 
 ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
             const wxString &title,

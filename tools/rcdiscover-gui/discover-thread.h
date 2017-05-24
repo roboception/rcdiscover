@@ -12,14 +12,6 @@
 #ifndef DISCOVERTHREAD_H
 #define DISCOVERTHREAD_H
 
-#include "event_ids.h"
-#include "rcdiscover/discover.h"
-#include "../utils.h"
-
-#include <vector>
-#include <algorithm>
-#include <iostream>
-
 #include <wx/thread.h>
 
 class wxWindow;

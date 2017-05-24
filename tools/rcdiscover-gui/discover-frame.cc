@@ -9,15 +9,17 @@
 * Author: Raphael Schaller
 */
 
-#include "discover-frame.h"
-
-#include "event_ids.h"
-#include "discover-thread.h"
-#include "reset-dialog.h"
-
+// placed here to make sure to include winsock2.h before windows.h
 #include "rcdiscover/wol.h"
 
+#include "discover-frame.h"
+
+#include "discover-thread.h"
+#include "event_ids.h"
+#include "reset-dialog.h"
+
 #include <memory>
+#include <sstream>
 
 #include <wx/frame.h>
 #include <wx/dataview.h>
@@ -166,6 +168,12 @@ void DiscoverFrame::clearBusy()
   discover_button_->Enable();
   reset_button_->Enable();
   spinner_ctrl_->Stop();
+
+  // on Windows, wxAnimationCtrl is sometimes not stopping even if
+  // Stop was called. Calling it multiple times reduces the chance
+  // of this happening.
+  spinner_ctrl_->Stop();
+  spinner_ctrl_->Stop();
 }
 
 void DiscoverFrame::onDiscoverButton(wxCommandEvent&)
@@ -203,6 +211,8 @@ void DiscoverFrame::onDiscoveryError(wxThreadEvent& event)
   std::ostringstream oss;
   oss << "An error occurred during discovery: " << error;
   wxMessageBox(oss.str(), "Error", wxOK | wxICON_ERROR);
+
+  clearBusy();
 }
 
 void DiscoverFrame::onResetButton(wxCommandEvent& event)
