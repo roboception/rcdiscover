@@ -20,12 +20,23 @@ For `rcdiscover-gui`, however, static libraries of
 
 ```
 git clone https://github.com/wxWidgets/wxWidgets.git
-git checkout v3.1.0  # or other stable version
 cd wxWidgets
+git checkout v3.1.0  # or other stable version
 ./configure --disable-shared
 make
 sudo make install
 ```
+
+### Building rcdiscover
+
+It's required to do an out-of-source build:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+Afterwards, the binaries can be found in `build/tools/`.
 
 Compiling on Windows
 --------------------
@@ -46,8 +57,9 @@ adapted slightly:
 
 ```
 git clone https://github.com/wxWidgets/wxWidgets.git
+cd wxWidgets
 git checkout v3.1.0  # or other stable version
-cd wxWidgets\build\msw
+cd build\msw
 mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4
 ```
 
