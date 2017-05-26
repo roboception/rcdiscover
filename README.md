@@ -14,18 +14,8 @@ Compiling on Linux
 
 For compilation of `rcdiscover` nothing special is required.
 For `rcdiscover-gui`, however, static libraries of
-[WxWidgets](http://www.wxwidgets.org/) must be provided:
-
-### Building of WxWidgets
-
-```
-git clone https://github.com/wxWidgets/wxWidgets.git
-cd wxWidgets
-git checkout v3.1.0  # or other stable version
-./configure --disable-shared
-make
-sudo make install
-```
+[WxWidgets](http://www.wxwidgets.org/) must be provided by installing
+`libwxgtk3.0-dev`.
 
 ### Building rcdiscover
 
