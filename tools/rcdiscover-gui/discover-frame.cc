@@ -207,9 +207,8 @@ void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent& event)
 
 void DiscoverFrame::onDiscoveryError(wxThreadEvent& event)
 {
-  wxString error = event.GetPayload<wxString>();
   std::ostringstream oss;
-  oss << "An error occurred during discovery: " << error;
+  oss << "An error occurred during discovery: " << event.GetString();
   wxMessageBox(oss.str(), "Error", wxOK | wxICON_ERROR);
 
   clearBusy();

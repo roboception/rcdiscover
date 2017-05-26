@@ -19,6 +19,10 @@
 class RcDiscoverApp : public wxApp
 {
   public:
+    RcDiscoverApp() :
+      frame_(nullptr)
+    { }
+
     virtual bool OnInit() override
     {
       SetAppName("rc_discover");
@@ -35,8 +39,8 @@ class RcDiscoverApp : public wxApp
       }
 #endif
 
-      auto *frame = new DiscoverFrame("rc_discover", wxPoint(50,50));
-      frame->Show(true);
+      frame_ = new DiscoverFrame("rc_discover", wxPoint(50,50));
+      frame_->Show(true);
       return true;
     }
 
@@ -48,6 +52,9 @@ class RcDiscoverApp : public wxApp
 
       return 0;
     }
+
+  private:
+    wxWindow *frame_;
 };
 
 wxIMPLEMENT_APP(RcDiscoverApp);

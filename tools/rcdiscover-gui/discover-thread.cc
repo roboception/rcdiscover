@@ -79,16 +79,16 @@ wxThread::ExitCode DiscoverThread::Entry()
   }
   catch(const std::exception& ex)
   {
-    auto event = new wxThreadEvent(wxEVT_COMMAND_DISCOVERY_ERROR);
-    event->SetPayload(wxString(ex.what()));
-    parent_->GetEventHandler()->ProcessEvent(*event);
+    wxThreadEvent event(wxEVT_COMMAND_DISCOVERY_ERROR);
+    event.SetString(ex.what());
+    parent_->GetEventHandler()->QueueEvent(event.Clone());
 
     return ExitCode(1);
   }
 
-  auto event = new wxThreadEvent(wxEVT_COMMAND_DISCOVERY_COMPLETED);
-  event->SetPayload(device_list);
-  parent_->GetEventHandler()->ProcessEvent(*event);
+  wxThreadEvent event(wxEVT_COMMAND_DISCOVERY_COMPLETED);
+  event.SetPayload(device_list);
+  parent_->GetEventHandler()->QueueEvent(event.Clone());
 
   return ExitCode(0);
 }
