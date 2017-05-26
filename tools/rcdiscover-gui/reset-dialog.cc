@@ -20,7 +20,7 @@ typedef rcdiscover::WOL_Linux WOL;
 
 #include "reset-dialog.h"
 
-#include "event_ids.h"
+#include "event-ids.h"
 #include "../utils.h"
 
 #include <wx/dialog.h>
@@ -36,11 +36,10 @@ typedef rcdiscover::WOL_Linux WOL;
 #include <wx/valgen.h>
 
 ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
-            const wxString &title,
             const wxPoint &pos,
             long style,
             const wxString &name) :
-  wxDialog(parent, id, title, pos, wxSize(450,200), style, name),
+  wxDialog(parent, id, "Reset rc_visard", pos, wxSize(450,200), style, name),
   sensors_(nullptr),
   mac_{nullptr},
   ip_checkbox_(nullptr),

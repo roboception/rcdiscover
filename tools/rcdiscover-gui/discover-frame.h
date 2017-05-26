@@ -22,6 +22,7 @@ class wxButton;
 class wxDataViewEvent;
 class wxPanel;
 class ResetDialog;
+class AboutDialog;
 
 class DiscoverFrame : public wxFrame
 {
@@ -57,6 +58,7 @@ class DiscoverFrame : public wxFrame
     wxButton *discover_button_;
     wxButton *reset_button_;
     ResetDialog *reset_dialog_;
+    AboutDialog *about_dialog_;
     wxAnimation spinner_;
     wxAnimationCtrl *spinner_ctrl_;
     std::unique_ptr<std::pair<int, int>> menu_event_item_;

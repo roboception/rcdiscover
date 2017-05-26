@@ -14,7 +14,7 @@
 
 #include "discover-thread.h"
 
-#include "event_ids.h"
+#include "event-ids.h"
 #include "../utils.h"
 
 #include <vector>

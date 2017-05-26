@@ -15,8 +15,9 @@
 #include "discover-frame.h"
 
 #include "discover-thread.h"
-#include "event_ids.h"
+#include "event-ids.h"
 #include "reset-dialog.h"
+#include "about-dialog.h"
 
 #include <memory>
 #include <sstream>
@@ -45,6 +46,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   discover_button_(nullptr),
   reset_button_(nullptr),
   reset_dialog_(nullptr),
+  about_dialog_(nullptr),
   menu_event_item_(nullptr)
 {
   wxIcon icon_128(logo_128_xpm);
@@ -66,7 +68,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   SetMenuBar(menuBar);
   CreateStatusBar();
 
-  auto *panel = new wxPanel(this, -1);
+  auto *panel = new wxPanel(this, wxID_ANY);
 
   auto *vbox = new wxBoxSizer(wxVERTICAL);
 
@@ -149,7 +151,8 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
           wxEVT_MENU,
           wxCommandEventHandler(DiscoverFrame::onAbout));
 
-  reset_dialog_ = new ResetDialog(panel, wxID_ANY, "Reset rc_visard");
+  reset_dialog_ = new ResetDialog(panel, wxID_ANY);
+  about_dialog_ = new AboutDialog(panel, wxID_ANY);
 
   // start discovery on startup
   wxCommandEvent evt;
@@ -302,8 +305,7 @@ void DiscoverFrame::onExit(wxCommandEvent& event)
 
 void DiscoverFrame::onAbout(wxCommandEvent&)
 {
-  wxMessageBox("This is rc_discover", "About rc_discover",
-               wxOK | wxICON_INFORMATION);
+  about_dialog_->ShowModal();
 }
 
 void DiscoverFrame::openResetDialog(const int row)

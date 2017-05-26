@@ -9,7 +9,7 @@
 * Author: Raphael Schaller
 */
 
-#include "event_ids.h"
+#include "event-ids.h"
 
 wxDEFINE_EVENT(wxEVT_COMMAND_DISCOVERY_COMPLETED, wxThreadEvent);
 wxDEFINE_EVENT(wxEVT_COMMAND_DISCOVERY_ERROR, wxThreadEvent);

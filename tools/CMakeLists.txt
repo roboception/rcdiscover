@@ -16,10 +16,11 @@ if(wxWidgets_FOUND)
 
     set(rcdiscover-gui-src
         rcdiscover-gui.cc
-        rcdiscover-gui/event_ids.cc
+        rcdiscover-gui/event-ids.cc
         rcdiscover-gui/discover-frame.cc
         rcdiscover-gui/discover-thread.cc
-        rcdiscover-gui/reset-dialog.cc)
+        rcdiscover-gui/reset-dialog.cc
+        rcdiscover-gui/about-dialog.cc)
 
     if (WIN32)
 	if(MINGW)

@@ -29,7 +29,6 @@ class ResetDialog : public wxDialog
     { }
 
     ResetDialog(wxWindow *parent, wxWindowID id,
-                const wxString &title,
                 const wxPoint &pos = wxDefaultPosition,
                 long style = wxDEFAULT_DIALOG_STYLE,
                 const wxString &name = wxDialogNameStr);
