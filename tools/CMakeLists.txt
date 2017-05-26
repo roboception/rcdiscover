@@ -11,6 +11,9 @@ if (WIN32)
   target_link_libraries(rcdiscover iphlpapi.lib ws2_32.lib)
 endif (WIN32)
 
+install(TARGETS rcdiscover COMPONENT bin DESTINATION bin)
+
+
 if(wxWidgets_FOUND)
     include_directories(${wxWidgets_INCLUDE_DIRS})
 
@@ -41,12 +44,9 @@ if(wxWidgets_FOUND)
     if (WIN32)
         target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib)
     endif (WIN32)
+
+    install(TARGETS rcdiscover-gui COMPONENT bin DESTINATION bin)	
 else(wxWidgets_FOUND)
     MESSAGE(WARN "wxWidgets not found! Not building GUI application")
 endif(wxWidgets_FOUND)
 
-
-
-# install tools
-
-install(TARGETS rcdiscover COMPONENT bin DESTINATION bin)
