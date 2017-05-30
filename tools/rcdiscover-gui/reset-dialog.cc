@@ -39,7 +39,7 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
             const wxPoint &pos,
             long style,
             const wxString &name) :
-  wxDialog(parent, id, "Reset rc_visard", pos, wxSize(450,200), style, name),
+  wxDialog(parent, id, "Reset rc_visard", pos, wxSize(-1,-1), style, name),
   sensors_(nullptr),
   mac_{nullptr},
   ip_checkbox_(nullptr),
@@ -104,19 +104,22 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   vbox->Add(grid, 0, wxALL | wxEXPAND, 15);
 
   auto *button_box = new wxBoxSizer(wxHORIZONTAL);
-  auto *reset_param_button = new wxButton(panel, ID_Reset_Params, "Reset Parameters");
+  auto *reset_param_button = new wxButton(panel, ID_Reset_Params, "Reset Parameters", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_param_button, 0, wxEXPAND);
-  auto *reset_gige_button = new wxButton(panel, ID_Reset_GigE, "Reset GigE");
+  auto *reset_gige_button = new wxButton(panel, ID_Reset_GigE, "Reset GigE", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_gige_button, 0, wxEXPAND);
-  auto *reset_all_button = new wxButton(panel, ID_Reset_All, "Reset All");
+  auto *reset_all_button = new wxButton(panel, ID_Reset_All, "Reset All", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_all_button, 0, wxEXPAND);
-  auto *switch_part_button = new wxButton(panel, ID_Switch_Partition, "Switch Partitions");
+  auto *switch_part_button = new wxButton(panel, ID_Switch_Partition, "Switch Partitions", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(switch_part_button, 0, wxEXPAND);
 
-  vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 15);
+  vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
   panel->SetSizer(vbox);
+  panel->Fit();
   Centre();
+
+  this->Fit();
 
   Connect(ID_Sensor_Combobox,
           wxEVT_CHOICE,
