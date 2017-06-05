@@ -17,6 +17,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <cstring>
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -29,32 +30,50 @@ int main(int argc, char *argv[])
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
-  std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
+  bool iponly=false;
+
+  if (argc > 1 && std::strcmp(argv[1], "-iponly") == 0)
+  {
+    iponly=true;
+  }
 
   rcdiscover::Discover discover;
   discover.broadcastRequest();
 
   rcdiscover::DeviceInfo info;
-  while (discover.getResponse(info))
+
+  if (!iponly)
   {
-    std::string name=info.getUserName();
+    std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
 
-    if (name.size() == 0)
+    while (discover.getResponse(info))
     {
-      name="rc_visard";
+      std::string name=info.getUserName();
+
+      if (name.size() == 0)
+      {
+        name=info.getModelName();
+      }
+
+      std::cout << name << "\t";
+      std::cout << info.getSerialNumber() << "\t";
+      std::cout << ip2string(info.getIP()) << "\t";
+      std::cout << mac2string(info.getMAC());
+
+      if (info.getModelName() != "rc_visard")
+      {
+        std::cout << "\t[other GEV device]";
+      }
+
+      std::cout << std::endl;
     }
-
-    std::cout << name << "\t";
-    std::cout << info.getSerialNumber() << "\t";
-    std::cout << ip2string(info.getIP()) << "\t";
-    std::cout << mac2string(info.getMAC());
-
-    if (info.getModelName() != "rc_visard")
+  }
+  else
+  {
+    while (discover.getResponse(info))
     {
-      std::cout << "\t[other GEV device]";
+      std::cout << ip2string(info.getIP()) << std::endl;
     }
-
-    std::cout << std::endl;
   }
 
 #ifdef WIN32
