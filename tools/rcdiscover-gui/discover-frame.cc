@@ -91,7 +91,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                         ID_DataViewListCtrl,
                                         wxPoint(-1,-1),
                                         wxSize(-1,-1));
-  device_list_->AppendTextColumn("Hostname",
+  device_list_->AppendTextColumn("Name",
                                  wxDATAVIEW_CELL_INERT,
                                  100, wxALIGN_LEFT,
                                  wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
