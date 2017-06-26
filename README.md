@@ -35,8 +35,14 @@ Compiling on Windows
 
 Install MinGW-w64 by e.g. downloading `mingw-w64-install.exe` from
 [here](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/).
-(Choosing win32 for threading during setup works; however, posix may work as well.)
-Finally, add the `bin` directory of MinGW to your PATH variable.
+During setup, choose i686 if you want to build 32 bit binaries, or x84_64 for
+64 bit. For Threads, select win32. The rest can stay default.
+
+Finally, add the `bin` directory of MinGW to your PATH variable. For 32 bit
+installation, it is normally found in 
+`C:\Program Files (x86)\mingw-w64\i686-7.1.0-win32-dwarf-rt_v5-rev0\mingw64\bin`, 
+for 64 bit it is 
+`C:\Program Files\mingw-w64\x86_64-7.1.0-win32-seh-rt_v5-rev0\mingw64\bin`.
 
 #### WxWidgets
 
@@ -62,3 +68,16 @@ cd build-mingw32
 cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DwxWidgets_ROOT_DIR=<path to WxWidgets root folder> ..
 mingw32-make
 ```
+
+**For the 32 bit build you may encounter a 0xc000007b error when running
+rcdiscover-gui.exe.** This seems to be caused by a bug in WxWidgets build. As
+a workaround, rename `rcdefs.h` in `lib\gcc_lib\mswu\wx\msw` in your WxWidgets
+root directory to something different (e.g., `rcdefs.h_old`). Then, rerun
+above WxWidgets build command:
+
+```
+cd build\msw
+mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4
+```
+
+Finally, rebuild rcdiscover.

@@ -76,7 +76,7 @@ class WOL
     {
       if (!udp_)
       {
-        getDerived().send_raw(nullptr);
+        //getDerived().send_raw(nullptr);
       }
       else
       {
@@ -88,7 +88,7 @@ class WOL
     {
       if (!udp_)
       {
-        getDerived().send_raw(&password);
+        //getDerived().send_raw(&password);
       }
       else
       {

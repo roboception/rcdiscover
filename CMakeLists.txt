@@ -38,7 +38,6 @@ add_definitions(-std=c++11)
 # - Build individual parts -
 
 if (WIN32)
-	message(WARN test)
   add_definitions(-DWIN32)
 endif ()
 

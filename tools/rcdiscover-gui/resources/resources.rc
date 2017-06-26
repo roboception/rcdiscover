@@ -22,12 +22,12 @@ VS_VERSION_INFO VERSIONINFO
     {
         BLOCK "040904E4"
         {
-            VALUE "CompanyName",      "Roboception"
+            VALUE "CompanyName",      "Roboception GmbH"
             VALUE "FileDescription",  "rc_discover"
             VALUE "FileVersion",      XSTR(PROJECT_VERSION)
             VALUE "ProductVersion",   XSTR(PROJECT_VERSION)
             VALUE "InternalName",     "rc_discover"
-            VALUE "LegalCopyright",   "TODO"
+            VALUE "LegalCopyright",   "Copyright (c) 2017, Roboception GmbH"
             VALUE "OriginalFilename", "rcdiscover-gui.exe"
             VALUE "ProductName",      "rc_discover"
         }

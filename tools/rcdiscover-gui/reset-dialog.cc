@@ -23,6 +23,9 @@ typedef rcdiscover::WOL_Linux WOL;
 #include "event-ids.h"
 #include "../utils.h"
 
+#include "rcdiscover/wol_exception.h"
+#include "rcdiscover/operation_not_permitted.h"
+
 #include <wx/dialog.h>
 #include <wx/panel.h>
 #include <wx/combobox.h>
