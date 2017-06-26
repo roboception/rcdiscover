@@ -11,15 +11,31 @@
 
 #include "wol_linux.h"
 
+#include <ios>
+#include <string>
+#include <string.h>
+#include <vector>
+#include <iostream>
+#include <sstream>
+
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <linux/if_packet.h>
+#include <netinet/ether.h>
+#include <ifaddrs.h>
+
 namespace rcdiscover
 {
 
-WOL_Linux::Socket::Socket WOL_Linux::Socket::socketUDP()
+WOL_Linux::Socket WOL_Linux::Socket::socketUDP()
 {
   return Socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 }
 
-WOL_Linux::Socket::Socket WOL_Linux::Socket::socketRaw()
+WOL_Linux::Socket WOL_Linux::Socket::socketRaw()
 {
   return Socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW);
 }
@@ -45,7 +61,7 @@ WOL_Linux::Socket::Socket(Socket&& other) :
   std::swap(sock_, other.sock_);
 }
 
-WOL_Linux::Socket::Socket& WOL_Linux::Socket::operator=(Socket&& other)
+WOL_Linux::Socket& WOL_Linux::Socket::operator=(Socket&& other)
 {
   std::swap(sock_, other.sock_);
   return *this;
@@ -64,7 +80,7 @@ const int &WOL_Linux::Socket::getHandle() const
   return sock_;
 }
 
-void WOL_Linux::Socket::bind(const sockaddr_in& addr)
+void WOL_Linux::Socket::bind(const ::sockaddr_in& addr)
 {
   if (::bind(sock_, reinterpret_cast<const sockaddr *>(&addr), sizeof(sockaddr)) == -1)
   {
@@ -80,7 +96,7 @@ void WOL_Linux::Socket::sendto(const std::vector<uint8_t>& sendbuf,
              sendbuf.size(),
              0,
              reinterpret_cast<const sockaddr *>(&addr),
-             (socklen_t)sizeof(SockAddrT)) == -1)
+             (socklen_t)sizeof(sockaddr_in)) == -1)
    {
      throw WOLException("Error while sending data", errno);
    }

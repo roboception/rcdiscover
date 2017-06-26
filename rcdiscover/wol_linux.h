@@ -17,22 +17,6 @@
 #include "wol_exception.h"
 #include "operation_not_permitted.h"
 
-#include <ios>
-#include <string>
-#include <string.h>
-#include <vector>
-#include <iostream>
-#include <sstream>
-
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <linux/if_packet.h>
-#include <netinet/ether.h>
-#include <ifaddrs.h>
-
 namespace rcdiscover
 {
 
@@ -41,8 +25,6 @@ class WOL_Linux : public WOL<WOL_Linux>
   friend class WOL<WOL_Linux>;
 
   private:
-
-    // RAII wrapper for socket
     class Socket
     {
       public:
