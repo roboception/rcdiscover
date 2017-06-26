@@ -32,7 +32,7 @@ if(wxWidgets_FOUND)
         add_executable(rcdiscover-gui ${rcdiscover-gui-src} rcdiscover-gui/resources/resources.rc)
 
 	# avoid console window opening in background
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++- -static")
     else (WIN32)
         add_executable(rcdiscover-gui ${rcdiscover-gui-src})
     endif(WIN32)
