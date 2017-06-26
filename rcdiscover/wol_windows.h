@@ -120,7 +120,7 @@ class WOL_Windows : public WOL<WOL_Windows>
                         SOL_SOCKET,
                         SO_BROADCAST,
                         reinterpret_cast<const char *>(&yes),
-                        sizeof(yes)) != SOCKET_ERROR)
+                        sizeof(yes)) == SOCKET_ERROR)
           {
             throw WOLException("Error while setting socket options", ::WSAGetLastError());
           }
@@ -149,11 +149,11 @@ class WOL_Windows : public WOL<WOL_Windows>
     {
       std::vector<uint32_t> ips;
 
-      MIB_IPADDRTABLE *iptab = nullptr;
+      MIB_IPADDRTABLE *iptab = reinterpret_cast<MIB_IPADDRTABLE *>(malloc(sizeof(MIB_IPADDRTABLE)));
 
+      DWORD len = 0;
       for (int i = 0; i < 5; ++i)
       {
-        ULONG len = 0;
         const DWORD ipRet = GetIpAddrTable(iptab, &len, false);
         if (ipRet == ERROR_INSUFFICIENT_BUFFER)
         {
