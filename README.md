@@ -56,7 +56,7 @@ git clone https://github.com/wxWidgets/wxWidgets.git
 cd wxWidgets
 git checkout v3.1.0  # or other stable version
 cd build\msw
-mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4
+mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4 CXXFLAGS="-mtune=generic -mno-abm" CFLAGS="-mtune=generic -mno-abm"
 ```
 
 #### rcdiscover
@@ -77,7 +77,7 @@ above WxWidgets build command:
 
 ```
 cd build\msw
-mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4
+mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4 CXXFLAGS="-mtune=generic -mno-abm" CFLAGS="-mtune=generic -mno-abm"
 ```
 
 Finally, rebuild rcdiscover.
