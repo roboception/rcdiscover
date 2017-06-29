@@ -25,7 +25,7 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE CACHE STRING "Build type: DEBUG or RELEASE" FORCE)
 endif ()
 
-include(cmake/optimization_flags.cmake)
+# 
 
 # - Standard definitions -
 
@@ -39,6 +39,13 @@ add_definitions(-std=c++11)
 
 if (WIN32)
   add_definitions(-DWIN32)
+  set(CMAKE_C_FLAGS "-mtune=generic -mno-abm")
+  set(CMAKE_CXX_FLAGS "-mtune=generic -mno-abm")
+  set(CMAKE_CXX_FLAGS_DEBUG "-O0")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows -static-libgcc -static-libstdc++ -static")
+else ()
+  include(cmake/optimization_flags.cmake)
 endif ()
 
 add_subdirectory(rcdiscover)
