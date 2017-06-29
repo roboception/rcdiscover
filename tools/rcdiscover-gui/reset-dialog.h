@@ -38,7 +38,7 @@ class ResetDialog : public wxDialog
 
   private:
     void onSensorSelected(wxCommandEvent& event);
-    void onIpCheckboxChanged(wxCommandEvent&);
+    // void onIpCheckboxChanged(wxCommandEvent&);
     void onResetButton(wxCommandEvent& event);
 
     void clear();
@@ -49,8 +49,8 @@ class ResetDialog : public wxDialog
   private:
     wxChoice *sensors_;
     std::array<wxTextCtrl *, 6> mac_;
-    wxCheckBox *ip_checkbox_;
-    std::array<wxTextCtrl *, 4> ip_;
+    // wxCheckBox *ip_checkbox_;
+    // std::array<wxTextCtrl *, 4> ip_;
 
     const wxDataViewListModel *sensor_list_;
 };

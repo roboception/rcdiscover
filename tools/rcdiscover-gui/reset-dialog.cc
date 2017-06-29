@@ -45,8 +45,8 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   wxDialog(parent, id, "Reset rc_visard", pos, wxSize(-1,-1), style, name),
   sensors_(nullptr),
   mac_{nullptr},
-  ip_checkbox_(nullptr),
-  ip_{nullptr},
+  // ip_checkbox_(nullptr),
+  // ip_{nullptr},
   sensor_list_(nullptr)
 {
   auto *panel = new wxPanel(this, -1);
@@ -80,29 +80,29 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   grid->Add(mac_box, 1, wxEXPAND);
 
 //      auto *ip_text_box = new wxBoxSizer(wxVERTICAL);
-  ip_checkbox_ = new wxCheckBox(panel, ID_IP_Checkbox, "IP address");
+//  ip_checkbox_ = new wxCheckBox(panel, ID_IP_Checkbox, "IP address");
 
 
 //      ip_text_box->Add(ip_text);
 //      broadcast_ = new wxCheckBox(panel, wxID_ANY, "Broadcast");
 //      ip_text_box->Add(broadcast_);
-  grid->Add(ip_checkbox_);
+//  grid->Add(ip_checkbox_);
 
-  auto *ip_box = new wxBoxSizer(wxHORIZONTAL);
-  i = 0;
-  for (auto &ip : ip_)
-  {
-    if (i > 0)
-    {
-      ip_box->Add(new wxStaticText(panel, ID_IP_Textbox, "."));
-    }
-    ip = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(30, -1));
-    ip->Disable();
-    ip_box->Add(ip, 1);
-    ++i;
-  }
-  ip_box->AddStretchSpacer();
-  grid->Add(ip_box, 0, wxEXPAND);
+//  auto *ip_box = new wxBoxSizer(wxHORIZONTAL);
+//  i = 0;
+//  for (auto &ip : ip_)
+//  {
+//    if (i > 0)
+//    {
+//      ip_box->Add(new wxStaticText(panel, ID_IP_Textbox, "."));
+//    }
+//    ip = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(30, -1));
+//    ip->Disable();
+//    ip_box->Add(ip, 1);
+//    ++i;
+//  }
+//  ip_box->AddStretchSpacer();
+//  grid->Add(ip_box, 0, wxEXPAND);
 
   vbox->Add(grid, 0, wxALL | wxEXPAND, 15);
 
@@ -127,9 +127,9 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   Connect(ID_Sensor_Combobox,
           wxEVT_CHOICE,
           wxCommandEventHandler(ResetDialog::onSensorSelected));
-  Connect(ID_IP_Checkbox,
-          wxEVT_CHECKBOX,
-          wxCommandEventHandler(ResetDialog::onIpCheckboxChanged));
+//  Connect(ID_IP_Checkbox,
+//          wxEVT_CHECKBOX,
+//          wxCommandEventHandler(ResetDialog::onIpCheckboxChanged));
   Connect(ID_Reset_Params,
           wxEVT_BUTTON,
           wxCommandEventHandler(ResetDialog::onResetButton));
@@ -192,15 +192,15 @@ void ResetDialog::onSensorSelected(wxCommandEvent& event)
   }
 }
 
-void ResetDialog::onIpCheckboxChanged(wxCommandEvent&)
-{
-  const bool checked = ip_checkbox_->IsChecked();
-
-  for (auto& ip : ip_)
-  {
-    ip->Enable(checked);
-  }
-}
+//void ResetDialog::onIpCheckboxChanged(wxCommandEvent&)
+//{
+//  const bool checked = ip_checkbox_->IsChecked();
+//
+//  for (auto& ip : ip_)
+//  {
+//    ip->Enable(checked);
+//  }
+//}
 
 void ResetDialog::onResetButton(wxCommandEvent& event)
 {
@@ -277,33 +277,33 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
     {
       WOL wol(mac);
 
-      if (ip_checkbox_->IsChecked())
-      {
-        std::array<uint8_t, 4> ip;
-        for (uint8_t i = 0; i < 4; ++i)
-        {
-          try
-          {
-            const auto v = std::stoul(ip_[i]->GetValue().ToStdString(), nullptr, 10);
-            if (v < 0 || v > 255)
-            {
-              throw std::invalid_argument("");
-            }
-            ip[i] = static_cast<uint8_t>(v);
-          }
-          catch(const std::invalid_argument&)
-          {
-            wxMessageBox("Each IP address segment must contain a decimal value ranging from 0 to 255.",
-                         "Error", wxOK | wxICON_ERROR);
-            return;
-          }
-        }
-        wol.enableUDP(ip, 9);
-      }
-      else
-      {
+      // if (ip_checkbox_->IsChecked())
+      // {
+      //   std::array<uint8_t, 4> ip;
+      //   for (uint8_t i = 0; i < 4; ++i)
+      //   {
+      //     try
+      //     {
+      //       const auto v = std::stoul(ip_[i]->GetValue().ToStdString(), nullptr, 10);
+      //       if (v < 0 || v > 255)
+      //       {
+      //         throw std::invalid_argument("");
+      //       }
+      //       ip[i] = static_cast<uint8_t>(v);
+      //     }
+      //     catch(const std::invalid_argument&)
+      //     {
+      //       wxMessageBox("Each IP address segment must contain a decimal value ranging from 0 to 255.",
+      //                    "Error", wxOK | wxICON_ERROR);
+      //       return;
+      //     }
+      //   }
+      //   wol.enableUDP(ip, 9);
+      // }
+      // else
+      // {
         wol.enableUDP(9);
-      }
+      // }
 
       std::ostringstream oss;
       oss << "Are you sure to " << func_name << " of rc_visard with MAC-address " << mac_string << "?";
@@ -330,21 +330,21 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
 void ResetDialog::clear()
 {
   sensors_->SetSelection(0);
-  ip_checkbox_->SetValue(false);
+  // ip_checkbox_->SetValue(false);
 
   for (uint8_t i = 0; i < 6; ++i)
   {
     mac_[i]->Clear();
     mac_[i]->SetEditable(true);
   }
-  for (uint8_t i = 0; i < 4; ++i)
-  {
-    ip_[i]->Clear();
-    ip_[i]->SetEditable(true);
-  }
+  // for (uint8_t i = 0; i < 4; ++i)
+  // {
+  //   ip_[i]->Clear();
+  //   ip_[i]->SetEditable(true);
+  // }
 
-  wxCommandEvent evt;
-  onIpCheckboxChanged(evt);
+  // wxCommandEvent evt;
+  // onIpCheckboxChanged(evt);
 }
 
 void ResetDialog::fillMacAndIp()
@@ -364,15 +364,15 @@ void ResetDialog::fillMacAndIp()
     mac_[i]->ChangeValue(mac[i]);
     mac_[i]->SetEditable(false);
   }
-  for (uint8_t i = 0; i < 4; ++i)
-  {
-    ip_[i]->ChangeValue(ip[i]);
-    ip_[i]->SetEditable(false);
-  }
+  // for (uint8_t i = 0; i < 4; ++i)
+  // {
+  //   ip_[i]->ChangeValue(ip[i]);
+  //   ip_[i]->SetEditable(false);
+  // }
 
-  ip_checkbox_->SetValue(true);
-  wxCommandEvent evt;
-  onIpCheckboxChanged(evt);
+  // ip_checkbox_->SetValue(true);
+  // wxCommandEvent evt;
+  // onIpCheckboxChanged(evt);
 }
 
 BEGIN_EVENT_TABLE(ResetDialog, wxDialog)
