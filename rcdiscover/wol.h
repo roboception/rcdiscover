@@ -29,71 +29,27 @@ template<typename Derived>
 class WOL
 {
   protected:
-    explicit WOL(uint64_t hardware_addr) noexcept :
+    explicit WOL(uint64_t hardware_addr, uint16_t port) noexcept :
       hardware_addr_(toByteArray<6>(std::move(hardware_addr))),
-      udp_{false},
-      ip_{nullptr},
-      port_{}
+      port_{port}
     { }
 
-    explicit WOL(std::array<uint8_t, 6> hardware_addr) noexcept :
+    explicit WOL(std::array<uint8_t, 6> hardware_addr, uint16_t port) noexcept :
       hardware_addr_(std::move(hardware_addr)),
-      udp_{false},
-      ip_{},
-      port_{}
+      port_{port}
     { }
 
     ~WOL() = default;
 
   public:
-    WOL& enableUDP(uint16_t port)
-    {
-      ip_.reset(nullptr);
-      port_ = std::move(port);
-      udp_ = true;
-      return *this;
-    }
-
-    WOL& enableUDP(uint32_t ip, uint16_t port)
-    {
-      ip_ = std::unique_ptr<std::array<uint8_t,4>>(
-                new std::array<uint8_t,4>(toByteArray(std::move(ip))));
-      port_ = std::move(port);
-      udp_ = true;
-      return *this;
-    }
-
-    WOL& enableUDP(std::array<uint8_t, 4> ip, uint16_t port)
-    {
-      ip_ = std::unique_ptr<std::array<uint8_t,4>>(
-                new std::array<uint8_t,4>(std::move(ip)));
-      port_ = std::move(port);
-      udp_ = true;
-      return *this;
-    }
-
     void send() const
     {
-      if (!udp_)
-      {
-        //getDerived().send_raw(nullptr);
-      }
-      else
-      {
-        send_udp(nullptr);
-      }
+      getDerived().sendUdpImpl(nullptr);
     }
 
     void send(const std::array<uint8_t, 4>& password) const
     {
-      if (!udp_)
-      {
-        //getDerived().send_raw(&password);
-      }
-      else
-      {
-        send_udp(&password);
-      }
+      getDerived().sendUdpImpl(&password);
     }
 
   protected:
@@ -102,32 +58,9 @@ class WOL
       return hardware_addr_;
     }
 
-    const std::array<uint8_t, 4>* getIP() const noexcept
-    {
-      return ip_.get();
-    }
-
     uint16_t getPort() const noexcept
     {
       return port_;
-    }
-
-    std::vector<uint8_t>& appendEthernetFrame(
-        std::vector<uint8_t>& sendbuf,
-        const std::array<uint8_t, 6>& src_hw_addr) const
-    {
-      for (size_t i = 0; i < hardware_addr_.size(); ++i)
-      {
-        sendbuf.push_back(hardware_addr_[i]);
-      }
-      for (size_t i = 0; i < src_hw_addr.size(); ++i)
-      {
-        sendbuf.push_back(src_hw_addr[i]);
-      }
-      sendbuf.push_back(0x08);
-      sendbuf.push_back(0x42);
-
-      return sendbuf;
     }
 
     std::vector<uint8_t>& appendMagicPacket(
@@ -178,47 +111,46 @@ class WOL
       return result;
     }
 
-    void send_udp(const std::array<uint8_t, 4> *password) const
-    {
-      auto sock = Derived::Socket::socketUDP();
+    // void send_udp(const std::array<uint8_t, 4> *password) const
+    // {
 
-      sockaddr_in addr{};
-      addr.sin_family = AF_INET;
-      addr.sin_addr.s_addr = htonl(INADDR_ANY);
-      addr.sin_port = htons(0);
 
-      sock.bind(addr);
-
-      const bool broadcast = !ip_;
-
-      std::vector<uint32_t> ips;
-      if (broadcast)
-      {
-        ips = getDerived().getBroadcastIPs();
-        sock.enableBroadcast();
-      }
-      else
-      {
-        ips.push_back(*reinterpret_cast<const uint32_t *>(&(*ip_)[0]));
-      }
-
-      for (const auto ip : ips)
-      {
-        addr.sin_addr.s_addr = ip;
-        addr.sin_port = htons(getPort());
-
-        std::vector<uint8_t> sendbuf;
-        appendMagicPacket(sendbuf, password);
-
-        sock.sendto(sendbuf, addr);
-      }
-    }
+      // auto sock = Derived::Socket::socketUDP();
+      //
+      // sockaddr_in addr{};
+      // addr.sin_family = AF_INET;
+      // addr.sin_addr.s_addr = htonl(INADDR_ANY);
+      // addr.sin_port = htons(0);
+      //
+      // sock.bind(addr);
+      //
+      // const bool broadcast = !ip_;
+      //
+      // std::vector<uint32_t> ips;
+      // if (broadcast)
+      // {
+      //   ips = getDerived().getBroadcastIPs();
+      //   sock.enableBroadcast();
+      // }
+      // else
+      // {
+      //   ips.push_back(*reinterpret_cast<const uint32_t *>(&(*ip_)[0]));
+      // }
+      //
+      // for (const auto ip : ips)
+      // {
+      //   addr.sin_addr.s_addr = ip;
+      //   addr.sin_port = htons(getPort());
+      //
+      //   std::vector<uint8_t> sendbuf;
+      //   appendMagicPacket(sendbuf, password);
+      //
+      //   sock.sendto(sendbuf, addr);
+      // }
+    // }
 
   private:
     const std::array<uint8_t, 6> hardware_addr_;
-
-    bool udp_;
-    std::unique_ptr<std::array<uint8_t, 4>> ip_;
     uint16_t port_;
 };
 }

@@ -41,7 +41,7 @@
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
-  wxFrame(NULL, wxID_ANY, title, pos, wxSize(550,350)),
+  wxFrame(NULL, wxID_ANY, title, pos, wxSize(650,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
   reset_button_(nullptr),
@@ -106,6 +106,10 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   device_list_->AppendTextColumn("MAC Address",
                                  wxDATAVIEW_CELL_INERT,
                                  130, wxALIGN_LEFT,
+                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+  device_list_->AppendTextColumn("Reachable",
+                                 wxDATAVIEW_CELL_INERT,
+                                 100, wxALIGN_CENTER,
                                  wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
 
   device_list_->SetToolTip("Double-click row to open WebGUI in browser.");

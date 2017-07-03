@@ -40,14 +40,21 @@ int main(int argc, char *argv[])
   rcdiscover::Discover discover;
   discover.broadcastRequest();
 
-  rcdiscover::DeviceInfo info;
+  std::vector<rcdiscover::DeviceInfo> infos;
 
   if (!iponly)
   {
     std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
 
-    while (discover.getResponse(info))
+    while (discover.getResponse(infos)) { }
+
+		for (rcdiscover::DeviceInfo &info : infos)
     {
+			if (!info.isValid())
+			{
+			  continue;
+			}
+			
       std::string name=info.getUserName();
 
       if (name.size() == 0)
@@ -70,7 +77,9 @@ int main(int argc, char *argv[])
   }
   else
   {
-    while (discover.getResponse(info))
+    while (discover.getResponse(infos)) {}
+
+		for (rcdiscover::DeviceInfo &info : infos)
     {
       std::cout << ip2string(info.getIP()) << std::endl;
     }

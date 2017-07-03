@@ -275,35 +275,7 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
 
     try
     {
-      WOL wol(mac);
-
-      // if (ip_checkbox_->IsChecked())
-      // {
-      //   std::array<uint8_t, 4> ip;
-      //   for (uint8_t i = 0; i < 4; ++i)
-      //   {
-      //     try
-      //     {
-      //       const auto v = std::stoul(ip_[i]->GetValue().ToStdString(), nullptr, 10);
-      //       if (v < 0 || v > 255)
-      //       {
-      //         throw std::invalid_argument("");
-      //       }
-      //       ip[i] = static_cast<uint8_t>(v);
-      //     }
-      //     catch(const std::invalid_argument&)
-      //     {
-      //       wxMessageBox("Each IP address segment must contain a decimal value ranging from 0 to 255.",
-      //                    "Error", wxOK | wxICON_ERROR);
-      //       return;
-      //     }
-      //   }
-      //   wol.enableUDP(ip, 9);
-      // }
-      // else
-      // {
-        wol.enableUDP(9);
-      // }
+      WOL wol(mac, 9);
 
       std::ostringstream oss;
       oss << "Are you sure to " << func_name << " of rc_visard with MAC-address " << mac_string << "?";

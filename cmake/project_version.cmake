@@ -37,7 +37,8 @@ endfunction(version_split)
 ##############################
 # get PROJECT_VERSION from git
 ##############################
-find_program(GIT_CMD git)
+find_program(GIT_CMD git 
+             PATHS "C:/Program Files/Git/bin")
 mark_as_advanced(GIT_CMD)
 if (GIT_CMD)
     execute_process(COMMAND ${GIT_CMD} rev-parse --show-toplevel
