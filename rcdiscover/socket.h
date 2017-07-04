@@ -48,10 +48,9 @@ class Socket
       getDerived().bindImpl(addr);
     }
 
-    void sendto(const std::vector<uint8_t>& sendbuf,
-                const sockaddr_in& addr)
+    void send(const std::vector<uint8_t>& sendbuf)
     {
-      getDerived().sendtoImpl(sendbuf, addr);
+      getDerived().sendImpl(sendbuf);
     }
 
     void enableBroadcast()

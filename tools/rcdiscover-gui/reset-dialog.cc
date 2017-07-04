@@ -10,18 +10,12 @@
 */
 
 // placed here to make sure to include winsock2.h before windows.h
-#ifdef WIN32
-#include "rcdiscover/wol_windows.h"
-typedef rcdiscover::WOL_Windows WOL;
-#else
-#include "rcdiscover/wol_linux.h"
-typedef rcdiscover::WOL_Linux WOL;
-#endif
+#include "rcdiscover/wol.h"
 
 #include "reset-dialog.h"
 
 #include "event-ids.h"
-#include "../utils.h"
+#include "rcdiscover/utils.h"
 
 #include "rcdiscover/wol_exception.h"
 #include "rcdiscover/operation_not_permitted.h"
@@ -275,7 +269,7 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
 
     try
     {
-      WOL wol(mac, 9);
+      rcdiscover::WOL wol(mac, 9);
 
       std::ostringstream oss;
       oss << "Are you sure to " << func_name << " of rc_visard with MAC-address " << mac_string << "?";

@@ -25,134 +25,46 @@
 
 namespace rcdiscover
 {
-template<typename Derived>
+
+#ifdef WIN32
+class SocketWindows;
+#else
+class SocketLinux;
+#endif
+
 class WOL
 {
-  protected:
-    explicit WOL(uint64_t hardware_addr, uint16_t port) noexcept :
-      hardware_addr_(toByteArray<6>(std::move(hardware_addr))),
-      port_{port}
-    { }
+  private:
+#ifdef WIN32
+    typedef SocketWindows SocketType;
+#else
+    typedef SocketLinux SocketType;
+#endif
 
-    explicit WOL(std::array<uint8_t, 6> hardware_addr, uint16_t port) noexcept :
-      hardware_addr_(std::move(hardware_addr)),
-      port_{port}
-    { }
-
+  public:
+    WOL(uint64_t hardware_addr, uint16_t port) noexcept;
+    WOL(std::array<uint8_t, 6> hardware_addr, uint16_t port) noexcept;
     ~WOL() = default;
 
   public:
-    void send() const
-    {
-      getDerived().sendUdpImpl(nullptr);
-    }
-
-    void send(const std::array<uint8_t, 4>& password) const
-    {
-      getDerived().sendUdpImpl(&password);
-    }
-
-  protected:
-    const std::array<uint8_t, 6>& getHardwareAddr() const noexcept
-    {
-      return hardware_addr_;
-    }
-
-    uint16_t getPort() const noexcept
-    {
-      return port_;
-    }
-
-    std::vector<uint8_t>& appendMagicPacket(
-        std::vector<uint8_t>& sendbuf,
-        const std::array<uint8_t, 4> *password) const
-    {
-      for (int i = 0; i < 6; ++i)
-      {
-        sendbuf.push_back(0xFF);
-      }
-      for (int i = 0; i < 16; ++i)
-      {
-        for (size_t j = 0; j < hardware_addr_.size(); ++j)
-        {
-          sendbuf.push_back(hardware_addr_[j]);
-        }
-      }
-      if (password != nullptr)
-      {
-        for (int i = 0; i < 4; ++i)
-        {
-          sendbuf.push_back((*password)[i]);
-        }
-      }
-
-      return sendbuf;
-    }
+    void send() const;
+    void send(const std::array<uint8_t, 4>& password) const;
 
   private:
-    Derived& getDerived() noexcept
-    {
-      return static_cast<Derived &>(*this);
-    }
-
-    const Derived& getDerived() const noexcept
-    {
-      return static_cast<const Derived &>(*this);
-    }
+    std::vector<uint8_t>& appendMagicPacket(
+        std::vector<uint8_t>& sendbuf,
+        const std::array<uint8_t, 4> *password) const;
 
     template<uint8_t num>
-    std::array<uint8_t, num> toByteArray(uint64_t data) noexcept
-    {
-      std::array<uint8_t, num> result;
-      for (uint8_t i = 0; i < num; ++i)
-      {
-        result[i] = static_cast<uint8_t>((data >> (i*8)) & 0xFF);
-      }
-      return result;
-    }
+    std::array<uint8_t, num> toByteArray(uint64_t data) noexcept;
 
-    // void send_udp(const std::array<uint8_t, 4> *password) const
-    // {
-
-
-      // auto sock = Derived::Socket::socketUDP();
-      //
-      // sockaddr_in addr{};
-      // addr.sin_family = AF_INET;
-      // addr.sin_addr.s_addr = htonl(INADDR_ANY);
-      // addr.sin_port = htons(0);
-      //
-      // sock.bind(addr);
-      //
-      // const bool broadcast = !ip_;
-      //
-      // std::vector<uint32_t> ips;
-      // if (broadcast)
-      // {
-      //   ips = getDerived().getBroadcastIPs();
-      //   sock.enableBroadcast();
-      // }
-      // else
-      // {
-      //   ips.push_back(*reinterpret_cast<const uint32_t *>(&(*ip_)[0]));
-      // }
-      //
-      // for (const auto ip : ips)
-      // {
-      //   addr.sin_addr.s_addr = ip;
-      //   addr.sin_port = htons(getPort());
-      //
-      //   std::vector<uint8_t> sendbuf;
-      //   appendMagicPacket(sendbuf, password);
-      //
-      //   sock.sendto(sendbuf, addr);
-      // }
-    // }
+    void sendImpl(const std::array<uint8_t, 4> *password) const;
 
   private:
     const std::array<uint8_t, 6> hardware_addr_;
     uint16_t port_;
 };
+
 }
 
 #endif // WOL_H

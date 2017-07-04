@@ -148,65 +148,17 @@ std::vector<uint32_t> getBroadcastIPs()
 }
 
 Discover::Discover() :
-  sockets_(SocketType::createAndBindForAllInterfaces())
+  sockets_(SocketType::createAndBindForAllInterfaces(3956))
 {
   for (auto &socket : sockets_)
   {
     socket.enableBroadcast();
     socket.enableNonBlocking();
   }
-
-//   // create socket
-//
-//   sock=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-//
-//   if (sock == -1)
-//   {
-//     throw std::ios_base::failure(geterror(errno));
-//   }
-//
-//   // bind an arbitrary port to it
-//
-//   struct sockaddr_in addr;
-//   memset(&addr, 0, sizeof(addr));
-//
-//   addr.sin_addr.s_addr=htonl(INADDR_ANY);
-//   addr.sin_port=htons(0);
-//   addr.sin_family=AF_INET;
-//
-//   if (bind(sock, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) != 0)
-//   {
-//     close(sock);
-//     throw std::ios_base::failure(geterror(errno));
-//   }
-//
-//   // configure for broadcasting
-//
-//   int yes=1;
-//   if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char *>(&yes), sizeof(yes)) != 0)
-//   {
-//     close(sock);
-//     throw std::ios_base::failure(geterror(errno));
-//   }
-//
-//   // configure socket as non blocking
-//
-// #ifdef WIN32
-//   u_long imode=1;
-//   if (ioctlsocket(sock, FIONBIO, &imode) != 0)
-// #else
-//   if (fcntl(sock, F_SETFL, O_RDWR|O_NONBLOCK) == -1)
-// #endif
-//   {
-//     close(sock);
-//     throw std::ios_base::failure(geterror(errno));
-//   }
 }
 
 Discover::~Discover()
-{
-  // close(sock);
-}
+{ }
 
 void Discover::broadcastRequest()
 {
@@ -214,13 +166,7 @@ void Discover::broadcastRequest()
 
   for (auto &socket : sockets_)
   {
-    struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_addr.s_addr = SocketType::getBroadcastAddr();
-  	addr.sin_port = htons(3956); // GigE Vision control port
-  	addr.sin_family = PF_INET;
-
-    socket.sendto(discovery_cmd, addr);
+    socket.send(discovery_cmd);
   }
 }
 
@@ -261,12 +207,12 @@ bool Discover::getResponse(std::vector<DeviceInfo> &info, int timeout_per_socket
           uint8_t p[600];
 
           struct sockaddr_in addr;
-    #ifdef WIN32
-    	  int naddr = sizeof(addr);
-    #else
-    	  socklen_t naddr = sizeof(addr);
-    #endif
-    	  memset(&addr, 0, naddr);
+#ifdef WIN32
+          int naddr = sizeof(addr);
+#else
+          socklen_t naddr = sizeof(addr);
+#endif
+          memset(&addr, 0, naddr);
 
           int n=recvfrom(sock, reinterpret_cast<char *>(p), sizeof(p), 0, reinterpret_cast<struct sockaddr *>(&addr), &naddr);
 

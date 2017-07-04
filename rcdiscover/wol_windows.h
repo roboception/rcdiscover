@@ -29,9 +29,6 @@ class WOL_Windows : public WOL<WOL_Windows>
 
   protected:
     void sendUdpImpl(const std::array<uint8_t, 4> *password) const;
-
-  private:
-    const ULONG broadcast_addr_;
 };
 
 }

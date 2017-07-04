@@ -16,7 +16,7 @@
 #include "discover-thread.h"
 
 #include "event-ids.h"
-#include "../utils.h"
+#include "rcdiscover/utils.h"
 
 #include <vector>
 #include <algorithm>

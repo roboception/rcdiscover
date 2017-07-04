@@ -11,7 +11,7 @@
 
 #include "rcdiscover/discover.h"
 #include "rcdiscover/deviceinfo.h"
-#include "utils.h"
+#include "rcdiscover/utils.h"
 
 #include <string>
 #include <sstream>

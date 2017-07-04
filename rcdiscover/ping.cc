@@ -12,6 +12,7 @@
 #include "ping.h"
 
 #include "socket_exception.h"
+#include "utils.h"
 
 #ifdef WIN32
 
@@ -44,12 +45,15 @@ bool checkReachabilityOfSensor(const DeviceInfo &info)
   LPVOID reply_buffer = reinterpret_cast<void *>(malloc(reply_size));
   if (reply_buffer == nullptr)
   {
+    IcmpCloseHandle(h_icmp);
     throw std::runtime_error("Could not allocate memory");
   }
 
   DWORD result = IcmpSendEcho(h_icmp, ipaddr, data,
                               sizeof(data), nullptr,
                               reply_buffer, reply_size, 1000);
+
+  IcmpCloseHandle(h_icmp);
 
   if (result != 0 &&
       reinterpret_cast<ICMP_ECHO_REPLY *>(reply_buffer)->Status == IP_SUCCESS)
@@ -63,6 +67,21 @@ bool checkReachabilityOfSensor(const DeviceInfo &info)
 }
 
 #else
+
+bool checkReachabilityOfSensor(const DeviceInfo &info)
+{
+  const std::string command = "ping -c 1 -W 1 " + ip2string(info.getIP());
+
+  FILE *in;
+  if (!(in = popen(command.c_str(), "r")))
+  {
+    throw std::runtime_error("Could not execute ping command.");
+  }
+
+  const int exit_code = pclose(in);
+
+  return exit_code == 0;
+}
 
 #endif
 

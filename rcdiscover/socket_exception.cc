@@ -25,4 +25,9 @@ const char *SocketException::what() const noexcept
   return msg_.c_str();
 }
 
+int SocketException::get_error_code() const noexcept
+{
+  return errnum_;
+}
+
 }
