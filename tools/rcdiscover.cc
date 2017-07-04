@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   {
     std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
 
-    while (discover.getResponse(infos)) { }
+    while (discover.getResponse(infos, 100)) { }
 
 		for (rcdiscover::DeviceInfo &info : infos)
     {
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 			{
 			  continue;
 			}
-			
+
       std::string name=info.getUserName();
 
       if (name.size() == 0)
@@ -81,6 +81,11 @@ int main(int argc, char *argv[])
 
 		for (rcdiscover::DeviceInfo &info : infos)
     {
+			if (!info.isValid())
+			{
+			  continue;
+			}
+
       std::cout << ip2string(info.getIP()) << std::endl;
     }
   }

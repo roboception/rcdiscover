@@ -1,3 +1,7 @@
+## [0.3.1] - 2017-07-04
+### Changed
+- Fixed rcdiscover console application
+
 ## [0.3.0] - 2017-07-04
 ### Changed
 - Global broadcast instead of directed
