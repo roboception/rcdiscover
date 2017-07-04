@@ -24,10 +24,12 @@ class SocketWindows : public Socket<SocketWindows>
     typedef SOCKET SocketType;
 
   public:
-    static SocketWindows create();
-    static std::vector<SocketWindows> createAndBindForAllInterfaces();
+    static SocketWindows create(ULONG dst_ip, uint16_t port);
+    static std::vector<SocketWindows> createAndBindForAllInterfaces(
+      uint16_t port);
 
-    SocketWindows(int domain, int type, int protocol);
+    SocketWindows(int domain, int type, int protocol,
+                  ULONG dst_ip, uint16_t port);
     SocketWindows(SocketWindows &&other);
     SocketWindows &operator=(SocketWindows &&other);
     ~SocketWindows();
@@ -37,13 +39,14 @@ class SocketWindows : public Socket<SocketWindows>
   protected:
     const SOCKET &getHandleImpl() const;
     void bindImpl(const sockaddr_in &addr);
-    void sendtoImpl(const std::vector<uint8_t> &sendbuf, const sockaddr_in &addr);
+    void sendImpl(const std::vector<uint8_t> &sendbuf);
     void enableBroadcastImpl();
     void enableNonBlockingImpl();
 
   private:
     const static ULONG broadcast_addr_;
     SOCKET sock_;
+    sockaddr_in dst_addr_;
 };
 
 }

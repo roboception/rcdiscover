@@ -25,12 +25,17 @@ const ULONG &SocketWindows::getBroadcastAddr()
   return broadcast_addr_;
 }
 
-SocketWindows SocketWindows::create()
+SocketWindows SocketWindows::create(const ULONG dst_ip, const uint16_t port)
 {
-  return SocketWindows(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  return SocketWindows(AF_INET,
+                       SOCK_DGRAM,
+                       IPPROTO_UDP,
+                       dst_ip,
+                       port);
 }
 
-std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces()
+std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
+  const uint16_t port)
 {
   ULONG forward_tab_size = 0;
   PMIB_IPFORWARDTABLE table = nullptr;
@@ -66,7 +71,7 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces()
       continue;
     }
 
-    sockets.emplace_back(SocketWindows::create());
+    sockets.emplace_back(SocketWindows::create(broadcast_addr_, port));
 
     sockaddr_in src_addr;
     src_addr.sin_family = AF_INET;
@@ -78,18 +83,28 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces()
   return sockets;
 }
 
-SocketWindows::SocketWindows(int domain, int type, int protocol) :
-  sock_(INVALID_SOCKET)
+SocketWindows::SocketWindows(int domain,
+                             int type,
+                             int protocol,
+                             const ULONG dst_ip,
+                             const uint16_t port) :
+  sock_(INVALID_SOCKET),
+  dst_addr_()
 {
   sock_ = ::WSASocket(domain, type, protocol, nullptr, 0, 0);
   if (sock_ == INVALID_SOCKET)
   {
     throw SocketException("Error while creating socket", ::WSAGetLastError());
   }
+
+  dst_addr_.sin_addr.s_addr = dst_ip;
+  dst_addr_.sin_family = AF_INET;
+  dst_addr_.sin_port = htons(port);
 }
 
 SocketWindows::SocketWindows(SocketWindows&& other) :
-  sock_(INVALID_SOCKET)
+  sock_(INVALID_SOCKET),
+  dst_addr_(other.dst_addr_)
 {
   std::swap(sock_, other.sock_);
 }
@@ -123,8 +138,7 @@ void SocketWindows::bindImpl(const sockaddr_in& addr)
   }
 }
 
-void SocketWindows::sendtoImpl(const std::vector<uint8_t>& sendbuf,
-            const sockaddr_in& addr)
+void SocketWindows::sendImpl(const std::vector<uint8_t>& sendbuf)
 {
   auto sb = sendbuf;
 
@@ -138,8 +152,8 @@ void SocketWindows::sendtoImpl(const std::vector<uint8_t>& sendbuf,
              1,
              &len,
              0,
-             reinterpret_cast<const struct sockaddr *>(&addr),
-             sizeof(addr),
+             reinterpret_cast<const struct sockaddr *>(&dst_addr_),
+             sizeof(dst_addr_),
              nullptr,
              nullptr) == SOCKET_ERROR)
    {
