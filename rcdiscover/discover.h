@@ -14,11 +14,24 @@
 
 #include "deviceinfo.h"
 
+#ifdef WIN32
+#include "socket_windows.h"
+#else
+#include "socket_linux.h"
+#endif
+
 namespace rcdiscover
 {
 
 class Discover
 {
+  public:
+#ifdef WIN32
+    typedef SocketWindows SocketType;
+#else
+    typedef SocketLinux SocketType;
+#endif
+
   public:
 
     /**
@@ -48,11 +61,10 @@ class Discover
                      timeout.
     */
 
-    bool getResponse(DeviceInfo &info, int timeout=1000);
+    bool getResponse(std::vector<DeviceInfo> &info, int timeout_per_socket=1000);
 
   private:
-
-    int sock;
+    std::vector<SocketType> sockets_;
 };
 
 }

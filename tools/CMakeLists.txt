@@ -12,6 +12,7 @@ if (WIN32)
 endif (WIN32)
 
 if(wxWidgets_FOUND)
+    message(STATUS ${wxWidgets_INCLUDE_DIRS})
     include_directories(${wxWidgets_INCLUDE_DIRS})
 
     set(rcdiscover-gui-src

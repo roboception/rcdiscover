@@ -13,7 +13,8 @@ enable_testing()
 include_directories(${CMAKE_SOURCE_DIR})
 # - Find manditory packages -
 
-SET(wxWidgets_USE_STATIC ON)
+set(wxWidgets_USE_STATIC ON)
+set(wxWidgets_USE_UNICODE ON)
 find_package(wxWidgets COMPONENTS adv core base)
 if(wxWidgets_FOUND)
     include(${wxWidgets_USE_FILE})
