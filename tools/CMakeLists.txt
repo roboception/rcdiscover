@@ -9,6 +9,7 @@ target_link_libraries(rcdiscover rcdiscover_static)
 
 if (WIN32)
   target_link_libraries(rcdiscover iphlpapi.lib ws2_32.lib)
+  set_target_properties(rcdiscover PROPERTIES LINK_FLAGS -mconsole)
 endif (WIN32)
 
 if(wxWidgets_FOUND)
@@ -39,6 +40,7 @@ if(wxWidgets_FOUND)
 
     if (WIN32)
         target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib)
+        set_target_properties(rcdiscover-gui PROPERTIES LINK_FLAGS -mwindows)
     endif (WIN32)
 
     install(TARGETS rcdiscover rcdiscover-gui COMPONENT bin DESTINATION bin)	

@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 			{
 			  continue;
 			}
-			
+
       std::string name=info.getUserName();
 
       if (name.size() == 0)
@@ -89,6 +89,11 @@ int main(int argc, char *argv[])
 
 		for (rcdiscover::DeviceInfo &info : infos)
     {
+			if (!info.isValid())
+			{
+			  continue;
+			}
+
       std::cout << ip2string(info.getIP()) << std::endl;
     }
   }

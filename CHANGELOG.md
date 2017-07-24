@@ -1,3 +1,12 @@
+## [0.3.2] - 2017-07-06
+### Changed
+- Build console application as Windows console application
+- Sign with SHA512
+
+## [0.3.1] - 2017-07-04
+### Changed
+- Fixed rcdiscover console application
+
 ## [0.3.0] - 2017-07-04
 ### Changed
 - Global broadcast instead of directed
