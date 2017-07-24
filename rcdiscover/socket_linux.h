@@ -30,7 +30,7 @@ class SocketLinux : public Socket<SocketLinux>
 
   public:
     /**
-     * @brief Type representing the native socket type.
+     * @brief Type representing the native socket handle type.
      */
     typedef int SocketType;
 
@@ -66,8 +66,8 @@ class SocketLinux : public Socket<SocketLinux>
     ~SocketLinux();
 
     /**
-     * @brief Returns the interface to which the socket is bound.
-     * @return interface to which the socket is bound.
+     * @brief Returns the sockaddr to which the socket is bound.
+     * @return sockaddr to which the socket is bound.
      */
     const sockaddr_in& getDestSockAddr() const;
 
@@ -85,8 +85,8 @@ class SocketLinux : public Socket<SocketLinux>
     const int &getHandleImpl() const;
 
     /**
-     * @brief Binds the socket to a specific interface.
-     * @param addr sockaddr_in specifying to which interface to bind the socket
+     * @brief Binds the socket to a specific sockaddr.
+     * @param addr sockaddr_in to which to bind the socket
      */
     void bindImpl(const sockaddr_in &addr);
 
