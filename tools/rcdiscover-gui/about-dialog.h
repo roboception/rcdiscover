@@ -14,6 +14,9 @@
 
 #include <wx/dialog.h>
 
+/**
+ * @brief About dialog.
+ */
 class AboutDialog :
     public wxDialog
 {
@@ -22,6 +25,8 @@ class AboutDialog :
                 const wxPoint &pos = wxDefaultPosition,
                 long style = wxDEFAULT_DIALOG_STYLE,
                 const wxString &name = wxDialogNameStr);
+
+    virtual ~AboutDialog() = default;
 };
 
 #endif // ABOUT_DIALOG_H

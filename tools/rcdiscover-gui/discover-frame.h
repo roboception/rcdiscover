@@ -24,31 +24,95 @@ class wxPanel;
 class ResetDialog;
 class AboutDialog;
 
+/**
+ * @brief Main window in which the table of discovered rc_visards is displayed.
+ */
 class DiscoverFrame : public wxFrame
 {
   public:
+    /**
+     * @brief Constructor.
+     * @param title title of the window
+     * @param pos position of the window
+     */
     DiscoverFrame(const wxString& title,
                     const wxPoint& pos);
 
+    virtual ~DiscoverFrame() = default;
+
   private:
+    /**
+     * @brief Let spinner rotate.
+     */
     void setBusy();
+    /**
+     * @brief Stop spinner rotation.
+     */
     void clearBusy();
 
-    void onDiscoverButton(wxCommandEvent&);
-    void onDiscoveryCompleted(wxThreadEvent& event);
-    void onDiscoveryError(wxThreadEvent& event);
+    /**
+     * @brief Event handler for Discovery button click.
+     */
+    void onDiscoverButton(wxCommandEvent &);
 
-    void onResetButton(wxCommandEvent& event);
+    /**
+     * @brief Event handler for completed rc_visard discovery.
+     * @param event event
+     */
+    void onDiscoveryCompleted(wxThreadEvent &event);
 
-    void onDeviceDoubleClick(wxDataViewEvent& event);
-    void onDataViewContextMenu(wxDataViewEvent& event);
-    void onCopy(wxMenuEvent& event);
-    void onOpenWebGUI(wxMenuEvent& event);
-    void onResetContextMenu(wxMenuEvent& event);
+    /**
+     * @brief Event handler for erroneous rc_visard discovery.
+     * @param event event
+     */
+    void onDiscoveryError(wxThreadEvent &event);
 
-    void onExit(wxCommandEvent& event);
-    void onAbout(wxCommandEvent&);
+    /**
+     * @brief Event handler for Reset button click.
+     */
+    void onResetButton(wxCommandEvent &);
 
+    /**
+     * @brief Event handler for double click on an rc_visard.
+     * @param event event
+     */
+    void onDeviceDoubleClick(wxDataViewEvent &event);
+
+    /**
+     * @brief Event handler for right mouse button click on rc_visard.
+     * @param event event
+     */
+    void onDataViewContextMenu(wxDataViewEvent &event);
+
+    /**
+     * @brief Event handler for "copy" context menu item.
+     */
+    void onCopy(wxMenuEvent &);
+
+    /**
+     * @brief Event handler for "open web gui" context menu item.
+     */
+    void onOpenWebGUI(wxMenuEvent &);
+
+    /**
+     * @brief Event handler for "reset" context menu item.
+     */
+    void onResetContextMenu(wxMenuEvent &);
+
+    /**
+     * @brief Event handler for exit command.
+     */
+    void onExit(wxCommandEvent &);
+
+    /**
+     * @brief Event handler for "about" item in window menu.
+     */
+    void onAbout(wxCommandEvent &);
+
+    /**
+     * @brief Open rc_visard reset dialog.
+     * @param row row of currently selected rc_visard in the table
+     */
     void openResetDialog(int row);
 
     wxDECLARE_EVENT_TABLE();

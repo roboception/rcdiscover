@@ -37,6 +37,10 @@ wxThread::ExitCode DiscoverThread::Entry()
 
     while (discover.getResponse(infos, 100)) { }
 
+    std::sort(infos.begin(), infos.end());
+    const auto it = std::unique(infos.begin(), infos.end());
+    infos.erase(it, infos.end());
+
     std::vector<std::future<bool>> reachable;
     for (rcdiscover::DeviceInfo &info : infos)
     {
@@ -50,7 +54,7 @@ wxThread::ExitCode DiscoverThread::Entry()
       }));
     }
 
-    int i = 0;
+    size_t i = 0;
     for (rcdiscover::DeviceInfo &info : infos)
     {
       if (!info.isValid())
@@ -76,32 +80,6 @@ wxThread::ExitCode DiscoverThread::Entry()
 
       ++i;
     }
-
-    std::sort(device_list.begin(), device_list.end(),
-              [](const wxVector<wxVariant>& lhs, const wxVector<wxVariant>& rhs) {
-      for (size_t i = 0; i < lhs.size(); ++i)
-      {
-        if (lhs[i].GetString() != rhs[i].GetString())
-        {
-          return lhs[i].GetString() < rhs[i].GetString();
-        }
-      }
-      return false;
-    });
-
-    auto it = std::unique(device_list.begin(), device_list.end(),
-                          [](const wxVector<wxVariant>& lhs, const wxVector<wxVariant>& rhs){
-      for (size_t i = 0; i < lhs.size(); ++i)
-      {
-        if (lhs[i] != rhs[i])
-        {
-          return false;
-        }
-      }
-      return true;
-    });
-
-    device_list.erase(it, device_list.end());
   }
   catch(const std::exception& ex)
   {

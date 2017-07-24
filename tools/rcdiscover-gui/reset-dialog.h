@@ -21,36 +21,64 @@ class wxCheckBox;
 class wxTextCtrl;
 class wxDataViewListModel;
 
+/**
+ * @brief Dialog for Magic Packets reset of rc_visard.
+ */
+
 class ResetDialog : public wxDialog
 {
   public:
-    ResetDialog() :
-      wxDialog()
-    { }
+    ResetDialog() = default;
 
     ResetDialog(wxWindow *parent, wxWindowID id,
                 const wxPoint &pos = wxDefaultPosition,
                 long style = wxDEFAULT_DIALOG_STYLE,
                 const wxString &name = wxDialogNameStr);
 
+    virtual ~ResetDialog() = default;
+
+    /**
+     * @brief Set list of discovered rc_visards to provide a drop down menu
+     * to the user.
+     * @param sensor_list list of rc_visards
+     */
     void setDiscoveredSensors(const wxDataViewListModel *sensor_list);
-    void setActiveSensor(const size_t row);
+
+    /**
+     * @brief Select a specific rc_visard of the list set by
+     * setDiscoveredSensors.
+     * @param row row of rc_visard list
+     */
+    void setActiveSensor(const unsigned int row);
 
   private:
-    void onSensorSelected(wxCommandEvent& event);
-    // void onIpCheckboxChanged(wxCommandEvent&);
-    void onResetButton(wxCommandEvent& event);
+    /**
+     * @brief Event handler for selection of an rc_visard from drop down menu.
+     * @param event event
+     */
+    void onSensorSelected(wxCommandEvent &event);
 
+    /**
+     * @brief Event handler for click on one of the four reset buttons.
+     * @param event event
+     */
+    void onResetButton(wxCommandEvent &event);
+
+    /**
+     * @brief Reset and clear all fields.
+     */
     void clear();
-    void fillMacAndIp();
+
+    /**
+     * @brief Fill MAC address according to selected rc_visard
+     */
+    void fillMac();
 
     wxDECLARE_EVENT_TABLE();
 
   private:
     wxChoice *sensors_;
     std::array<wxTextCtrl *, 6> mac_;
-    // wxCheckBox *ip_checkbox_;
-    // std::array<wxTextCtrl *, 4> ip_;
 
     const wxDataViewListModel *sensor_list_;
 };

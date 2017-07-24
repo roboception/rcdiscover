@@ -38,9 +38,7 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
             const wxString &name) :
   wxDialog(parent, id, "Reset rc_visard", pos, wxSize(-1,-1), style, name),
   sensors_(nullptr),
-  mac_{nullptr},
-  // ip_checkbox_(nullptr),
-  // ip_{nullptr},
+  mac_{{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
   sensor_list_(nullptr)
 {
   auto *panel = new wxPanel(this, -1);
@@ -67,47 +65,32 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
     {
       mac_box->Add(new wxStaticText(panel, ID_MAC_Textbox, ":"));
     }
-    m = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(35, -1));
+    m = new wxTextCtrl(panel, wxID_ANY, wxEmptyString,
+                       wxDefaultPosition, wxSize(35, -1));
     mac_box->Add(m, 1);
     ++i;
   }
   grid->Add(mac_box, 1, wxEXPAND);
 
-//      auto *ip_text_box = new wxBoxSizer(wxVERTICAL);
-//  ip_checkbox_ = new wxCheckBox(panel, ID_IP_Checkbox, "IP address");
-
-
-//      ip_text_box->Add(ip_text);
-//      broadcast_ = new wxCheckBox(panel, wxID_ANY, "Broadcast");
-//      ip_text_box->Add(broadcast_);
-//  grid->Add(ip_checkbox_);
-
-//  auto *ip_box = new wxBoxSizer(wxHORIZONTAL);
-//  i = 0;
-//  for (auto &ip : ip_)
-//  {
-//    if (i > 0)
-//    {
-//      ip_box->Add(new wxStaticText(panel, ID_IP_Textbox, "."));
-//    }
-//    ip = new wxTextCtrl(panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(30, -1));
-//    ip->Disable();
-//    ip_box->Add(ip, 1);
-//    ++i;
-//  }
-//  ip_box->AddStretchSpacer();
-//  grid->Add(ip_box, 0, wxEXPAND);
-
   vbox->Add(grid, 0, wxALL | wxEXPAND, 15);
 
   auto *button_box = new wxBoxSizer(wxHORIZONTAL);
-  auto *reset_param_button = new wxButton(panel, ID_Reset_Params, "Reset Parameters", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+  auto *reset_param_button = new wxButton(panel, ID_Reset_Params,
+                                          "Reset Parameters", wxDefaultPosition,
+                                          wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_param_button, 0, wxEXPAND);
-  auto *reset_gige_button = new wxButton(panel, ID_Reset_GigE, "Reset GigE", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+  auto *reset_gige_button = new wxButton(panel, ID_Reset_GigE,
+                                         "Reset GigE", wxDefaultPosition,
+                                         wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_gige_button, 0, wxEXPAND);
-  auto *reset_all_button = new wxButton(panel, ID_Reset_All, "Reset All", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+  auto *reset_all_button = new wxButton(panel, ID_Reset_All,
+                                        "Reset All", wxDefaultPosition,
+                                        wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_all_button, 0, wxEXPAND);
-  auto *switch_part_button = new wxButton(panel, ID_Switch_Partition, "Switch Partitions", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+  auto *switch_part_button = new wxButton(panel, ID_Switch_Partition,
+                                          "Switch Partitions",
+                                          wxDefaultPosition, wxDefaultSize,
+                                          wxBU_EXACTFIT);
   button_box->Add(switch_part_button, 0, wxEXPAND);
 
   vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
@@ -121,9 +104,6 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   Connect(ID_Sensor_Combobox,
           wxEVT_CHOICE,
           wxCommandEventHandler(ResetDialog::onSensorSelected));
-//  Connect(ID_IP_Checkbox,
-//          wxEVT_CHECKBOX,
-//          wxCommandEventHandler(ResetDialog::onIpCheckboxChanged));
   Connect(ID_Reset_Params,
           wxEVT_BUTTON,
           wxCommandEventHandler(ResetDialog::onResetButton));
@@ -165,13 +145,13 @@ void ResetDialog::setDiscoveredSensors(const wxDataViewListModel *sensor_list)
   clear();
 }
 
-void ResetDialog::setActiveSensor(const size_t row)
+void ResetDialog::setActiveSensor(const unsigned int row)
 {
-  sensors_->Select(row + 1);
-  fillMacAndIp();
+  sensors_->Select(static_cast<int>(row + 1));
+  fillMac();
 }
 
-void ResetDialog::onSensorSelected(wxCommandEvent& event)
+void ResetDialog::onSensorSelected(wxCommandEvent &)
 {
   if (sensors_->GetSelection() != wxNOT_FOUND)
   {
@@ -181,22 +161,12 @@ void ResetDialog::onSensorSelected(wxCommandEvent& event)
     }
     else
     {
-      fillMacAndIp();
+      fillMac();
     }
   }
 }
 
-//void ResetDialog::onIpCheckboxChanged(wxCommandEvent&)
-//{
-//  const bool checked = ip_checkbox_->IsChecked();
-//
-//  for (auto& ip : ip_)
-//  {
-//    ip->Enable(checked);
-//  }
-//}
-
-void ResetDialog::onResetButton(wxCommandEvent& event)
+void ResetDialog::onResetButton(wxCommandEvent &event)
 {
   try
   {
@@ -247,7 +217,7 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
       try
       {
         const auto v = std::stoul(s, nullptr, 16);
-        if (v < 0x00 || v > 0xff)
+        if (v > 0xff)
         {
           throw std::invalid_argument("");
         }
@@ -255,7 +225,8 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
       }
       catch(const std::invalid_argument&)
       {
-        wxMessageBox("Each MAC address segment must contain a hex value ranging from 0x00 to 0xff.",
+        wxMessageBox(std::string("Each MAC address segment must contain ") +
+                     "a hex value ranging from 0x00 to 0xff.",
                      "Error", wxOK | wxICON_ERROR);
         return;
       }
@@ -272,12 +243,13 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
       rcdiscover::WOL wol(mac, 9);
 
       std::ostringstream oss;
-      oss << "Are you sure to " << func_name << " of rc_visard with MAC-address " << mac_string << "?";
+      oss << "Are you sure to " << func_name <<
+             " of rc_visard with MAC-address " << mac_string << "?";
       const int answer = wxMessageBox(oss.str(), "", wxYES_NO);
 
       if (answer == wxYES)
       {
-        wol.send({0xEE, 0xEE, 0xEE, func_id});
+        wol.send({{0xEE, 0xEE, 0xEE, func_id}});
       }
     }
     catch(const rcdiscover::WOLException& ex)
@@ -287,7 +259,8 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
   }
   catch(const rcdiscover::OperationNotPermitted&)
   {
-    wxMessageBox("rc_discovery probably requires root/admin privileges for this operation.",
+    wxMessageBox(std::string("rc_discovery probably requires root/admin ") +
+                 "privileges for this operation.",
                  "Operation not permitted",
                  wxOK | wxICON_ERROR);
   }
@@ -296,49 +269,33 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
 void ResetDialog::clear()
 {
   sensors_->SetSelection(0);
-  // ip_checkbox_->SetValue(false);
 
   for (uint8_t i = 0; i < 6; ++i)
   {
     mac_[i]->Clear();
     mac_[i]->SetEditable(true);
   }
-  // for (uint8_t i = 0; i < 4; ++i)
-  // {
-  //   ip_[i]->Clear();
-  //   ip_[i]->SetEditable(true);
-  // }
-
-  // wxCommandEvent evt;
-  // onIpCheckboxChanged(evt);
 }
 
-void ResetDialog::fillMacAndIp()
+void ResetDialog::fillMac()
 {
   const int row = sensors_->GetSelection() - 1;
 
+  if (row == wxNOT_FOUND)
+  {
+    return;
+  }
+
   wxVariant mac_string{};
-  wxVariant ip_string{};
-  sensor_list_->GetValueByRow(mac_string, row, 3);
-  sensor_list_->GetValueByRow(ip_string, row, 2);
+  sensor_list_->GetValueByRow(mac_string, static_cast<unsigned int>(row), 3);
 
   const auto mac = split<6>(mac_string.GetString().ToStdString(), ':');
-  const auto ip = split<4>(ip_string.GetString().ToStdString(), '.');
 
   for (uint8_t i = 0; i < 6; ++i)
   {
     mac_[i]->ChangeValue(mac[i]);
     mac_[i]->SetEditable(false);
   }
-  // for (uint8_t i = 0; i < 4; ++i)
-  // {
-  //   ip_[i]->ChangeValue(ip[i]);
-  //   ip_[i]->SetEditable(false);
-  // }
-
-  // ip_checkbox_->SetValue(true);
-  // wxCommandEvent evt;
-  // onIpCheckboxChanged(evt);
 }
 
 BEGIN_EVENT_TABLE(ResetDialog, wxDialog)

@@ -23,6 +23,8 @@ class RcDiscoverApp : public wxApp
       frame_(nullptr)
     { }
 
+    virtual ~RcDiscoverApp() = default;
+
     virtual bool OnInit() override
     {
       SetAppName("rc_discover");
