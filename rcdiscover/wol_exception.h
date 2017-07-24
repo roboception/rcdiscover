@@ -17,6 +17,9 @@
 namespace rcdiscover
 {
 
+/**
+ * @brief Exception representing an error during Magic Packet sending.
+ */
 class WOLException : public std::runtime_error
 {
   public:

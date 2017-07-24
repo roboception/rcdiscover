@@ -17,6 +17,9 @@
 namespace rcdiscover
 {
 
+/**
+ * @brief Exception representing an "operation not permitted" error.
+ */
 class OperationNotPermitted : public std::runtime_error
 {
   public:

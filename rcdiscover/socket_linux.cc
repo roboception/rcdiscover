@@ -46,7 +46,8 @@ SocketLinux SocketLinux::create(const in_addr_t dst_ip, const uint16_t port)
   return SocketLinux(AF_INET, SOCK_DGRAM, IPPROTO_UDP, dst_ip, port);
 }
 
-std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(const uint16_t port)
+std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
+    const uint16_t port)
 {
   std::vector<SocketLinux> sockets;
 
@@ -86,7 +87,8 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(const uint16
         }
         catch(const OperationNotPermitted &)
         {
-          sockets.back().dst_addr_.sin_addr.s_addr = reinterpret_cast<struct sockaddr_in *>(baddr)->sin_addr.s_addr;
+          sockets.back().dst_addr_.sin_addr.s_addr =
+              reinterpret_cast<struct sockaddr_in *>(baddr)->sin_addr.s_addr;
           global_broadcast = false;
         }
       }
@@ -221,7 +223,8 @@ void SocketLinux::bindToDevice(const std::string &device)
       throw OperationNotPermitted();
     }
 
-    throw SocketException("Error while binding to device \"" + device + "\"", errno);
+    throw SocketException("Error while binding to device \"" + device + "\"",
+                          errno);
   }
 }
 
