@@ -60,7 +60,8 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(const uint16
       addr = addr->ifa_next)
   {
     auto baddr = addr->ifa_ifu.ifu_broadaddr;
-    if (addr->ifa_name != nullptr &&
+    if (addr->ifa_flags & IFF_UP &&
+        addr->ifa_name != nullptr &&
         addr->ifa_addr != nullptr &&
         addr->ifa_addr->sa_family == AF_INET &&
         baddr != nullptr)
@@ -173,8 +174,14 @@ void SocketLinux::sendImpl(const std::vector<uint8_t>& sendbuf)
               sendbuf.size(),
               0,
               reinterpret_cast<const sockaddr *>(&dst_addr_),
-              (socklen_t)sizeof(sockaddr_in)) == -1)
+              static_cast<socklen_t>(sizeof(sockaddr_in))) == -1)
    {
+     if (errno == 101)
+     {
+       throw NetworkUnreachableException(
+             "Error while sending data - network unreachable", errno);
+     }
+
      throw SocketException("Error while sending data", errno);
    }
 }
@@ -195,11 +202,7 @@ void SocketLinux::enableBroadcastImpl()
 void SocketLinux::enableNonBlockingImpl()
 {
   int flags = fcntl(sock_, F_GETFL, 0);
-  if (flags < 0)
-  {
-    throw SocketException("Error while setting socket non-blocking", errno);
-  }
-  if (fcntl(sock_, F_SETFL, flags | O_RDWR | O_NONBLOCK) == -1)
+  if (flags < 0 || fcntl(sock_, F_SETFL, flags | O_RDWR | O_NONBLOCK) == -1)
   {
     throw SocketException("Error while setting socket non-blocking", errno);
   }
@@ -211,7 +214,7 @@ void SocketLinux::bindToDevice(const std::string &device)
                    SOL_SOCKET,
                    SO_BINDTODEVICE,
                    device.c_str(),
-                   device.size()) == -1)
+                   static_cast<socklen_t>(device.size())) == -1)
   {
     if (errno == 1)
     {

@@ -11,6 +11,8 @@
 
 #include "discover.h"
 
+#include "socket_exception.h"
+
 #include <exception>
 #include <ios>
 #include <iostream>
@@ -166,7 +168,14 @@ void Discover::broadcastRequest()
 
   for (auto &socket : sockets_)
   {
-    socket.send(discovery_cmd);
+    try
+    {
+      socket.send(discovery_cmd);
+    }
+    catch(const NetworkUnreachableException &)
+    {
+      continue;
+    }
   }
 }
 

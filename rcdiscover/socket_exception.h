@@ -18,6 +18,7 @@ class SocketException : public std::runtime_error
 {
   public:
     SocketException(const std::string& msg, int errnum);
+    virtual ~SocketException() = default;
 
     virtual const char*
     what() const noexcept override;
@@ -27,6 +28,13 @@ class SocketException : public std::runtime_error
   private:
     const int errnum_;
     const std::string msg_;
+};
+
+class NetworkUnreachableException : public SocketException
+{
+  public:
+    NetworkUnreachableException(const std::string &msg, int errnum);
+    virtual ~NetworkUnreachableException() = default;
 };
 
 }

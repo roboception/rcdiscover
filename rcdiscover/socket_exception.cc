@@ -30,4 +30,9 @@ int SocketException::get_error_code() const noexcept
   return errnum_;
 }
 
+NetworkUnreachableException::NetworkUnreachableException(
+    const std::string &msg, int errnum) :
+  SocketException(msg, errnum)
+{ }
+
 }
