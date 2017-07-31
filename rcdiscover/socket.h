@@ -17,6 +17,9 @@ struct sockaddr_in;
 namespace rcdiscover
 {
 
+/**
+ * CRTP class for platform specific socket implementation.
+ */
 template<typename Derived>
 class Socket
 {
@@ -37,27 +40,45 @@ class Socket
     Socket(const Socket&) = delete;
     Socket& operator=(const Socket&) = delete;
 
+    /**
+     * @brief Returns the native socket handle.
+     * @return native socket handle
+     */
     template<typename T>
     const T &getHandle() const
     {
       return getDerived().getHandleImpl();
     }
 
+    /**
+     * @brief Binds the socket to an interface.
+     * @param addr sockaddr_in specifying the interface
+     */
     void bind(const sockaddr_in& addr)
     {
       getDerived().bindImpl(addr);
     }
 
+    /**
+     * @brief Sends data.
+     * @param sendbuf data to send
+     */
     void send(const std::vector<uint8_t>& sendbuf)
     {
       getDerived().sendImpl(sendbuf);
     }
 
+    /**
+     * @brief Enables broadcast for this socket.
+     */
     void enableBroadcast()
     {
       getDerived().enableBroadcastImpl();
     }
 
+    /**
+     * @brief Enables non-blocking operation for this socket.
+     */
     void enableNonBlocking()
     {
       getDerived().enableNonBlockingImpl();

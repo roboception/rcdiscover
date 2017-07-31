@@ -57,7 +57,8 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
   }
   if (result != NO_ERROR)
   {
-    throw SocketException("Error while getting forward table", ::WSAGetLastError());
+    throw SocketException("Error while getting forward table",
+                          ::WSAGetLastError());
   }
 
   std::vector<SocketWindows> sockets;
@@ -170,7 +171,8 @@ void SocketWindows::enableBroadcastImpl()
                 reinterpret_cast<const char *>(&yes),
                 sizeof(yes)) == SOCKET_ERROR)
   {
-    throw SocketException("Error while setting socket options", ::WSAGetLastError());
+    throw SocketException("Error while setting socket options",
+                          ::WSAGetLastError());
   }
 }
 
@@ -179,7 +181,8 @@ void SocketWindows::enableNonBlockingImpl()
   ULONG imode = 1;
   if (::ioctlsocket(sock_, FIONBIO, &imode) == SOCKET_ERROR)
   {
-    throw SocketException("Error while setting socket options", ::WSAGetLastError());
+    throw SocketException("Error while setting socket options",
+                          ::WSAGetLastError());
   }
 }
 

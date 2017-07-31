@@ -17,6 +17,8 @@
 #include "socket_linux.h"
 #endif
 
+#include "socket_exception.h"
+
 namespace rcdiscover
 {
 
@@ -89,7 +91,14 @@ void WOL::sendImpl(const std::array<uint8_t, 4> *password) const
     socket.enableBroadcast();
     socket.enableNonBlocking();
 
-    socket.send(sendbuf);
+    try
+    {
+      socket.send(sendbuf);
+    }
+    catch(const NetworkUnreachableException &)
+    {
+      continue;
+    }
   }
 }
 

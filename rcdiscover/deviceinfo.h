@@ -68,31 +68,31 @@ class DeviceInfo
       @return Pointer to 6 bytes with the MAC address.
     */
 
-    const uint64_t getMAC() const { return mac; }
+    uint64_t getMAC() const { return mac; }
 
     /**
       Returns the current IP address of the device.
 
-      @return Pointer to 4 bytes with an IPv4 address.
+      @return 4 bytes with an IPv4 address.
     */
 
-    const uint32_t getIP() const { return ip; }
+    uint32_t getIP() const { return ip; }
 
     /**
       Returns the current subnet mask of the device.
 
-      @return Pointer to 4 bytes with an IPv4 subnet mask.
+      @return 4 bytes with an IPv4 subnet mask.
     */
 
-    const uint32_t getSubnetMask() const { return subnet; }
+    uint32_t getSubnetMask() const { return subnet; }
 
     /**
       Returns the current IP address of the devices gateway.
 
-      @return Pointer to 4 bytes with an IPv4 address.
+      @return 4 bytes with an IPv4 address.
     */
 
-    const uint32_t getGateway() const { return gateway; }
+    uint32_t getGateway() const { return gateway; }
 
     /**
       Returns the manufacturer name.
@@ -100,7 +100,7 @@ class DeviceInfo
       @return Manufacturer name.
     */
 
-    std::string getManufacturerName() const { return manufacturer_name; }
+    const std::string &getManufacturerName() const { return manufacturer_name; }
 
     /**
       Returns the model name.
@@ -108,7 +108,7 @@ class DeviceInfo
       @return Model name.
     */
 
-    std::string getModelName() const { return model_name; }
+    const std::string &getModelName() const { return model_name; }
 
     /**
       Returns the device version.
@@ -116,7 +116,7 @@ class DeviceInfo
       @return Device version.
     */
 
-    std::string getDeviceVersion() const { return device_version; }
+    const std::string &getDeviceVersion() const { return device_version; }
 
     /**
       Returns manufacturer specific information.
@@ -124,7 +124,7 @@ class DeviceInfo
       @return Manufacturer info.
     */
 
-    std::string getManufacturerInfo() const { return manufacturer_info; }
+    const std::string &getManufacturerInfo() const { return manufacturer_info; }
 
     /**
       Returns the serial number.
@@ -132,7 +132,7 @@ class DeviceInfo
       @return Serial number.
     */
 
-    std::string getSerialNumber() const { return serial_number; }
+    const std::string &getSerialNumber() const { return serial_number; }
 
     /**
       Returns the user name.
@@ -140,13 +140,19 @@ class DeviceInfo
       @return User name.
     */
 
-    std::string getUserName() const { return user_name; }
+    const std::string &getUserName() const { return user_name; }
 
     /**
       Returns true if the MAC addresses conicide.
     */
 
     bool operator == (const DeviceInfo &info) const { return mac == info.mac; }
+
+    /**
+     * Returns true if MAC address of this is less than MAC of other device.
+     */
+
+    bool operator < (const DeviceInfo &info) const { return mac < info.mac; }
 
   private:
 

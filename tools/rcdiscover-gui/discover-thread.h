@@ -16,12 +16,17 @@
 
 class wxWindow;
 
+/**
+ * @brief Thread in which the discovery of rc_visards is run.
+ */
 class DiscoverThread : public wxThread
 {
   public:
     DiscoverThread(wxWindow *parent) :
       parent_(parent)
     { }
+
+    virtual ~DiscoverThread() = default;
 
   protected:
     virtual ExitCode Entry() override;

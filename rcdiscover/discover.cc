@@ -11,6 +11,8 @@
 
 #include "discover.h"
 
+#include "socket_exception.h"
+
 #include <exception>
 #include <ios>
 #include <iostream>
@@ -41,112 +43,6 @@ typedef SocketWindows SocketImpl;
 typedef SocketLinux SocketImpl;
 #endif
 
-namespace
-{
-
-#ifdef WIN32
-inline void close(int sock)
-{
-    closesocket(sock);
-}
-#endif
-
-inline std::string geterror(int errnum)
-{
-#ifdef WIN32
-    char tmp[256];
-    strerror_s(tmp, 256, errnum);
-    return std::string(tmp);
-#else
-    char tmp[256];
-    return std::string(strerror_r(errnum, tmp, 256));
-#endif
-}
-
-/*
-  Returns a vector with broadcast IPs of all interfaces for sending the request
-  via directed broadcast to each interface explicitely.
-*/
-
-std::vector<uint32_t> getBroadcastIPs()
-{
-  std::vector<uint32_t> list;
-
-#ifdef WIN32
-  // get ip table (need to try several times due to race condition)
-  MIB_IPADDRTABLE *iptab=0;
-
-  {
-    ULONG len=0;
-    for (int i=0; i<5; i++)
-    {
-      DWORD ipRet=GetIpAddrTable(iptab, &len, false);
-      if (ipRet == ERROR_INSUFFICIENT_BUFFER)
-      {
-        free(iptab);
-        iptab=reinterpret_cast<MIB_IPADDRTABLE *>(malloc(len));
-      }
-      else if (ipRet == NO_ERROR)
-      {
-        break;
-      }
-      else
-      {
-        free(iptab);
-        iptab=0;
-        break;
-      }
-    }
-  }
-
-  // extract and store broadcast addresses
-
-  if (iptab != 0)
-  {
-    for (DWORD i=0; i<iptab->dwNumEntries; i++)
-    {
-      const MIB_IPADDRROW &row = iptab->table[i];
-
-      uint32_t baddr=row.dwAddr&row.dwMask;
-      if (row.dwBCastAddr)
-      {
-        baddr|=~row.dwMask;
-      }
-
-      list.push_back(baddr);
-    }
-
-    free(iptab);
-  }
-#else
-  struct ifaddrs *ifap=0;
-  if (getifaddrs(&ifap) == 0)
-  {
-    struct ifaddrs *p=ifap;
-    while (p != 0)
-    {
-      if (p->ifa_addr != 0)
-      {
-        struct sockaddr *b=p->ifa_broadaddr;
-
-        if (b != 0 && b->sa_family == AF_INET)
-        {
-          list.push_back(reinterpret_cast<struct sockaddr_in *>(b)->sin_addr.s_addr);
-        }
-      }
-
-      p=p->ifa_next;
-    }
-
-    freeifaddrs(ifap);
-  }
-#endif
-
-  return list;
-}
-
-}
-
 Discover::Discover() :
   sockets_(SocketType::createAndBindForAllInterfaces(3956))
 {
@@ -166,11 +62,19 @@ void Discover::broadcastRequest()
 
   for (auto &socket : sockets_)
   {
-    socket.send(discovery_cmd);
+    try
+    {
+      socket.send(discovery_cmd);
+    }
+    catch(const NetworkUnreachableException &)
+    {
+      continue;
+    }
   }
 }
 
-bool Discover::getResponse(std::vector<DeviceInfo> &info, int timeout_per_socket)
+bool Discover::getResponse(std::vector<DeviceInfo> &info,
+                           int timeout_per_socket)
 {
   // setup waiting for data to arrive
 
@@ -214,13 +118,16 @@ bool Discover::getResponse(std::vector<DeviceInfo> &info, int timeout_per_socket
 #endif
           memset(&addr, 0, naddr);
 
-          int n=recvfrom(sock, reinterpret_cast<char *>(p), sizeof(p), 0, reinterpret_cast<struct sockaddr *>(&addr), &naddr);
+          long n = recvfrom(sock,
+                            reinterpret_cast<char *>(p), sizeof(p), 0,
+                            reinterpret_cast<struct sockaddr *>(&addr), &naddr);
 
           // check if received package is a valid discovery acknowledge
 
           if (n >= 8)
           {
-            if (p[0] == 0 && p[1] == 0 && p[2] == 0 && p[3] == 0x03 && p[6] == 0 && p[7] == 1)
+            if (p[0] == 0 && p[1] == 0 && p[2] == 0 &&
+                p[3] == 0x03 && p[6] == 0 && p[7] == 1)
             {
               size_t len=(static_cast<size_t>(p[4])<<8)|p[5];
 

@@ -39,8 +39,6 @@
 #include "resources/logo_128.xpm"
 #include "resources/logo_32_rotate.h"
 
-
-
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
   wxFrame(NULL, wxID_ANY, title, pos, wxSize(650,350)),
@@ -51,12 +49,15 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   about_dialog_(nullptr),
   menu_event_item_(nullptr)
 {
+  // spinner
   wxIcon icon_128(logo_128_xpm);
   SetIcon(icon_128);
 
-  wxMemoryInputStream gif_stream(logo_32_rotate_gif, sizeof(logo_32_rotate_gif));
+  wxMemoryInputStream gif_stream(logo_32_rotate_gif,
+                                 sizeof(logo_32_rotate_gif));
   spinner_.Load(gif_stream, wxANIMATION_TYPE_GIF);
 
+  // menu
   wxMenu *menuFile = new wxMenu();
   menuFile->Append(wxID_EXIT);
 
@@ -71,10 +72,11 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   SetMenuBar(menuBar);
   CreateStatusBar();
 
+  // window content
   auto *panel = new wxPanel(this, wxID_ANY);
-
   auto *vbox = new wxBoxSizer(wxVERTICAL);
 
+  // buttons
   auto *button_box = new wxBoxSizer(wxHORIZONTAL);
   discover_button_ = new wxButton(panel, ID_DiscoverButton, "Rerun Discovery");
   button_box->Add(discover_button_, 1);
@@ -93,6 +95,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
 
   vbox->Add(button_box, 0, wxALL, 10);
 
+  // rc_visard table
   auto *data_box = new wxBoxSizer(wxHORIZONTAL);
 
   device_list_ = new wxDataViewListCtrl(panel,
@@ -200,7 +203,7 @@ void DiscoverFrame::clearBusy()
   spinner_ctrl_->Stop();
 }
 
-void DiscoverFrame::onDiscoverButton(wxCommandEvent&)
+void DiscoverFrame::onDiscoverButton(wxCommandEvent &)
 {
   setBusy();
 
@@ -215,7 +218,7 @@ void DiscoverFrame::onDiscoverButton(wxCommandEvent&)
   }
 }
 
-void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent& event)
+void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent &event)
 {
   device_list_->DeleteAllItems();
 
@@ -229,7 +232,7 @@ void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent& event)
   clearBusy();
 }
 
-void DiscoverFrame::onDiscoveryError(wxThreadEvent& event)
+void DiscoverFrame::onDiscoveryError(wxThreadEvent &event)
 {
   std::ostringstream oss;
   oss << "An error occurred during discovery: " << event.GetString();
@@ -238,7 +241,7 @@ void DiscoverFrame::onDiscoveryError(wxThreadEvent& event)
   clearBusy();
 }
 
-void DiscoverFrame::onResetButton(wxCommandEvent& event)
+void DiscoverFrame::onResetButton(wxCommandEvent &)
 {
   openResetDialog(device_list_->GetSelectedRow());
 }
@@ -246,18 +249,21 @@ void DiscoverFrame::onResetButton(wxCommandEvent& event)
 void DiscoverFrame::onHelpDiscovery(wxCommandEvent&)
 {
   help_ctrl_->Display("help.htm#discovery");
-}
-
-void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent& event)
-{
+}void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event){
   const auto item = event.GetItem();
   const auto row = device_list_->ItemToRow(item);
 
-  const auto ip_wxstring = device_list_->GetTextValue(row, 2);
+  if (row == wxNOT_FOUND)
+  {
+    return;
+  }
+
+  const auto ip_wxstring = device_list_->GetTextValue(
+                             static_cast<unsigned int>(row), 2);
   wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
 }
 
-void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent& event)
+void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
 {
   menu_event_item_.reset(new std::pair<int, int>(
                            device_list_->ItemToRow(event.GetItem()),
@@ -282,7 +288,7 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent& event)
   PopupMenu(&menu);
 }
 
-void DiscoverFrame::onCopy(wxMenuEvent& event)
+void DiscoverFrame::onCopy(wxMenuEvent &)
 {
   if (!menu_event_item_ ||
       menu_event_item_->first < 0 ||
@@ -291,8 +297,9 @@ void DiscoverFrame::onCopy(wxMenuEvent& event)
     return;
   }
 
-  const auto row = menu_event_item_->first;
-  const auto cell = device_list_->GetTextValue(row, menu_event_item_->second);
+  const auto row = static_cast<unsigned int>(menu_event_item_->first);
+  const auto cell = device_list_->GetTextValue(
+                      row, static_cast<unsigned int>(menu_event_item_->second));
 
   if (wxTheClipboard->Open())
   {
@@ -301,7 +308,7 @@ void DiscoverFrame::onCopy(wxMenuEvent& event)
   }
 }
 
-void DiscoverFrame::onOpenWebGUI(wxMenuEvent& event)
+void DiscoverFrame::onOpenWebGUI(wxMenuEvent &)
 {
   if (!menu_event_item_ ||
       menu_event_item_->first < 0)
@@ -309,11 +316,13 @@ void DiscoverFrame::onOpenWebGUI(wxMenuEvent& event)
     return;
   }
 
-  const auto ip_wxstring = device_list_->GetTextValue(menu_event_item_->first, 2);
+  const auto ip_wxstring = device_list_->GetTextValue(
+                             static_cast<unsigned int>(menu_event_item_->first),
+                             2);
   wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
 }
 
-void DiscoverFrame::onResetContextMenu(wxMenuEvent&)
+void DiscoverFrame::onResetContextMenu(wxMenuEvent &)
 {
   if (!menu_event_item_ ||
       menu_event_item_->first < 0)
@@ -324,12 +333,12 @@ void DiscoverFrame::onResetContextMenu(wxMenuEvent&)
   openResetDialog(menu_event_item_->first);
 }
 
-void DiscoverFrame::onExit(wxCommandEvent& event)
+void DiscoverFrame::onExit(wxCommandEvent &)
 {
   Close(true);
 }
 
-void DiscoverFrame::onAbout(wxCommandEvent&)
+void DiscoverFrame::onAbout(wxCommandEvent &)
 {
   about_dialog_->ShowModal();
 }
@@ -345,7 +354,7 @@ void DiscoverFrame::openResetDialog(const int row)
 
   if (row != wxNOT_FOUND)
   {
-    reset_dialog_->setActiveSensor(row);
+    reset_dialog_->setActiveSensor(static_cast<unsigned int>(row));
   }
 
   reset_dialog_->ShowModal();

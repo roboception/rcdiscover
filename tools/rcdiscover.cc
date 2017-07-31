@@ -48,6 +48,10 @@ int main(int argc, char *argv[])
 
     while (discover.getResponse(infos, 100)) { }
 
+    std::sort(infos.begin(), infos.end());
+    const auto it = std::unique(infos.begin(), infos.end());
+    infos.erase(it, infos.end());
+
 		for (rcdiscover::DeviceInfo &info : infos)
     {
 			if (!info.isValid())
@@ -77,7 +81,11 @@ int main(int argc, char *argv[])
   }
   else
   {
-    while (discover.getResponse(infos)) {}
+    while (discover.getResponse(infos, 100)) {}
+
+    std::sort(infos.begin(), infos.end());
+    const auto it = std::unique(infos.begin(), infos.end());
+    infos.erase(it, infos.end());
 
 		for (rcdiscover::DeviceInfo &info : infos)
     {
