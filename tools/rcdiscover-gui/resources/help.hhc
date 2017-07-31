@@ -1,0 +1,15 @@
+<HTML>
+<HEAD>
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Discovery">
+			<param name="Local" value="help.htm#discovery">
+		     </OBJECT>
+	    <LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Reset">
+			<param name="Local" value="help.htm#reset">
+		     </OBJECT>
+</UL>
+</BODY></HTML>

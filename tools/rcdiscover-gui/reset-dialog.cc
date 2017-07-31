@@ -31,6 +31,8 @@
 #include <wx/dataview.h>
 #include <wx/msgdlg.h>
 #include <wx/valgen.h>
+#include <wx/html/helpctrl.h>
+#include <wx/cshelp.h>
 
 ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
             const wxPoint &pos,
@@ -41,12 +43,13 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   mac_{nullptr},
   // ip_checkbox_(nullptr),
   // ip_{nullptr},
-  sensor_list_(nullptr)
+  sensor_list_(nullptr),
+  help_ctrl_(nullptr)
 {
   auto *panel = new wxPanel(this, -1);
   auto *vbox = new wxBoxSizer(wxVERTICAL);
 
-  auto *grid = new wxFlexGridSizer(4, 2, 10, 25);
+  auto *grid = new wxFlexGridSizer(2, 2, 10, 25);
 
   auto *sensors_text = new wxStaticText(panel, wxID_ANY, "rc_visard");
   grid->Add(sensors_text);
@@ -110,6 +113,13 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   auto *switch_part_button = new wxButton(panel, ID_Switch_Partition, "Switch Partitions", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(switch_part_button, 0, wxEXPAND);
 
+  button_box->AddSpacer(20);
+  int w, h;
+  switch_part_button->GetSize(&w, &h);
+  auto *help_button = new wxContextHelpButton(panel, ID_Help_Reset,
+                                              wxDefaultPosition, wxSize(h,h));
+  button_box->Add(help_button, 0, wxEXPAND);
+
   vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
   panel->SetSizer(vbox);
@@ -117,6 +127,9 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   Centre();
 
   this->Fit();
+
+  help_ctrl_ = new wxHtmlHelpController(wxHF_DEFAULT_STYLE, panel);
+  help_ctrl_->AddBook("memory:help.hhp");
 
   Connect(ID_Sensor_Combobox,
           wxEVT_CHOICE,
@@ -136,6 +149,9 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   Connect(ID_Switch_Partition,
           wxEVT_BUTTON,
           wxCommandEventHandler(ResetDialog::onResetButton));
+  Connect(ID_Help_Reset,
+          wxEVT_BUTTON,
+          wxCommandEventHandler(ResetDialog::onHelpButton));
 }
 
 void ResetDialog::setDiscoveredSensors(const wxDataViewListModel *sensor_list)
@@ -291,6 +307,11 @@ void ResetDialog::onResetButton(wxCommandEvent& event)
                  "Operation not permitted",
                  wxOK | wxICON_ERROR);
   }
+}
+
+void ResetDialog::onHelpButton(wxCommandEvent& event)
+{
+  help_ctrl_->Display("help.htm#reset");
 }
 
 void ResetDialog::clear()

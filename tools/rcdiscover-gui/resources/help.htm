@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<Title>help</Title>
+</HEAD>
+<BODY>
+<H1>rc_discover</H1>
+<H2><a name="discovery" id="discovery">Discovery of <em>rc_visard</em> devices</a></H2>
+<p>Devices that are powered up and connected to the local network or directly to a
+computer can be found using the standard GigE Vision ® discovery mechanism. 
+At startup of the rcdiscover-gui tool, all available <em>rc_visard</em> devices are
+listed with their name, serial number, current IP, and unique MAC address. The
+discovery tool finds all devices reachable with global broadcasts. Thus, devices
+located in different subnets than the computer may also be listed. An icon in the
+discovery tool indicates whether such devices are actually reachable via a
+web browser.</p>
+
+<p>After successful discovery, a double click on the device row opens the Web GUI of the device in
+the default web browser of the operating system. To rescan the network, click <em>Rerun Discovery</em>.</p>
+
+<H2><a name="reset" id="reset">Reset of a misconfigured <em>rc_visard</em></a></H2>
+
+<p>Using the <em>Reset rc_visard</em> button in the discovery tool, one can reset
+misconfigured devices by following below instructions.</p>
+
+<ol>
+<li>The reset mechanism is available for two minutes after device startup only. Thus,
+a reboot of the <em>rc_visard</em> may be required before being able to reset the device.</li>
+<li>If the misconfigured <em>rc_visard</em> is still successfully detected by the discovery
+tool, one can select it from the <em>rc-visard</em> drop down menu. Otherwise,
+the <em>rc_visard</em>’s MAC address, which is printed on the device, may be entered manually in the designated fields.</li>
+<li>By clicking one of the four buttons, specific modules can be reset:<ul>
+<li><a name="reset-parameters" id="reset-parameters"><em>Reset Parameters</em></a>: Reset <em>rc_visard</em> parameters that are configurable via
+Web GUI (e.g., frame rate).</li>
+<li><a name="reset-gige" id="reset-gige"><em>Reset GigE</em></a>: Reset GigE Vision ® settings (network configuration and user defined name).</li>
+<li><a name="reset-all" id="reset-all"><em>Reset All</em></a>: Reset <em>rc_visard</em> parameters as well as GigE Vision ® parameters.</li>
+<li><a name="switch-partitions" id="switch-partitions"><em>Switch Partitions</em></a>: Allows to perform a rollback the the previous firmware.</li>
+</ul>
+</li>
+<li>A successful reset is indicated by a white status LED followed by a device
+reboot. If no reaction is noticable, the two minutes time slot mentioned in step 1
+may have closed, requiring another reboot. Moreover, repeating step 3 multiple
+times often is useful.</li>
+</ol>
+</BODY>
+</HTML>

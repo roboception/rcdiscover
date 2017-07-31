@@ -15,7 +15,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 set(wxWidgets_USE_STATIC ON)
 set(wxWidgets_USE_UNICODE ON)
-find_package(wxWidgets COMPONENTS adv core base)
+find_package(wxWidgets COMPONENTS html adv core base)
 if(wxWidgets_FOUND)
     include(${wxWidgets_USE_FILE})
 endif(wxWidgets_FOUND)
@@ -26,7 +26,7 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE CACHE STRING "Build type: DEBUG or RELEASE" FORCE)
 endif ()
 
-# 
+#
 
 # - Standard definitions -
 

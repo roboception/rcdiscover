@@ -10,6 +10,7 @@
 */
 
 #include "rcdiscover-gui/discover-frame.h"
+#include "rcdiscover-gui/resources.h"
 
 #include <sstream>
 
@@ -38,6 +39,8 @@ class RcDiscoverApp : public wxApp
         wxMessageBox(oss.str(), "Error", wxOK | wxICON_ERROR);
       }
 #endif
+
+      registerResources();
 
       frame_ = new DiscoverFrame("rc_discover", wxPoint(50,50));
       frame_->Show(true);

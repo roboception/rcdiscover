@@ -20,6 +20,7 @@ class wxChoice;
 class wxCheckBox;
 class wxTextCtrl;
 class wxDataViewListModel;
+class wxHtmlHelpController;
 
 class ResetDialog : public wxDialog
 {
@@ -40,6 +41,7 @@ class ResetDialog : public wxDialog
     void onSensorSelected(wxCommandEvent& event);
     // void onIpCheckboxChanged(wxCommandEvent&);
     void onResetButton(wxCommandEvent& event);
+    void onHelpButton(wxCommandEvent& event);
 
     void clear();
     void fillMacAndIp();
@@ -53,6 +55,8 @@ class ResetDialog : public wxDialog
     // std::array<wxTextCtrl *, 4> ip_;
 
     const wxDataViewListModel *sensor_list_;
+
+    wxHtmlHelpController *help_ctrl_;
 };
 
 #endif // RESETDIALOG_H

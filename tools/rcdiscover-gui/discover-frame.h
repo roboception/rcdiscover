@@ -23,6 +23,7 @@ class wxDataViewEvent;
 class wxPanel;
 class ResetDialog;
 class AboutDialog;
+class wxHtmlHelpController;
 
 class DiscoverFrame : public wxFrame
 {
@@ -39,6 +40,7 @@ class DiscoverFrame : public wxFrame
     void onDiscoveryError(wxThreadEvent& event);
 
     void onResetButton(wxCommandEvent& event);
+    void onHelpDiscovery(wxCommandEvent&);
 
     void onDeviceDoubleClick(wxDataViewEvent& event);
     void onDataViewContextMenu(wxDataViewEvent& event);
@@ -48,6 +50,7 @@ class DiscoverFrame : public wxFrame
 
     void onExit(wxCommandEvent& event);
     void onAbout(wxCommandEvent&);
+    void onHelp(wxCommandEvent&);
 
     void openResetDialog(int row);
 
@@ -61,6 +64,7 @@ class DiscoverFrame : public wxFrame
     AboutDialog *about_dialog_;
     wxAnimation spinner_;
     wxAnimationCtrl *spinner_ctrl_;
+    wxHtmlHelpController *help_ctrl_;
     std::unique_ptr<std::pair<int, int>> menu_event_item_;
 };
 

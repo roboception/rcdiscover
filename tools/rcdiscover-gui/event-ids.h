@@ -28,6 +28,9 @@ enum
   ID_Reset_GigE,
   ID_Reset_All,
   ID_Switch_Partition,
+  ID_Help,
+  ID_Help_Discovery,
+  ID_Help_Reset,
 
   ID_Sensor_Combobox,
   ID_MAC_Textbox,

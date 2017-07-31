@@ -33,6 +33,8 @@
 #include <wx/clipbrd.h>
 #include <wx/dc.h>
 #include <wx/msgdlg.h>
+#include <wx/html/helpctrl.h>
+#include <wx/cshelp.h>
 
 #include "resources/logo_128.xpm"
 #include "resources/logo_32_rotate.h"
@@ -59,6 +61,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   menuFile->Append(wxID_EXIT);
 
   wxMenu *menuHelp = new wxMenu();
+  menuHelp->Append(wxID_HELP);
   menuHelp->Append(wxID_ABOUT);
 
   wxMenuBar *menuBar = new wxMenuBar();
@@ -77,6 +80,11 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   button_box->Add(discover_button_, 1);
   reset_button_ = new wxButton(panel, ID_ResetButton, "Reset rc_visard");
   button_box->Add(reset_button_, 1);
+  int w, h;
+  reset_button_->GetSize(&w, &h);
+  auto *help_button = new wxContextHelpButton(panel, ID_Help_Discovery,
+                                              wxDefaultPosition, wxSize(h,h));
+  button_box->Add(help_button, 1);
 
   button_box->Add(-1, 0, wxEXPAND);
 
@@ -121,6 +129,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   panel->SetSizer(vbox);
   Centre();
 
+  help_ctrl_ = new wxHtmlHelpController(wxHF_DEFAULT_STYLE, panel);
+  help_ctrl_->AddBook("memory:help.hhp");
+
   Connect(ID_DiscoverButton,
           wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(DiscoverFrame::onDiscoverButton));
@@ -133,6 +144,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_ResetButton,
           wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(DiscoverFrame::onResetButton));
+  Connect(ID_Help_Discovery,
+          wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(DiscoverFrame::onHelpDiscovery));
   Connect(ID_DataViewListCtrl,
           wxEVT_DATAVIEW_ITEM_ACTIVATED,
           wxDataViewEventHandler(DiscoverFrame::onDeviceDoubleClick));
@@ -154,6 +168,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(wxID_ABOUT,
           wxEVT_MENU,
           wxCommandEventHandler(DiscoverFrame::onAbout));
+  Connect(wxID_HELP,
+          wxEVT_MENU,
+          wxCommandEventHandler(DiscoverFrame::onHelp));
 
   reset_dialog_ = new ResetDialog(panel, wxID_ANY);
   about_dialog_ = new AboutDialog(panel, wxID_ANY);
@@ -224,6 +241,11 @@ void DiscoverFrame::onDiscoveryError(wxThreadEvent& event)
 void DiscoverFrame::onResetButton(wxCommandEvent& event)
 {
   openResetDialog(device_list_->GetSelectedRow());
+}
+
+void DiscoverFrame::onHelpDiscovery(wxCommandEvent&)
+{
+  help_ctrl_->Display("help.htm#discovery");
 }
 
 void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent& event)
@@ -310,6 +332,11 @@ void DiscoverFrame::onExit(wxCommandEvent& event)
 void DiscoverFrame::onAbout(wxCommandEvent&)
 {
   about_dialog_->ShowModal();
+}
+
+void DiscoverFrame::onHelp(wxCommandEvent&)
+{
+  help_ctrl_->Display("help.htm");
 }
 
 void DiscoverFrame::openResetDialog(const int row)
