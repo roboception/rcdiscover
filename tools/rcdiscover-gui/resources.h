@@ -12,6 +12,10 @@
 #ifndef REGISTER_RESOURCES
 #define REGISTER_RESOURCES
 
+/**
+ * @brief Registers virtual resource files using wxMemoryFSHandler.
+ * They can be retrieved in wxWidgets with the "memory:" prefix.
+ */
 void registerResources();
 
 #endif /* REGISTER_RESOURCES */

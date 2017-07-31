@@ -282,7 +282,7 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
   }
 }
 
-void ResetDialog::onHelpButton(wxCommandEvent& event)
+void ResetDialog::onHelpButton(wxCommandEvent &)
 {
   help_ctrl_->Display("help.htm#reset");
 }

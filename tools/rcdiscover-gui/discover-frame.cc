@@ -338,14 +338,14 @@ void DiscoverFrame::onExit(wxCommandEvent &)
   Close(true);
 }
 
-void DiscoverFrame::onAbout(wxCommandEvent &)
-{
-  about_dialog_->ShowModal();
-}
-
 void DiscoverFrame::onHelp(wxCommandEvent&)
 {
   help_ctrl_->Display("help.htm");
+}
+
+void DiscoverFrame::onAbout(wxCommandEvent &)
+{
+  about_dialog_->ShowModal();
 }
 
 void DiscoverFrame::openResetDialog(const int row)

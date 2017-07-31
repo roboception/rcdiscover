@@ -58,13 +58,17 @@ class ResetDialog : public wxDialog
      * @param event event
      */
     void onSensorSelected(wxCommandEvent &event);
-    void onHelpButton(wxCommandEvent& event);
 
     /**
      * @brief Event handler for click on one of the four reset buttons.
      * @param event event
      */
     void onResetButton(wxCommandEvent &event);
+
+    /**
+     * @brief Event handler for help button.
+     */
+    void onHelpButton(wxCommandEvent &);
 
     /**
      * @brief Reset and clear all fields.

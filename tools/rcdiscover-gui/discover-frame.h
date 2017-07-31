@@ -61,7 +61,11 @@ class DiscoverFrame : public wxFrame
      * @param event event
      */
     void onDiscoveryCompleted(wxThreadEvent &event);
-    void onHelpDiscovery(wxCommandEvent&);
+
+    /**
+     * @brief Event handler for help button.
+     */
+    void onHelpDiscovery(wxCommandEvent &);
 
     /**
      * @brief Event handler for erroneous rc_visard discovery.
@@ -73,7 +77,6 @@ class DiscoverFrame : public wxFrame
      * @brief Event handler for Reset button click.
      */
     void onResetButton(wxCommandEvent &);
-    void onHelp(wxCommandEvent&);
 
     /**
      * @brief Event handler for double click on an rc_visard.
@@ -106,6 +109,11 @@ class DiscoverFrame : public wxFrame
      * @brief Event handler for exit command.
      */
     void onExit(wxCommandEvent &);
+
+    /**
+     * @brief Event handler for "help" item in window menu.
+     */
+    void onHelp(wxCommandEvent &);
 
     /**
      * @brief Event handler for "about" item in window menu.
