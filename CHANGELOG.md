@@ -1,3 +1,7 @@
+## [0.4.0] - 2017-08-04
+### Added
+- Help buttons
+
 ## [0.3.2] - 2017-07-06
 ### Changed
 - Build console application as Windows console application
