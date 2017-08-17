@@ -53,14 +53,14 @@ AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id,
                          const wxPoint &pos,
                          long style,
                          const wxString &name) :
-  wxDialog(parent, id, "About rc_discover", pos, wxSize(420, 300), style, name)
+  wxDialog(parent, id, "About rcdiscover", pos, wxSize(420, 300), style, name)
 {
   auto *panel = new wxPanel(this);
   auto *vbox = new wxBoxSizer(wxVERTICAL);
 
   // title
   auto *title_box = new wxBoxSizer(wxHORIZONTAL);
-  auto *title = new wxStaticText(panel, wxID_ANY, "rc_discover "
+  auto *title = new wxStaticText(panel, wxID_ANY, "rcdiscover "
                                  TOSTRING(PACKAGE_VERSION_MAJOR) "."
                                  TOSTRING(PACKAGE_VERSION_MINOR) "."
                                  TOSTRING(PACKAGE_VERSION_PATCH),

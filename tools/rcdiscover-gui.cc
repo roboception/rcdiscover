@@ -52,7 +52,7 @@ class RcDiscoverApp : public wxApp
 
     virtual bool OnInit() override
     {
-      SetAppName("rc_discover");
+      SetAppName("rcdiscover");
       SetVendorName("Roboception");
 
 #ifdef WIN32
@@ -68,7 +68,7 @@ class RcDiscoverApp : public wxApp
 
       registerResources();
 
-      frame_ = new DiscoverFrame("rc_discover", wxPoint(50,50));
+      frame_ = new DiscoverFrame("rcdiscover", wxPoint(50,50));
       frame_->Show(true);
       return true;
     }
