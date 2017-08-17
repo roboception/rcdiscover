@@ -45,15 +45,16 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-static const std::string rc_copyright = "Copyright 2017 Roboception GmbH.";
-static const std::string wx_license = "This product contains code from the \
+static const std::string rc_copyright = "Copyright (c) 2017 Roboception GmbH";
+static const std::string rc_license = "The source code of rcdiscover is available under the 3-clause BSD license.";
+static const std::string wx_license = "This program contains code from the \
 LGPLed library wxWidgets (http://www.wxwidgets.org/).";
 
 AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id,
                          const wxPoint &pos,
                          long style,
                          const wxString &name) :
-  wxDialog(parent, id, "About rcdiscover", pos, wxSize(420, 300), style, name)
+  wxDialog(parent, id, "About rcdiscover", pos, wxSize(420, 400), style, name)
 {
   auto *panel = new wxPanel(this);
   auto *vbox = new wxBoxSizer(wxVERTICAL);
@@ -77,6 +78,13 @@ AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id,
   auto *copyright = new wxStaticText(panel, wxID_ANY, rc_copyright);
   copyright_box->Add(copyright, 1, wxEXPAND | wxALL, 10);
   vbox->Add(copyright_box, 0, wxALIGN_CENTER);
+
+  // Roboception license
+  auto *rclicense_box = new wxBoxSizer(wxHORIZONTAL);
+  auto *rclicense = new wxStaticText(panel, wxID_ANY, rc_license);
+  rclicense->Wrap(400);
+  rclicense_box->Add(rclicense, 1, wxEXPAND | wxALL, 10);
+  vbox->Add(rclicense_box, 0, wxALIGN_CENTER);
 
   // wxWidgets license
   auto *licenses_box = new wxBoxSizer(wxHORIZONTAL);
