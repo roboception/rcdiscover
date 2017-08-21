@@ -199,7 +199,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
           wxEVT_MENU,
           wxCommandEventHandler(DiscoverFrame::onHelp));
 
-  reset_dialog_ = new ResetDialog(panel, wxID_ANY);
+  reset_dialog_ = new ResetDialog(help_ctrl_, panel, wxID_ANY);
   about_dialog_ = new AboutDialog(panel, wxID_ANY);
 
   // start discovery on startup
@@ -253,6 +253,8 @@ void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent &event)
     device_list_->AppendItem(d);
   }
 
+  reset_dialog_->setDiscoveredSensors(device_list_->GetStore());
+
   clearBusy();
 }
 
@@ -273,7 +275,10 @@ void DiscoverFrame::onResetButton(wxCommandEvent &)
 void DiscoverFrame::onHelpDiscovery(wxCommandEvent&)
 {
   help_ctrl_->Display("help.htm#discovery");
-}void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event){
+}
+
+void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event)
+{
   const auto item = event.GetItem();
   const auto row = device_list_->ItemToRow(item);
 
@@ -374,15 +379,12 @@ void DiscoverFrame::onAbout(wxCommandEvent &)
 
 void DiscoverFrame::openResetDialog(const int row)
 {
-  reset_dialog_->setDiscoveredSensors(device_list_->GetStore());
-
   if (row != wxNOT_FOUND)
   {
     reset_dialog_->setActiveSensor(static_cast<unsigned int>(row));
   }
 
-  reset_dialog_->ShowModal();
-  reset_dialog_->setDiscoveredSensors(nullptr);
+  reset_dialog_->Show();
 }
 
 BEGIN_EVENT_TABLE(DiscoverFrame, wxFrame)

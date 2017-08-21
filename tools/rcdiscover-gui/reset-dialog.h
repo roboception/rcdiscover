@@ -55,7 +55,8 @@ class ResetDialog : public wxDialog
   public:
     ResetDialog() = default;
 
-    ResetDialog(wxWindow *parent, wxWindowID id,
+    ResetDialog(wxHtmlHelpController *help_ctrl,
+                wxWindow *parent, wxWindowID id,
                 const wxPoint &pos = wxDefaultPosition,
                 long style = wxDEFAULT_DIALOG_STYLE,
                 const wxString &name = wxDialogNameStr);

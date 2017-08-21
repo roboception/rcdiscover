@@ -44,6 +44,8 @@
 #include "rcdiscover/wol_exception.h"
 #include "rcdiscover/operation_not_permitted.h"
 
+#include <thread>
+
 #include <wx/dialog.h>
 #include <wx/panel.h>
 #include <wx/combobox.h>
@@ -58,15 +60,16 @@
 #include <wx/html/helpctrl.h>
 #include <wx/cshelp.h>
 
-ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
-            const wxPoint &pos,
-            long style,
-            const wxString &name) :
+ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
+                         wxWindow *parent, wxWindowID id,
+                         const wxPoint &pos,
+                         long style,
+                         const wxString &name) :
   wxDialog(parent, id, "Reset rc_visard", pos, wxSize(-1,-1), style, name),
   sensors_(nullptr),
   mac_{{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
   sensor_list_(nullptr),
-  help_ctrl_(nullptr)
+  help_ctrl_(help_ctrl)
 {
   auto *panel = new wxPanel(this, -1);
   auto *vbox = new wxBoxSizer(wxVERTICAL);
@@ -107,7 +110,7 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
                                           wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_param_button, 0, wxEXPAND);
   auto *reset_gige_button = new wxButton(panel, ID_Reset_GigE,
-                                         "Reset GigE", wxDefaultPosition,
+                                         "Reset Network", wxDefaultPosition,
                                          wxDefaultSize, wxBU_EXACTFIT);
   button_box->Add(reset_gige_button, 0, wxEXPAND);
   auto *reset_all_button = new wxButton(panel, ID_Reset_All,
@@ -134,9 +137,6 @@ ResetDialog::ResetDialog(wxWindow *parent, wxWindowID id,
   Centre();
 
   this->Fit();
-
-  help_ctrl_ = new wxHtmlHelpController(wxHF_DEFAULT_STYLE, panel);
-  help_ctrl_->AddBook("memory:help.hhp");
 
   Connect(ID_Sensor_Combobox,
           wxEVT_CHOICE,
@@ -308,6 +308,10 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
 
 void ResetDialog::onHelpButton(wxCommandEvent &)
 {
+  help_ctrl_->Display("help.htm#reset");
+
+  // need second call otherwise it does not jump to "reset" section if the
+  // help is displayed the first time
   help_ctrl_->Display("help.htm#reset");
 }
 
