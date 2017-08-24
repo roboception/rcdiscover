@@ -69,7 +69,7 @@ if(wxWidgets_FOUND)
 
   else (WIN32)
     add_executable(rcdiscover-gui ${rcdiscover-gui-src})
-  endif(WIN32)
+  endif (WIN32)
 
   target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
 
@@ -79,8 +79,20 @@ if(wxWidgets_FOUND)
   endif (WIN32)
 
   install(TARGETS rcdiscover rcdiscover-gui COMPONENT bin DESTINATION bin)
+
+  if (UNIX AND NOT APPLE)
+    if (NOT CMAKE_INSTALL_DATADIR)
+      set(CMAKE_INSTALL_DATADIR /usr/share)
+    endif ()
+    install(FILES rcdiscover-gui/resources/rcdiscover-gui.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps RENAME rcdiscover-gui.png)
+  endif ()
+
 else(wxWidgets_FOUND)
-  MESSAGE(WARN "wxWidgets not found! Not building GUI application")
+  MESSAGE(WARNING "wxWidgets not found! Not building GUI application")
 
   install(TARGETS rcdiscover COMPONENT bin DESTINATION bin)
 endif(wxWidgets_FOUND)

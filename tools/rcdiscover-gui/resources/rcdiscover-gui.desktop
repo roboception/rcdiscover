@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=rcdiscover
+Comment=Discover rc_visard sensors via GigE Vision
+Exec=rcdiscover-gui
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=rcdiscover-gui
+Categories=Utility;
