@@ -1,3 +1,7 @@
+## [0.4.1] - 2017-08-21
+### Changed
+- Fixed bug that prevented the main window from being closed once the help dialog was opened from the reset dialog
+
 ## [0.4.0] - 2017-08-04
 ### Added
 - Help buttons
