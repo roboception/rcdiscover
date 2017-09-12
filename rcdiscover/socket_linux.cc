@@ -78,7 +78,7 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
   ifaddrs *addrs;
   getifaddrs(&addrs);
 
-  bool global_broadcast = true;
+//  bool global_broadcast = true;
 
   for(ifaddrs *addr = addrs;
       addr != nullptr;
@@ -94,26 +94,32 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
       std::string name(addr->ifa_name);
       if (name.length() != 0 && name != "lo")
       {
-        sockets.emplace_back(
-              SocketLinux::create(
-                broadcast_addr_,
-                port));
+        const in_addr_t s_addr =
+            reinterpret_cast<struct sockaddr_in *>(addr->ifa_addr)->
+            sin_addr.s_addr;
 
-        sockaddr_in addr;
-        addr.sin_family = AF_INET;
-        addr.sin_port = 0;
-        addr.sin_addr.s_addr = htonl(INADDR_ANY);
-        sockets.back().bind(addr);
-
-        try
         {
-          sockets.back().bindToDevice(name);
+          // limited broadcast
+          sockets.emplace_back(SocketLinux::create(broadcast_addr_, port));
+
+          sockaddr_in addr;
+          addr.sin_family = AF_INET;
+          addr.sin_port = 0;
+          addr.sin_addr.s_addr = s_addr;
+          sockets.back().bind(addr);
         }
-        catch(const OperationNotPermitted &)
+
         {
-          sockets.back().dst_addr_.sin_addr.s_addr =
-              reinterpret_cast<struct sockaddr_in *>(baddr)->sin_addr.s_addr;
-          global_broadcast = false;
+          // directed broadcast
+          sockets.emplace_back(
+                SocketLinux::create(
+                  reinterpret_cast<struct sockaddr_in *>(baddr)->
+                  sin_addr.s_addr, port));
+          sockaddr_in addr;
+          addr.sin_family = AF_INET;
+          addr.sin_port = 0;
+          addr.sin_addr.s_addr = s_addr;
+          sockets.back().bind(addr);
         }
       }
     }
@@ -121,17 +127,6 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
 
   freeifaddrs(addrs);
   addrs = nullptr;
-
-  if (!global_broadcast)
-  {
-    // one socket for global broadcast on default interface (mostly eth0)
-    sockets.emplace_back(SocketLinux::create(broadcast_addr_, port));
-    sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = 0;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    sockets.back().bind(addr);
-  }
 
   return sockets;
 }
