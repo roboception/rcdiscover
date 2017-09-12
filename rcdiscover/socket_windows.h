@@ -118,7 +118,6 @@ class SocketWindows : public Socket<SocketWindows>
     void enableNonBlockingImpl();
 
   private:
-    const static ULONG broadcast_addr_;
     SOCKET sock_;
     sockaddr_in dst_addr_;
 };

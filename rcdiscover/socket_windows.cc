@@ -38,15 +38,15 @@
 #include "socket_exception.h"
 
 #include <iphlpapi.h>
+#include <iostream>
 
 namespace rcdiscover
 {
 
-const ULONG SocketWindows::broadcast_addr_{inet_addr("255.255.255.255")};
-
 const ULONG &SocketWindows::getBroadcastAddr()
 {
-  return broadcast_addr_;
+  static const ULONG baddr = htonl(INADDR_BROADCAST);
+  return baddr;
 }
 
 SocketWindows SocketWindows::create(const ULONG dst_ip, const uint16_t port)
@@ -61,49 +61,102 @@ SocketWindows SocketWindows::create(const ULONG dst_ip, const uint16_t port)
 std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
   const uint16_t port)
 {
-  ULONG forward_tab_size = 0;
-  PMIB_IPFORWARDTABLE table = nullptr;
-
-  int result = NO_ERROR;
-  for (int i = 0; i < 5; ++i)
-  {
-    result = GetIpForwardTable(table, &forward_tab_size, false);
-
-    if (result == NO_ERROR)
-    {
-      break;
-    }
-    else if (result == ERROR_INSUFFICIENT_BUFFER)
-    {
-      free(table);
-      table = (PMIB_IPFORWARDTABLE)malloc(forward_tab_size);
-    }
-  }
-  if (result != NO_ERROR)
-  {
-    throw SocketException("Error while getting forward table",
-                          ::WSAGetLastError());
-  }
-
   std::vector<SocketWindows> sockets;
-  for (unsigned int i = 0; i < table->dwNumEntries; ++i)
+  
   {
-    PMIB_IPFORWARDROW row = &table->table[i];
-    if (row->dwForwardDest != broadcast_addr_ ||
-        row->dwForwardMask != ULONG_MAX ||
-        row->dwForwardType != MIB_IPROUTE_TYPE_DIRECT)
+    // limited broadcast
+
+    ULONG table_size = 0;
+    PMIB_IPFORWARDTABLE table = nullptr;
+
+    int result = NO_ERROR;
+    for (int i = 0; i < 5; ++i)
     {
-      continue;
+      result = GetIpForwardTable(table, &table_size, false);
+
+      if (result == NO_ERROR)
+      {
+        break;
+      }
+      else if (result == ERROR_INSUFFICIENT_BUFFER)
+      {
+        free(table);
+        table = (PMIB_IPFORWARDTABLE)malloc(table_size);
+      }
+    }
+    if (result != NO_ERROR)
+    {
+      throw SocketException("Error while getting forward table",
+                            ::WSAGetLastError());
     }
 
-    sockets.emplace_back(SocketWindows::create(broadcast_addr_, port));
+    for (unsigned int i = 0; i < table->dwNumEntries; ++i)
+    {
+      PMIB_IPFORWARDROW row = &table->table[i];
+        
+      if (row->dwForwardDest == getBroadcastAddr() &&
+          row->dwForwardMask == ULONG_MAX &&
+          row->dwForwardType == MIB_IPROUTE_TYPE_DIRECT)
+      {     
+        sockets.emplace_back(SocketWindows::create(getBroadcastAddr(), port));
 
-    sockaddr_in src_addr;
-    src_addr.sin_family = AF_INET;
-    src_addr.sin_port = 0;
-    src_addr.sin_addr.s_addr = row->dwForwardNextHop;
+        sockaddr_in src_addr;
+        src_addr.sin_family = AF_INET;
+        src_addr.sin_port = 0;
+        src_addr.sin_addr.s_addr = row->dwForwardNextHop;
 
-    sockets.back().bind(src_addr);
+        sockets.back().bind(src_addr);
+      }
+    }
+  }
+  
+  {
+    // directed broadcast 
+    
+    PMIB_IPADDRTABLE table = nullptr;
+    ULONG table_size = 0;
+  
+    int result = NO_ERROR;
+    for (int i = 0; i < 5; ++i)
+    {
+      result = GetIpAddrTable(table, &table_size, false);
+
+      if (result == NO_ERROR)
+      {
+        break;
+      }
+      else if (result == ERROR_INSUFFICIENT_BUFFER)
+      {
+        free(table);
+        table = (PMIB_IPADDRTABLE)malloc(table_size);
+      }
+    }
+    if (result != NO_ERROR)
+    {
+      throw SocketException("Error while getting ip addr table",
+                            ::WSAGetLastError());
+    }
+    
+    for (unsigned int i = 0; i < table->dwNumEntries; ++i)
+    {
+      PMIB_IPADDRROW row = &table->table[i];
+      
+      if (row->dwAddr == htonl(INADDR_LOOPBACK))
+      {
+        continue;
+      }
+      
+      const ULONG baddr = row->dwAddr | (~row->dwMask);
+      
+      sockets.emplace_back(SocketWindows::create(baddr, port));
+
+      sockaddr_in src_addr;
+      src_addr.sin_family = AF_INET;
+      src_addr.sin_port = 0;
+      src_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+      sockets.back().bind(src_addr);
+    }
   }
   return sockets;
 }
