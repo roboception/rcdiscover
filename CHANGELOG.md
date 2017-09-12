@@ -1,3 +1,9 @@
+## [0.4.2] - 2017-08-31
+### Added
+- Desktop files and icons for debian
+### Changed
+- Disabled vectorization and binding to CUDA
+
 ## [0.4.1] - 2017-08-21
 ### Changed
 - Fixed bug that prevented the main window from being closed once the help dialog was opened from the reset dialog

@@ -82,7 +82,7 @@ if(wxWidgets_FOUND)
 
   if (UNIX AND NOT APPLE)
     if (NOT CMAKE_INSTALL_DATADIR)
-      set(CMAKE_INSTALL_DATADIR /usr/share)
+      set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX}/share)
     endif ()
     install(FILES rcdiscover-gui/resources/rcdiscover-gui.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
     install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME rcdiscover-gui.png)
