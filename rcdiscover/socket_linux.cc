@@ -53,11 +53,10 @@
 namespace rcdiscover
 {
 
-const in_addr_t SocketLinux::broadcast_addr_ = inet_addr("255.255.255.255");
-
 const in_addr_t &SocketLinux::getBroadcastAddr()
 {
-  return broadcast_addr_;
+  static const in_addr_t bcast = htonl(INADDR_BROADCAST);
+  return bcast;
 }
 
 const sockaddr_in& SocketLinux::getDestSockAddr() const
@@ -78,7 +77,7 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
   ifaddrs *addrs;
   getifaddrs(&addrs);
 
-//  bool global_broadcast = true;
+  int i = 0;
 
   for(ifaddrs *addr = addrs;
       addr != nullptr;
@@ -98,14 +97,37 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
             reinterpret_cast<struct sockaddr_in *>(addr->ifa_addr)->
             sin_addr.s_addr;
 
+        uint16_t local_port = 0;
+
         {
           // limited broadcast
-          sockets.emplace_back(SocketLinux::create(broadcast_addr_, port));
+          sockets.emplace_back(SocketLinux::create(getBroadcastAddr(), port));
 
           sockaddr_in addr;
           addr.sin_family = AF_INET;
           addr.sin_port = 0;
           addr.sin_addr.s_addr = s_addr;
+          sockets.back().bind(addr);
+        }
+
+        {
+          // get port to which the limited broadcast socket is bound to
+          struct sockaddr_in local_address;
+          socklen_t address_length = sizeof(local_address);
+          getsockname(sockets.back().sock_,
+                      reinterpret_cast<sockaddr *>(&local_address),
+                      &address_length);
+          local_port = local_address.sin_port;
+        }
+
+        {
+          // limited broadcast receiver
+          sockets.emplace_back(SocketLinux::create(htonl(INADDR_ANY), port));
+
+          sockaddr_in addr;
+          addr.sin_family = AF_INET;
+          addr.sin_port = local_port;
+          addr.sin_addr.s_addr = htonl(INADDR_ANY);
           sockets.back().bind(addr);
         }
 
@@ -117,12 +139,14 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
                   sin_addr.s_addr, port));
           sockaddr_in addr;
           addr.sin_family = AF_INET;
-          addr.sin_port = 0;
-          addr.sin_addr.s_addr = s_addr;
+          addr.sin_port = local_port;
+          addr.sin_addr.s_addr = htonl(INADDR_ANY);
           sockets.back().bind(addr);
         }
       }
     }
+
+    ++i;
   }
 
   freeifaddrs(addrs);
@@ -150,6 +174,16 @@ SocketLinux::SocketLinux(int domain, int type, int protocol,
   dst_addr_.sin_addr.s_addr = dst_ip;
   dst_addr_.sin_family = AF_INET;
   dst_addr_.sin_port = htons(port);
+
+  const int yes = 1;
+  if (::setsockopt(sock_,
+                  SOL_SOCKET,
+                  SO_REUSEPORT,
+                  reinterpret_cast<const char *>(&yes),
+                  sizeof(yes)) == -1)
+  {
+    throw SocketException("Error while setting socket options", errno);
+  }
 }
 
 SocketLinux::SocketLinux(SocketLinux &&other) :

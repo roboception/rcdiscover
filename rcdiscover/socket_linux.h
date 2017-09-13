@@ -141,7 +141,6 @@ class SocketLinux : public Socket<SocketLinux>
     void bindToDevice(const std::string &device);
 
   private:
-    const static in_addr_t broadcast_addr_;
     int sock_;
     sockaddr_in dst_addr_;
 };
