@@ -34,29 +34,10 @@
 
 set -e
 
+# Source debconf library.
 . /usr/share/debconf/confmodule
 
-case "$1" in
-  configure)
-    db_get rcdiscover/rpfilter || true
-    if [ "$RET" = "true" ]; then
-      cp @CMAKE_INSTALL_PREFIX@/share/rcdiscover/50-rcdiscover-rpfilter.conf /etc/sysctl.d/
-      sysctl -p /etc/sysctl.d/50-rcdiscover-rpfilter.conf > /dev/null
-    else
-      if [ -f /etc/sysctl.d/50-rcdiscover-rpfilter.conf ]; then
-        rm -f /etc/sysctl.d/50-rcdiscover-rpfilter.conf
-        sysctl --system > /dev/null
-      fi
-    fi
-  ;;
+# Turn off rp filter?
+db_input critical rcdiscover/rpfilter || true
+db_go
 
-  abort-upgrade|abort-remove|abort-deconfigure)
-  ;;
-
-  *)
-    echo "postinst called with unknown argument \`$1'" >&2
-    exit 1
-  ;;
-esac
-
-exit 0
