@@ -224,7 +224,7 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
 
       case ID_Reset_GigE:
         {
-          func_name = "reset GigE";
+          func_name = "reset network parameters";
           func_id = 0xBB;
         }
         break;
