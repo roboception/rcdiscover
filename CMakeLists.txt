@@ -85,6 +85,14 @@ endif ()
 add_subdirectory(rcdiscover)
 add_subdirectory(tools)
 
+if (UNIX)
+  install(FILES debian/50-rcdiscover-rpfilter.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/share/rcdiscover)
+  configure_file(${PROJECT_SOURCE_DIR}/debian/postinst.in ${PROJECT_BINARY_DIR}/postinst)
+  configure_file(${PROJECT_SOURCE_DIR}/debian/postrm.in ${PROJECT_BINARY_DIR}/postrm)
+  configure_file(${PROJECT_SOURCE_DIR}/debian/templates.in ${PROJECT_BINARY_DIR}/templates)
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${PROJECT_BINARY_DIR}/postinst;${PROJECT_BINARY_DIR}/postrm;${PROJECT_BINARY_DIR}/templates")
+endif ()
+
 # export project targets
 
 # Declare (shared) libraries that are created by your project. For all
