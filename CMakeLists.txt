@@ -123,6 +123,6 @@ add_subdirectory(doc)
 #set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your Name <your.name@roboception.de>")
 
 # optionally specify dependencies of the debian package here (comma separated!)
-#set(CPACK_DEBIAN_PACKAGE_DEPENDS "cvkit (>= 1.7.0)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "debconf")
 
 include(cmake/package_debian.cmake)
