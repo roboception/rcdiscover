@@ -37,6 +37,7 @@
 #define DISCOVERFRAME_H
 
 #include <memory>
+#include <vector>
 
 #include <wx/frame.h>
 #include <wx/animate.h>
@@ -150,6 +151,10 @@ class DiscoverFrame : public wxFrame
      */
     void openResetDialog(int row);
 
+    void onOnlyRcCheckbox(wxCommandEvent &evt);
+
+    void updateDeviceList(const std::vector<wxVector<wxVariant>> &d);
+
     wxDECLARE_EVENT_TABLE();
 
   private:
@@ -162,6 +167,8 @@ class DiscoverFrame : public wxFrame
     wxAnimationCtrl *spinner_ctrl_;
     wxHtmlHelpController *help_ctrl_;
     std::unique_ptr<std::pair<int, int>> menu_event_item_;
+    bool only_rc_sensors_;
+    std::vector<wxVector<wxVariant>> last_data_;
 };
 
 #endif // DISCOVERFRAME_H

@@ -39,6 +39,8 @@
 #include "reset-dialog.h"
 
 #include "event-ids.h"
+#include "resources.h"
+
 #include "rcdiscover/utils.h"
 
 #include "rcdiscover/wol_exception.h"
@@ -169,16 +171,26 @@ void ResetDialog::setDiscoveredSensors(const wxDataViewListModel *sensor_list)
     sensors_->Append("<Custom>");
 
     const auto rows = sensor_list->GetCount();
+    unsigned int sensors_row = 0;
     for (typename std::decay<decltype(rows)>::type i = 0; i < rows; ++i)
     {
-      wxVariant hostname{};
-      wxVariant mac{};
-      sensor_list->GetValueByRow(hostname, i, 0);
-      sensor_list->GetValueByRow(mac, i, 3);
-      const auto s = wxString::Format("%s - %s",
-                                      hostname.GetString(),
-                                      mac.GetString());
-      sensors_->Append(s);
+      wxVariant manufacturer{};
+      sensor_list->GetValueByRow(manufacturer, i, 1);
+      if (manufacturer.GetString() == ROBOCEPTION)
+      {
+        wxVariant hostname{};
+        wxVariant mac{};
+        sensor_list->GetValueByRow(hostname, i, 0);
+        sensor_list->GetValueByRow(mac, i, 4);
+        const auto s = wxString::Format("%s - %s",
+                                        hostname.GetString(),
+                                        mac.GetString());
+        sensors_->Append(s);
+        row_map_.emplace(i, sensors_row + 1);
+        row_map_inv_.emplace(sensors_row + 1, i);
+
+        ++sensors_row;
+      }
     }
   }
 
@@ -187,7 +199,7 @@ void ResetDialog::setDiscoveredSensors(const wxDataViewListModel *sensor_list)
 
 void ResetDialog::setActiveSensor(const unsigned int row)
 {
-  sensors_->Select(static_cast<int>(row + 1));
+  sensors_->Select(row_map_.at(static_cast<int>(row)));
   fillMac();
 }
 
@@ -328,7 +340,7 @@ void ResetDialog::clear()
 
 void ResetDialog::fillMac()
 {
-  const int row = sensors_->GetSelection() - 1;
+  const int row = sensors_->GetSelection();
 
   if (row == wxNOT_FOUND)
   {
@@ -336,7 +348,9 @@ void ResetDialog::fillMac()
   }
 
   wxVariant mac_string{};
-  sensor_list_->GetValueByRow(mac_string, static_cast<unsigned int>(row), 3);
+  sensor_list_->GetValueByRow(mac_string,
+                              row_map_inv_.at(static_cast<unsigned int>(row)),
+                              4);
 
   const auto mac = split<6>(mac_string.GetString().ToStdString(), ':');
 

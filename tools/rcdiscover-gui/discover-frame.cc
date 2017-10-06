@@ -42,6 +42,7 @@
 #include "event-ids.h"
 #include "reset-dialog.h"
 #include "about-dialog.h"
+#include "resources.h"
 
 #include <memory>
 #include <sstream>
@@ -65,13 +66,14 @@
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
-  wxFrame(NULL, wxID_ANY, title, pos, wxSize(650,350)),
+  wxFrame(NULL, wxID_ANY, title, pos, wxSize(750,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
   reset_button_(nullptr),
   reset_dialog_(nullptr),
   about_dialog_(nullptr),
-  menu_event_item_(nullptr)
+  menu_event_item_(nullptr),
+  only_rc_sensors_(true)
 {
   // spinner
   wxIcon icon_128(logo_128_xpm);
@@ -111,10 +113,14 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   auto *help_button = new wxContextHelpButton(panel, ID_Help_Discovery,
                                               wxDefaultPosition, wxSize(h,h));
   button_box->Add(help_button, 1);
+  auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox, "Only Roboception cameras");
+  only_rc_cbox->SetValue(only_rc_sensors_);
+  button_box->Add(only_rc_cbox, 1);
 
   button_box->Add(-1, 0, wxEXPAND);
 
-  spinner_ctrl_ = new wxAnimationCtrl(panel, wxID_ANY, spinner_, wxPoint(-1,-1), wxSize(32,32));
+  spinner_ctrl_ = new wxAnimationCtrl(panel, wxID_ANY, spinner_,
+                                      wxPoint(-1,-1), wxSize(32,32));
   button_box->Add(spinner_ctrl_, 0);
 
   vbox->Add(button_box, 0, wxALL, 10);
@@ -130,9 +136,13 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                  wxDATAVIEW_CELL_INERT,
                                  100, wxALIGN_LEFT,
                                  wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+  device_list_->AppendTextColumn("Manufacturer",
+                                 wxDATAVIEW_CELL_INERT,
+                                 170, wxALIGN_LEFT,
+                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
   device_list_->AppendTextColumn("Serial Number",
                                  wxDATAVIEW_CELL_INERT,
-                                 150, wxALIGN_LEFT,
+                                 130, wxALIGN_LEFT,
                                  wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
   device_list_->AppendTextColumn("IP Address",
                                  wxDATAVIEW_CELL_INERT,
@@ -144,7 +154,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                  wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
   device_list_->AppendTextColumn("Reachable",
                                  wxDATAVIEW_CELL_INERT,
-                                 100, wxALIGN_CENTER,
+                                 80, wxALIGN_CENTER,
                                  wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
 
   device_list_->SetToolTip("Double-click row to open WebGUI in browser.");
@@ -198,6 +208,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(wxID_HELP,
           wxEVT_MENU,
           wxCommandEventHandler(DiscoverFrame::onHelp));
+  Connect(ID_OnlyRcCheckbox,
+          wxEVT_CHECKBOX,
+          wxCommandEventHandler(DiscoverFrame::onOnlyRcCheckbox));
 
   reset_dialog_ = new ResetDialog(help_ctrl_, panel, wxID_ANY);
   about_dialog_ = new AboutDialog(panel, wxID_ANY);
@@ -244,18 +257,26 @@ void DiscoverFrame::onDiscoverButton(wxCommandEvent &)
 
 void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent &event)
 {
+  updateDeviceList(event.GetPayload<std::vector<wxVector<wxVariant>>>());
+
+  clearBusy();
+}
+
+void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
+{
   device_list_->DeleteAllItems();
 
-  std::vector<wxVector<wxVariant>> data =
-      event.GetPayload<std::vector<wxVector<wxVariant>>>();
-  for(const auto& d : data)
+  last_data_ = d;
+  for(const auto& d : last_data_)
   {
-    device_list_->AppendItem(d);
+    const auto manufacturer = d[1].GetString();
+    if (!only_rc_sensors_ || manufacturer == ROBOCEPTION)
+    {
+      device_list_->AppendItem(d);
+    }
   }
 
   reset_dialog_->setDiscoveredSensors(device_list_->GetStore());
-
-  clearBusy();
 }
 
 void DiscoverFrame::onDiscoveryError(wxThreadEvent &event)
@@ -287,9 +308,13 @@ void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event)
     return;
   }
 
-  const auto ip_wxstring = device_list_->GetTextValue(
-                             static_cast<unsigned int>(row), 2);
-  wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
+  const auto manufacturer = device_list_->GetTextValue(row, 1);
+  if (manufacturer == ROBOCEPTION)
+  {
+    const auto ip_wxstring = device_list_->GetTextValue(
+                               static_cast<unsigned int>(row), 3);
+    wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
+  }
 }
 
 void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
@@ -304,17 +329,29 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
   }
 
   wxMenu menu;
-
+  bool appended = false;
   if (menu_event_item_->second >= 0)
   {
     menu.Append(wxCOPY, "&Copy");
     menu.AppendSeparator();
+    appended = true;
   }
-  menu.Append(ID_OpenWebGUI, "Open &WebGUI");
-  menu.AppendSeparator();
-  menu.Append(ID_ResetButton, "Reset");
 
-  PopupMenu(&menu);
+  const auto manufacturer = device_list_->GetTextValue(
+                        static_cast<unsigned int>(menu_event_item_->first),
+                        1);
+  if (manufacturer == ROBOCEPTION)
+  {
+    menu.Append(ID_OpenWebGUI, "Open &WebGUI");
+    menu.AppendSeparator();
+    menu.Append(ID_ResetButton, "Reset");
+    appended = true;
+  }
+
+  if (appended)
+  {
+    PopupMenu(&menu);
+  }
 }
 
 void DiscoverFrame::onCopy(wxMenuEvent &)
@@ -347,7 +384,7 @@ void DiscoverFrame::onOpenWebGUI(wxMenuEvent &)
 
   const auto ip_wxstring = device_list_->GetTextValue(
                              static_cast<unsigned int>(menu_event_item_->first),
-                             2);
+                             3);
   wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
 }
 
@@ -370,6 +407,12 @@ void DiscoverFrame::onExit(wxCommandEvent &)
 void DiscoverFrame::onHelp(wxCommandEvent&)
 {
   help_ctrl_->Display("help.htm");
+}
+
+void DiscoverFrame::onOnlyRcCheckbox(wxCommandEvent &evt)
+{
+  only_rc_sensors_ = evt.IsChecked();
+  updateDeviceList(last_data_);
 }
 
 void DiscoverFrame::onAbout(wxCommandEvent &)

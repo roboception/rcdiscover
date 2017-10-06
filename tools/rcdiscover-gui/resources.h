@@ -18,4 +18,6 @@
  */
 void registerResources();
 
+const static std::string ROBOCEPTION = "Roboception GmbH";
+
 #endif /* REGISTER_RESOURCES */

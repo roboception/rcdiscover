@@ -37,6 +37,7 @@
 #define RESETDIALOG_H
 
 #include <array>
+#include <unordered_map>
 
 #include <wx/dialog.h>
 
@@ -110,6 +111,8 @@ class ResetDialog : public wxDialog
   private:
     wxChoice *sensors_;
     std::array<wxTextCtrl *, 6> mac_;
+    std::unordered_map<unsigned int, unsigned int> row_map_;
+    std::unordered_map<unsigned int, unsigned int> row_map_inv_;
 
     const wxDataViewListModel *sensor_list_;
 

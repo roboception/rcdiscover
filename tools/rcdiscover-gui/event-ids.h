@@ -55,6 +55,7 @@ enum
   ID_Help,
   ID_Help_Discovery,
   ID_Help_Reset,
+  ID_OnlyRcCheckbox,
 
   ID_Sensor_Combobox,
   ID_MAC_Textbox,
