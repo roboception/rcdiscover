@@ -66,7 +66,7 @@
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
-  wxFrame(NULL, wxID_ANY, title, pos, wxSize(750,350)),
+  wxFrame(NULL, wxID_ANY, title, pos, wxSize(800,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
   reset_button_(nullptr),
@@ -113,7 +113,10 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   auto *help_button = new wxContextHelpButton(panel, ID_Help_Discovery,
                                               wxDefaultPosition, wxSize(h,h));
   button_box->Add(help_button, 1);
-  auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox, "Only Roboception cameras");
+  button_box->AddSpacer(10);
+  auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox,
+                                      "Only Roboception cameras",
+                                      wxDefaultPosition, wxSize(-1, h));
   only_rc_cbox->SetValue(only_rc_sensors_);
   button_box->Add(only_rc_cbox, 1);
 
