@@ -41,6 +41,7 @@
 #include "discover-thread.h"
 #include "event-ids.h"
 #include "reset-dialog.h"
+#include "force-ip-dialog.h"
 #include "about-dialog.h"
 #include "resources.h"
 
@@ -72,6 +73,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   reset_button_(nullptr),
   force_ip_button_(nullptr),
   reset_dialog_(nullptr),
+  force_ip_dialog_(nullptr),
   about_dialog_(nullptr),
   menu_event_item_(nullptr),
   only_rc_sensors_(true)
@@ -175,7 +177,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
 
     force_ip_button_ = new wxButton(panel, ID_ForceIpButton,
                                     "Force temporary IP");
-    button_box->Add(force_ip_button_, 0);
+    button_box->Add(force_ip_button_, 1);
 
     button_box->Add(-1, 0, wxEXPAND);
 
@@ -242,6 +244,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
           wxCommandEventHandler(DiscoverFrame::onOnlyRcCheckbox));
 
   reset_dialog_ = new ResetDialog(help_ctrl_, panel, wxID_ANY);
+  force_ip_dialog_ = new ForceIpDialog(help_ctrl_, panel, wxID_ANY);
   about_dialog_ = new AboutDialog(panel, wxID_ANY);
 
   // start discovery on startup
@@ -308,6 +311,7 @@ void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
   }
 
   reset_dialog_->setDiscoveredSensors(device_list_->GetStore());
+  force_ip_dialog_->setDiscoveredSensors(device_list_->GetStore());
 }
 
 void DiscoverFrame::onDiscoveryError(wxThreadEvent &event)
@@ -381,7 +385,7 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
     menu.Append(ID_OpenWebGUI, "Open &WebGUI");
     menu.AppendSeparator();
     menu.Append(ID_ResetButton, "Reset");
-    menu.Append(ID_ResetButton, "Force temporary IP");
+    menu.Append(ID_ForceIpButton, "Force temporary IP");
     appended = true;
   }
 
@@ -438,7 +442,13 @@ void DiscoverFrame::onResetContextMenu(wxMenuEvent &)
 
 void DiscoverFrame::onForceIpContextMenu(wxMenuEvent &)
 {
+  if (!menu_event_item_ ||
+      menu_event_item_->first < 0)
+  {
+    return;
+  }
 
+  openForceIpDialog(menu_event_item_->first);
 }
 
 void DiscoverFrame::onExit(wxCommandEvent &)
@@ -474,7 +484,12 @@ void DiscoverFrame::openResetDialog(const int row)
 
 void DiscoverFrame::openForceIpDialog(const int row)
 {
+  if (row != wxNOT_FOUND)
+  {
+    force_ip_dialog_->setActiveSensor(static_cast<unsigned int>(row));
+  }
 
+  force_ip_dialog_->Show();
 }
 
 BEGIN_EVENT_TABLE(DiscoverFrame, wxFrame)

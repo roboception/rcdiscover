@@ -60,7 +60,7 @@ ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
                          const wxPoint &pos,
                          long style,
                          const wxString &name) :
-  SensorCommandDialog(help_ctrl, parent, id, "Reset rc_visard", pos,
+  SensorCommandDialog(help_ctrl, parent, id, "Reset rc_visard", 0, pos,
                       style, name)
 {
   const auto panel = getPanel();

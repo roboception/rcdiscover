@@ -37,27 +37,27 @@ void ForceIP::sendCommand(const uint64_t mac, const uint32_t ip,
   force_ip_command[4] = 0x00;   // length
   force_ip_command[5] = 64 - 8; // length
 
-  force_ip_command[10] = static_cast<std::uint8_t>(mac >> 5); // MAC address
-  force_ip_command[11] = static_cast<std::uint8_t>(mac >> 4); // MAC address
-  force_ip_command[12] = static_cast<std::uint8_t>(mac >> 3); // MAC address
-  force_ip_command[13] = static_cast<std::uint8_t>(mac >> 2); // MAC address
-  force_ip_command[14] = static_cast<std::uint8_t>(mac >> 1); // MAC address
-  force_ip_command[15] = static_cast<std::uint8_t>(mac >> 0); // MAC address
+  force_ip_command[10] = static_cast<std::uint8_t>(mac >> 48); // MAC address
+  force_ip_command[11] = static_cast<std::uint8_t>(mac >> 40); // MAC address
+  force_ip_command[12] = static_cast<std::uint8_t>(mac >> 32); // MAC address
+  force_ip_command[13] = static_cast<std::uint8_t>(mac >> 16); // MAC address
+  force_ip_command[14] = static_cast<std::uint8_t>(mac >> 8);  // MAC address
+  force_ip_command[15] = static_cast<std::uint8_t>(mac >> 0);  // MAC address
 
-  force_ip_command[28] = static_cast<std::uint8_t>(ip >> 3); // IP address
-  force_ip_command[29] = static_cast<std::uint8_t>(ip >> 2); // IP address
-  force_ip_command[30] = static_cast<std::uint8_t>(ip >> 1); // IP address
-  force_ip_command[31] = static_cast<std::uint8_t>(ip >> 0); // IP address
+  force_ip_command[28] = static_cast<std::uint8_t>(ip >> 24); // IP address
+  force_ip_command[29] = static_cast<std::uint8_t>(ip >> 16); // IP address
+  force_ip_command[30] = static_cast<std::uint8_t>(ip >> 8);  // IP address
+  force_ip_command[31] = static_cast<std::uint8_t>(ip >> 0);  // IP address
 
-  force_ip_command[44] = static_cast<std::uint8_t>(subnet >> 3); // subnet
-  force_ip_command[45] = static_cast<std::uint8_t>(subnet >> 2); // subnet
-  force_ip_command[46] = static_cast<std::uint8_t>(subnet >> 1); // subnet
-  force_ip_command[47] = static_cast<std::uint8_t>(subnet >> 0); // subnet
+  force_ip_command[44] = static_cast<std::uint8_t>(subnet >> 24); // subnet
+  force_ip_command[45] = static_cast<std::uint8_t>(subnet >> 16); // subnet
+  force_ip_command[46] = static_cast<std::uint8_t>(subnet >> 8);  // subnet
+  force_ip_command[47] = static_cast<std::uint8_t>(subnet >> 0);  // subnet
 
-  force_ip_command[60] = static_cast<std::uint8_t>(gateway >> 3); // gateway
-  force_ip_command[61] = static_cast<std::uint8_t>(gateway >> 2); // gateway
-  force_ip_command[62] = static_cast<std::uint8_t>(gateway >> 1); // gateway
-  force_ip_command[63] = static_cast<std::uint8_t>(gateway >> 0); // gateway
+  force_ip_command[60] = static_cast<std::uint8_t>(gateway >> 24); // gateway
+  force_ip_command[61] = static_cast<std::uint8_t>(gateway >> 16); // gateway
+  force_ip_command[62] = static_cast<std::uint8_t>(gateway >> 8);  // gateway
+  force_ip_command[63] = static_cast<std::uint8_t>(gateway >> 0);  // gateway
 
   for (auto &socket : sockets_)
   {

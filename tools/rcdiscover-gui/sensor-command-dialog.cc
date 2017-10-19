@@ -29,6 +29,7 @@
 SensorCommandDialog::SensorCommandDialog(wxHtmlHelpController *help_ctrl,
                                          wxWindow *parent, wxWindowID id,
                                          std::string title,
+                                         const int additional_grid_rows,
                                          const wxPoint &pos,
                                          long style,
                                          const wxString &name) :
@@ -41,18 +42,18 @@ SensorCommandDialog::SensorCommandDialog(wxHtmlHelpController *help_ctrl,
   panel_ = new wxPanel(this, -1);
   vbox_ = new wxBoxSizer(wxVERTICAL);
 
-  auto *grid = new wxFlexGridSizer(2, 2, 10, 25);
+  grid_ = new wxFlexGridSizer(2 + additional_grid_rows, 2, 10, 25);
 
   auto *sensors_text = new wxStaticText(panel_, wxID_ANY, "rc_visard");
-  grid->Add(sensors_text);
+  grid_->Add(sensors_text);
 
   auto *sensors_box = new wxBoxSizer(wxHORIZONTAL);
   sensors_ = new wxChoice(panel_, ID_Sensor_Combobox);
   sensors_box->Add(sensors_, 1);
-  grid->Add(sensors_box, 1, wxEXPAND);
+  grid_->Add(sensors_box, 1, wxEXPAND);
 
   auto *mac_text = new wxStaticText(panel_, wxID_ANY, "MAC address");
-  grid->Add(mac_text);
+  grid_->Add(mac_text);
 
   auto *mac_box = new wxBoxSizer(wxHORIZONTAL);
   int i = 0;
@@ -67,12 +68,11 @@ SensorCommandDialog::SensorCommandDialog(wxHtmlHelpController *help_ctrl,
     mac_box->Add(m, 1);
     ++i;
   }
-  grid->Add(mac_box, 1, wxEXPAND);
+  grid_->Add(mac_box, 1, wxEXPAND);
 
-  vbox_->Add(grid, 0, wxALL | wxEXPAND, 15);
+  vbox_->Add(grid_, 0, wxALL | wxEXPAND, 15);
 
   panel_->SetSizer(vbox_);
-  Centre();
 
   Connect(ID_Sensor_Combobox,
           wxEVT_CHOICE,
@@ -131,6 +131,11 @@ wxBoxSizer *SensorCommandDialog::getVerticalBox()
 wxPanel *SensorCommandDialog::getPanel()
 {
   return panel_;
+}
+
+wxFlexGridSizer *SensorCommandDialog::getGrid()
+{
+  return grid_;
 }
 
 std::array<uint8_t, 6> SensorCommandDialog::getMac() const

@@ -53,15 +53,19 @@ enum
   ID_Reset_GigE,
   ID_Reset_All,
   ID_Switch_Partition,
+  ID_Force_IP,
   ID_Help,
   ID_Help_Discovery,
   ID_Help_Reset,
+  ID_Help_Force_IP,
   ID_OnlyRcCheckbox,
 
   ID_Sensor_Combobox,
   ID_MAC_Textbox,
+  ID_IP_Checkbox,
   ID_IP_Textbox,
-  ID_IP_Checkbox
+  ID_Subnet_Textbox,
+  ID_Gateway_Textbox
 };
 
 #endif // EVENT_IDS_H

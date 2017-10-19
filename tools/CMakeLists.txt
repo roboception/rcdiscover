@@ -54,6 +54,7 @@ if(wxWidgets_FOUND)
     rcdiscover-gui/discover-thread.cc
     rcdiscover-gui/sensor-command-dialog.cc
     rcdiscover-gui/reset-dialog.cc
+    rcdiscover-gui/force-ip-dialog.cc
     rcdiscover-gui/about-dialog.cc
     rcdiscover-gui/resources.cc)
 

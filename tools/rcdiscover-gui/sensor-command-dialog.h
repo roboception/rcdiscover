@@ -22,6 +22,7 @@ class wxDataViewListModel;
 class wxHtmlHelpController;
 class wxBoxSizer;
 class wxPanel;
+class wxFlexGridSizer;
 
 class SensorCommandDialog : public wxDialog
 {
@@ -31,6 +32,7 @@ class SensorCommandDialog : public wxDialog
     SensorCommandDialog(wxHtmlHelpController *help_ctrl,
                         wxWindow *parent, wxWindowID id,
                         std::string title,
+                        int additional_grid_rows,
                         const wxPoint &pos = wxDefaultPosition,
                         long style = wxDEFAULT_DIALOG_STYLE,
                         const wxString &name = wxDialogNameStr);
@@ -55,9 +57,15 @@ class SensorCommandDialog : public wxDialog
   protected:
     wxBoxSizer *getVerticalBox();
     wxPanel *getPanel();
+    wxFlexGridSizer *getGrid();
     std::array<uint8_t, 6> getMac() const;
     std::string getMacString() const;
     void displayHelp(const std::string &section);
+
+    /**
+     * @brief Reset and clear all fields.
+     */
+    virtual void clear();
 
   private:
     /**
@@ -71,16 +79,12 @@ class SensorCommandDialog : public wxDialog
      */
     void fillMac();
 
-    /**
-     * @brief Reset and clear all fields.
-     */
-    virtual void clear();
-
     wxDECLARE_EVENT_TABLE();
 
   private:
     wxPanel *panel_;
     wxBoxSizer *vbox_;
+    wxFlexGridSizer *grid_;
     wxChoice *sensors_;
     std::array<wxTextCtrl *, 6> mac_;
     std::unordered_map<unsigned int, unsigned int> row_map_;

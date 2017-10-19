@@ -46,9 +46,11 @@ class wxDataViewListCtrl;
 class wxButton;
 class wxDataViewEvent;
 class wxPanel;
-class ResetDialog;
-class AboutDialog;
 class wxHtmlHelpController;
+
+class ResetDialog;
+class ForceIpDialog;
+class AboutDialog;
 
 /**
  * @brief Main window in which the table of discovered rc_visards is displayed.
@@ -174,6 +176,7 @@ class DiscoverFrame : public wxFrame
     wxButton *reset_button_;
     wxButton *force_ip_button_;
     ResetDialog *reset_dialog_;
+    ForceIpDialog *force_ip_dialog_;
     AboutDialog *about_dialog_;
     wxAnimation spinner_;
     wxAnimationCtrl *spinner_ctrl_;

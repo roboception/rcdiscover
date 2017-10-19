@@ -71,7 +71,6 @@ class ResetDialog : public SensorCommandDialog
     void onHelpButton(wxCommandEvent &);
 
     wxDECLARE_EVENT_TABLE();
-
 };
 
 #endif // RESETDIALOG_H
