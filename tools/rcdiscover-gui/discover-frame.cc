@@ -70,6 +70,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   device_list_(nullptr),
   discover_button_(nullptr),
   reset_button_(nullptr),
+  force_ip_button_(nullptr),
   reset_dialog_(nullptr),
   about_dialog_(nullptr),
   menu_event_item_(nullptr),
@@ -102,69 +103,88 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   auto *panel = new wxPanel(this, wxID_ANY);
   auto *vbox = new wxBoxSizer(wxVERTICAL);
 
-  // buttons
-  auto *button_box = new wxBoxSizer(wxHORIZONTAL);
-  discover_button_ = new wxButton(panel, ID_DiscoverButton, "Rerun Discovery");
-  button_box->Add(discover_button_, 1);
-  reset_button_ = new wxButton(panel, ID_ResetButton, "Reset rc_visard");
-  button_box->Add(reset_button_, 1);
-  int w, h;
-  reset_button_->GetSize(&w, &h);
-  auto *help_button = new wxContextHelpButton(panel, ID_Help_Discovery,
-                                              wxDefaultPosition, wxSize(h,h));
-  button_box->Add(help_button, 1);
-  button_box->AddSpacer(10);
-  auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox,
-                                      "Only Roboception cameras",
-                                      wxDefaultPosition, wxSize(-1, h));
-  only_rc_cbox->SetValue(only_rc_sensors_);
-  button_box->Add(only_rc_cbox, 1);
+  // uppper buttons
+  {
+    auto *button_box = new wxBoxSizer(wxHORIZONTAL);
+    discover_button_ = new wxButton(panel, ID_DiscoverButton, "Rerun Discovery");
+    button_box->Add(discover_button_, 1);
+    button_box->AddSpacer(10);
+    int w, h;
+    discover_button_->GetSize(&w, &h);
+    auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox,
+                                        "Only Roboception cameras",
+                                        wxDefaultPosition, wxSize(-1, h));
+    only_rc_cbox->SetValue(only_rc_sensors_);
+    button_box->Add(only_rc_cbox, 1);
 
-  button_box->Add(-1, 0, wxEXPAND);
+    button_box->Add(-1, 0, wxEXPAND);
 
-  spinner_ctrl_ = new wxAnimationCtrl(panel, wxID_ANY, spinner_,
-                                      wxPoint(-1,-1), wxSize(32,32));
-  button_box->Add(spinner_ctrl_, 0);
+    spinner_ctrl_ = new wxAnimationCtrl(panel, wxID_ANY, spinner_,
+                                        wxPoint(-1,-1), wxSize(32,32));
+    button_box->Add(spinner_ctrl_, 0);
 
-  vbox->Add(button_box, 0, wxALL, 10);
+    vbox->Add(button_box, 0, wxALL, 10);
+  }
 
   // rc_visard table
-  auto *data_box = new wxBoxSizer(wxHORIZONTAL);
+  {
+    auto *data_box = new wxBoxSizer(wxHORIZONTAL);
 
-  device_list_ = new wxDataViewListCtrl(panel,
-                                        ID_DataViewListCtrl,
-                                        wxPoint(-1,-1),
-                                        wxSize(-1,-1));
-  device_list_->AppendTextColumn("Name",
-                                 wxDATAVIEW_CELL_INERT,
-                                 100, wxALIGN_LEFT,
-                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
-  device_list_->AppendTextColumn("Manufacturer",
-                                 wxDATAVIEW_CELL_INERT,
-                                 170, wxALIGN_LEFT,
-                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
-  device_list_->AppendTextColumn("Serial Number",
-                                 wxDATAVIEW_CELL_INERT,
-                                 130, wxALIGN_LEFT,
-                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
-  device_list_->AppendTextColumn("IP Address",
-                                 wxDATAVIEW_CELL_INERT,
-                                 100, wxALIGN_LEFT,
-                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
-  device_list_->AppendTextColumn("MAC Address",
-                                 wxDATAVIEW_CELL_INERT,
-                                 130, wxALIGN_LEFT,
-                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
-  device_list_->AppendTextColumn("Reachable",
-                                 wxDATAVIEW_CELL_INERT,
-                                 80, wxALIGN_CENTER,
-                                 wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_ = new wxDataViewListCtrl(panel,
+                                          ID_DataViewListCtrl,
+                                          wxPoint(-1,-1),
+                                          wxSize(-1,-1));
+    device_list_->AppendTextColumn("Name",
+                                   wxDATAVIEW_CELL_INERT,
+                                   100, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("Manufacturer",
+                                   wxDATAVIEW_CELL_INERT,
+                                   170, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("Serial Number",
+                                   wxDATAVIEW_CELL_INERT,
+                                   130, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("IP Address",
+                                   wxDATAVIEW_CELL_INERT,
+                                   100, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("MAC Address",
+                                   wxDATAVIEW_CELL_INERT,
+                                   130, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("Reachable",
+                                   wxDATAVIEW_CELL_INERT,
+                                   80, wxALIGN_CENTER,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
 
-  device_list_->SetToolTip("Double-click row to open WebGUI in browser.");
+    device_list_->SetToolTip("Double-click row to open WebGUI in browser.");
 
-  data_box->Add(device_list_, 1, wxEXPAND);
+    data_box->Add(device_list_, 1, wxEXPAND);
 
-  vbox->Add(data_box, 1, wxLEFT | wxRIGHT | wxEXPAND, 10);
+    vbox->Add(data_box, 1, wxLEFT | wxRIGHT | wxEXPAND, 10);
+  }
+
+  {
+    auto *button_box = new wxBoxSizer(wxHORIZONTAL);
+    reset_button_ = new wxButton(panel, ID_ResetButton, "Reset rc_visard");
+    button_box->Add(reset_button_, 1);
+    int w, h;
+    reset_button_->GetSize(&w, &h);
+
+    force_ip_button_ = new wxButton(panel, ID_ForceIpButton,
+                                    "Force temporary IP");
+    button_box->Add(force_ip_button_, 0);
+
+    button_box->Add(-1, 0, wxEXPAND);
+
+    auto *help_button = new wxContextHelpButton(panel, ID_Help_Discovery,
+                                                wxDefaultPosition, wxSize(h,h));
+    button_box->Add(help_button, 0);
+
+    vbox->Add(button_box, 0, wxTOP | wxLEFT | wxRIGHT, 10);
+  }
 
   panel->SetSizer(vbox);
   Centre();
@@ -184,6 +204,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_ResetButton,
           wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(DiscoverFrame::onResetButton));
+  Connect(ID_ForceIpButton,
+          wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(DiscoverFrame::onForceIpButton));
   Connect(ID_Help_Discovery,
           wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(DiscoverFrame::onHelpDiscovery));
@@ -202,6 +225,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_ResetButton,
           wxEVT_MENU,
           wxMenuEventHandler(DiscoverFrame::onResetContextMenu));
+  Connect(ID_ForceIpButton,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onForceIpContextMenu));
   Connect(wxID_EXIT,
           wxEVT_MENU,
           wxCommandEventHandler(DiscoverFrame::onExit));
@@ -227,6 +253,7 @@ void DiscoverFrame::setBusy()
 {
   discover_button_->Disable();
   reset_button_->Disable();
+  force_ip_button_->Disable();
   spinner_ctrl_->Play();
 }
 
@@ -234,6 +261,7 @@ void DiscoverFrame::clearBusy()
 {
   discover_button_->Enable();
   reset_button_->Enable();
+  force_ip_button_->Enable();
   spinner_ctrl_->Stop();
 
   // on Windows, wxAnimationCtrl is sometimes not stopping even if
@@ -296,6 +324,11 @@ void DiscoverFrame::onResetButton(wxCommandEvent &)
   openResetDialog(device_list_->GetSelectedRow());
 }
 
+void DiscoverFrame::onForceIpButton(wxCommandEvent &)
+{
+  openForceIpDialog(device_list_->GetSelectedRow());
+}
+
 void DiscoverFrame::onHelpDiscovery(wxCommandEvent&)
 {
   help_ctrl_->Display("help.htm#discovery");
@@ -348,6 +381,7 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
     menu.Append(ID_OpenWebGUI, "Open &WebGUI");
     menu.AppendSeparator();
     menu.Append(ID_ResetButton, "Reset");
+    menu.Append(ID_ResetButton, "Force temporary IP");
     appended = true;
   }
 
@@ -402,6 +436,11 @@ void DiscoverFrame::onResetContextMenu(wxMenuEvent &)
   openResetDialog(menu_event_item_->first);
 }
 
+void DiscoverFrame::onForceIpContextMenu(wxMenuEvent &)
+{
+
+}
+
 void DiscoverFrame::onExit(wxCommandEvent &)
 {
   Close(true);
@@ -431,6 +470,11 @@ void DiscoverFrame::openResetDialog(const int row)
   }
 
   reset_dialog_->Show();
+}
+
+void DiscoverFrame::openForceIpDialog(const int row)
+{
+
 }
 
 BEGIN_EVENT_TABLE(DiscoverFrame, wxFrame)

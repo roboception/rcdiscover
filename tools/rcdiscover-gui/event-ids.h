@@ -46,6 +46,7 @@ enum
 {
   ID_DiscoverButton = wxID_HIGHEST + 1,
   ID_ResetButton,
+  ID_ForceIpButton,
   ID_DataViewListCtrl,
   ID_OpenWebGUI,
   ID_Reset_Params,

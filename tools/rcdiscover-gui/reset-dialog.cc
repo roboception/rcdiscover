@@ -41,25 +41,18 @@
 #include "event-ids.h"
 #include "resources.h"
 
-#include "rcdiscover/utils.h"
-
 #include "rcdiscover/wol_exception.h"
 #include "rcdiscover/operation_not_permitted.h"
 
 #include <thread>
+#include <sstream>
 
 #include <wx/dialog.h>
-#include <wx/panel.h>
-#include <wx/combobox.h>
 #include <wx/sizer.h>
-#include <wx/textctrl.h>
-#include <wx/checkbox.h>
-#include <wx/stattext.h>
 #include <wx/button.h>
-#include <wx/dataview.h>
-#include <wx/msgdlg.h>
 #include <wx/valgen.h>
-#include <wx/html/helpctrl.h>
+#include <wx/msgdlg.h>
+#include <wx/panel.h>
 #include <wx/cshelp.h>
 
 ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
@@ -67,44 +60,11 @@ ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
                          const wxPoint &pos,
                          long style,
                          const wxString &name) :
-  wxDialog(parent, id, "Reset rc_visard", pos, wxSize(-1,-1), style, name),
-  sensors_(nullptr),
-  mac_{{nullptr, nullptr, nullptr, nullptr, nullptr, nullptr}},
-  sensor_list_(nullptr),
-  help_ctrl_(help_ctrl)
+  SensorCommandDialog(help_ctrl, parent, id, "Reset rc_visard", pos,
+                      style, name)
 {
-  auto *panel = new wxPanel(this, -1);
-  auto *vbox = new wxBoxSizer(wxVERTICAL);
-
-  auto *grid = new wxFlexGridSizer(2, 2, 10, 25);
-
-  auto *sensors_text = new wxStaticText(panel, wxID_ANY, "rc_visard");
-  grid->Add(sensors_text);
-
-  auto *sensors_box = new wxBoxSizer(wxHORIZONTAL);
-  sensors_ = new wxChoice(panel, ID_Sensor_Combobox);
-  sensors_box->Add(sensors_, 1);
-  grid->Add(sensors_box, 1, wxEXPAND);
-
-  auto *mac_text = new wxStaticText(panel, wxID_ANY, "MAC address");
-  grid->Add(mac_text);
-
-  auto *mac_box = new wxBoxSizer(wxHORIZONTAL);
-  int i = 0;
-  for (auto& m : mac_)
-  {
-    if (i > 0)
-    {
-      mac_box->Add(new wxStaticText(panel, ID_MAC_Textbox, ":"));
-    }
-    m = new wxTextCtrl(panel, wxID_ANY, wxEmptyString,
-                       wxDefaultPosition, wxSize(35, -1));
-    mac_box->Add(m, 1);
-    ++i;
-  }
-  grid->Add(mac_box, 1, wxEXPAND);
-
-  vbox->Add(grid, 0, wxALL | wxEXPAND, 15);
+  const auto panel = getPanel();
+  const auto vbox = getVerticalBox();
 
   auto *button_box = new wxBoxSizer(wxHORIZONTAL);
   auto *reset_param_button = new wxButton(panel, ID_Reset_Params,
@@ -134,15 +94,6 @@ ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
 
   vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
 
-  panel->SetSizer(vbox);
-  panel->Fit();
-  Centre();
-
-  this->Fit();
-
-  Connect(ID_Sensor_Combobox,
-          wxEVT_CHOICE,
-          wxCommandEventHandler(ResetDialog::onSensorSelected));
   Connect(ID_Reset_Params,
           wxEVT_BUTTON,
           wxCommandEventHandler(ResetDialog::onResetButton));
@@ -158,64 +109,10 @@ ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
   Connect(ID_Help_Reset,
           wxEVT_BUTTON,
           wxCommandEventHandler(ResetDialog::onHelpButton));
-}
 
-void ResetDialog::setDiscoveredSensors(const wxDataViewListModel *sensor_list)
-{
-  sensor_list_ = sensor_list;
-
-  if (sensor_list != nullptr)
-  {
-    sensors_->Clear();
-
-    sensors_->Append("<Custom>");
-
-    const auto rows = sensor_list->GetCount();
-    unsigned int sensors_row = 0;
-    for (typename std::decay<decltype(rows)>::type i = 0; i < rows; ++i)
-    {
-      wxVariant manufacturer{};
-      sensor_list->GetValueByRow(manufacturer, i, 1);
-      if (manufacturer.GetString() == ROBOCEPTION)
-      {
-        wxVariant hostname{};
-        wxVariant mac{};
-        sensor_list->GetValueByRow(hostname, i, 0);
-        sensor_list->GetValueByRow(mac, i, 4);
-        const auto s = wxString::Format("%s - %s",
-                                        hostname.GetString(),
-                                        mac.GetString());
-        sensors_->Append(s);
-        row_map_.emplace(i, sensors_row + 1);
-        row_map_inv_.emplace(sensors_row + 1, i);
-
-        ++sensors_row;
-      }
-    }
-  }
-
-  clear();
-}
-
-void ResetDialog::setActiveSensor(const unsigned int row)
-{
-  sensors_->Select(row_map_.at(static_cast<int>(row)));
-  fillMac();
-}
-
-void ResetDialog::onSensorSelected(wxCommandEvent &)
-{
-  if (sensors_->GetSelection() != wxNOT_FOUND)
-  {
-    if (sensors_->GetSelection() == 0)
-    {
-      clear();
-    }
-    else
-    {
-      fillMac();
-    }
-  }
+  getPanel()->Fit();
+  Centre();
+  this->Fit();
 }
 
 void ResetDialog::onResetButton(wxCommandEvent &event)
@@ -259,39 +156,11 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
         throw std::runtime_error("Unknown event ID");
     }
 
-    std::array<uint8_t, 6> mac;
-    std::string mac_string;
-
-    for (uint8_t i = 0; i < 6; ++i)
-    {
-      const auto s = mac_[i]->GetValue().ToStdString();
-
-      try
-      {
-        const auto v = std::stoul(s, nullptr, 16);
-        if (v > 0xff)
-        {
-          throw std::invalid_argument("");
-        }
-        mac[i] = static_cast<uint8_t>(v);
-      }
-      catch(const std::invalid_argument&)
-      {
-        wxMessageBox(std::string("Each MAC address segment must contain ") +
-                     "a hex value ranging from 0x00 to 0xff.",
-                     "Error", wxOK | wxICON_ERROR);
-        return;
-      }
-
-      if (i > 0)
-      {
-        mac_string += ":";
-      }
-      mac_string += s;
-    }
-
     try
     {
+      std::array<uint8_t, 6> mac = getMac();
+      std::string mac_string = getMacString();
+
       rcdiscover::WOL wol(mac, 9);
 
       std::ostringstream oss;
@@ -304,9 +173,9 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
         wol.send({{0xEE, 0xEE, 0xEE, func_id}});
       }
     }
-    catch(const rcdiscover::WOLException& ex)
+    catch(const std::runtime_error& ex)
     {
-      wxMessageBox(ex.what(), "An error occurred", wxOK | wxICON_ERROR);
+      wxMessageBox(ex.what(), "Error", wxOK | wxICON_ERROR);
     }
   }
   catch(const rcdiscover::OperationNotPermitted&)
@@ -320,46 +189,8 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
 
 void ResetDialog::onHelpButton(wxCommandEvent &)
 {
-  help_ctrl_->Display("help.htm#reset");
-
-  // need second call otherwise it does not jump to "reset" section if the
-  // help is displayed the first time
-  help_ctrl_->Display("help.htm#reset");
+  displayHelp("reset");
 }
 
-void ResetDialog::clear()
-{
-  sensors_->SetSelection(0);
-
-  for (uint8_t i = 0; i < 6; ++i)
-  {
-    mac_[i]->Clear();
-    mac_[i]->SetEditable(true);
-  }
-}
-
-void ResetDialog::fillMac()
-{
-  const int row = sensors_->GetSelection();
-
-  if (row == wxNOT_FOUND)
-  {
-    return;
-  }
-
-  wxVariant mac_string{};
-  sensor_list_->GetValueByRow(mac_string,
-                              row_map_inv_.at(static_cast<unsigned int>(row)),
-                              4);
-
-  const auto mac = split<6>(mac_string.GetString().ToStdString(), ':');
-
-  for (uint8_t i = 0; i < 6; ++i)
-  {
-    mac_[i]->ChangeValue(mac[i]);
-    mac_[i]->SetEditable(false);
-  }
-}
-
-BEGIN_EVENT_TABLE(ResetDialog, wxDialog)
+BEGIN_EVENT_TABLE(ResetDialog, SensorCommandDialog)
 END_EVENT_TABLE()

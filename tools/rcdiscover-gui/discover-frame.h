@@ -104,6 +104,11 @@ class DiscoverFrame : public wxFrame
     void onResetButton(wxCommandEvent &);
 
     /**
+     * @brief Event handler for ForceIP button click.
+     */
+    void onForceIpButton(wxCommandEvent &);
+
+    /**
      * @brief Event handler for double click on an rc_visard.
      * @param event event
      */
@@ -131,6 +136,11 @@ class DiscoverFrame : public wxFrame
     void onResetContextMenu(wxMenuEvent &);
 
     /**
+     * @brief Event handler for "force ip" context menu item.
+     */
+    void onForceIpContextMenu(wxMenuEvent &);
+
+    /**
      * @brief Event handler for exit command.
      */
     void onExit(wxCommandEvent &);
@@ -150,6 +160,7 @@ class DiscoverFrame : public wxFrame
      * @param row row of currently selected rc_visard in the table
      */
     void openResetDialog(int row);
+    void openForceIpDialog(int row);
 
     void onOnlyRcCheckbox(wxCommandEvent &evt);
 
@@ -161,6 +172,7 @@ class DiscoverFrame : public wxFrame
     wxDataViewListCtrl *device_list_;
     wxButton *discover_button_;
     wxButton *reset_button_;
+    wxButton *force_ip_button_;
     ResetDialog *reset_dialog_;
     AboutDialog *about_dialog_;
     wxAnimation spinner_;
