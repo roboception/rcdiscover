@@ -36,6 +36,7 @@
 #include "discover.h"
 
 #include "socket_exception.h"
+#include "gige_request_counter.h"
 
 #include <exception>
 #include <ios>
@@ -57,6 +58,7 @@
 #include <future>
 #include <string.h>
 #include <errno.h>
+#include <algorithm>
 
 namespace rcdiscover
 {
@@ -82,10 +84,15 @@ Discover::~Discover()
 
 void Discover::broadcastRequest()
 {
-  const std::vector<uint8_t> discovery_cmd{0x42, 0x11, 0, 0x02, 0, 0, 0, 1};
+  req_nums_.clear();
+
+  std::vector<uint8_t> discovery_cmd{0x42, 0x11, 0, 0x02, 0, 0, 0, 0};
 
   for (auto &socket : sockets_)
   {
+    req_nums_.push_back(GigERequestCounter::getNext());
+    std::tie(discovery_cmd[6], discovery_cmd[7]) = req_nums_.back();
+
     try
     {
       socket.send(discovery_cmd);
@@ -108,10 +115,12 @@ bool Discover::getResponse(std::vector<DeviceInfo> &info,
 
   // try to get a valid package (repeat if an invalid package is received)
 
+  const auto &req_nums = req_nums_;
+
   std::vector<std::future<DeviceInfo>> futures;
   for (auto &socket : sockets_)
   {
-    futures.push_back(std::async(std::launch::async, [&socket, &tv]
+    futures.push_back(std::async(std::launch::async, [&socket, &tv, &req_nums]
     {
       DeviceInfo device_info;
       device_info.clear();
@@ -151,15 +160,19 @@ bool Discover::getResponse(std::vector<DeviceInfo> &info,
           if (n >= 8)
           {
             if (p[0] == 0 && p[1] == 0 && p[2] == 0 &&
-                p[3] == 0x03 && p[6] == 0 && p[7] == 1)
+                p[3] == 0x03)
             {
-              size_t len=(static_cast<size_t>(p[4])<<8)|p[5];
-
-              if (static_cast<size_t>(n) >= len+8)
+              if (std::find(req_nums.begin(), req_nums.end(),
+                            std::make_tuple(p[6], p[7])) != req_nums.end())
               {
-                // extract information and store in list
+                size_t len=(static_cast<size_t>(p[4])<<8)|p[5];
 
-                device_info.set(p+8, len);
+                if (static_cast<size_t>(n) >= len+8)
+                {
+                  // extract information and store in list
+
+                  device_info.set(p+8, len);
+                }
               }
             }
           }

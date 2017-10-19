@@ -43,6 +43,7 @@ set(rcdiscover_src
   socket_exception.cc
   ping.cc
   wol.cc
+  gige_request_counter.cc
 )
 
 if (WIN32)
