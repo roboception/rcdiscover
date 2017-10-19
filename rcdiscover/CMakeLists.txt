@@ -38,6 +38,7 @@ add_definitions(-DHAVE_PCAP)
 set(rcdiscover_src
   deviceinfo.cc
   discover.cc
+  force_ip.cc
   operation_not_permitted.cc
   wol_exception.cc
   socket_exception.cc
