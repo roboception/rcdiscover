@@ -8,11 +8,11 @@
 *
 * Author: Raphael Schaller
 */
+#include "rcdiscover/force_ip.h"
+
 #include "reconnect-dialog.h"
 
 #include "event-ids.h"
-
-#include "rcdiscover/force_ip.h"
 
 #include <sstream>
 
