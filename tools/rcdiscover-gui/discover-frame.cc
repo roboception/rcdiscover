@@ -68,7 +68,7 @@
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
-  wxFrame(NULL, wxID_ANY, title, pos, wxSize(800,350)),
+  wxFrame(NULL, wxID_ANY, title, pos, wxSize(820,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
   reset_button_(nullptr),
@@ -151,7 +151,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                    wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
     device_list_->AppendTextColumn("IP Address",
                                    wxDATAVIEW_CELL_INERT,
-                                   100, wxALIGN_LEFT,
+                                   120, wxALIGN_LEFT,
                                    wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
     device_list_->AppendTextColumn("MAC Address",
                                    wxDATAVIEW_CELL_INERT,

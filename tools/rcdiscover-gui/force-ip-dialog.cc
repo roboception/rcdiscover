@@ -223,6 +223,16 @@ void ForceIpDialog::onIpChanged(wxCommandEvent &event)
         changeTextCtrlIfNotChangedByUser(subnet_[3], "0");
       }
 
+      // 169.254.0.0/16 addresses
+      if (static_cast<std::uint8_t>(ip >> 24) == 169
+          && static_cast<std::uint8_t>(ip >> 16) == 254)
+      {
+        changeTextCtrlIfNotChangedByUser(subnet_[0], "255");
+        changeTextCtrlIfNotChangedByUser(subnet_[1], "255");
+        changeTextCtrlIfNotChangedByUser(subnet_[2], "0");
+        changeTextCtrlIfNotChangedByUser(subnet_[3], "0");
+      }
+
       const auto subnet = parseIp(subnet_);
 
       const auto predicted_gateway = (ip & subnet) | 0x1;

@@ -37,9 +37,9 @@ void ForceIP::sendCommand(const uint64_t mac, const uint32_t ip,
   force_ip_command[4] = 0x00;   // length
   force_ip_command[5] = 64 - 8; // length
 
-  force_ip_command[10] = static_cast<std::uint8_t>(mac >> 48); // MAC address
-  force_ip_command[11] = static_cast<std::uint8_t>(mac >> 40); // MAC address
-  force_ip_command[12] = static_cast<std::uint8_t>(mac >> 32); // MAC address
+  force_ip_command[10] = static_cast<std::uint8_t>(mac >> 40); // MAC address
+  force_ip_command[11] = static_cast<std::uint8_t>(mac >> 32); // MAC address
+  force_ip_command[12] = static_cast<std::uint8_t>(mac >> 24); // MAC address
   force_ip_command[13] = static_cast<std::uint8_t>(mac >> 16); // MAC address
   force_ip_command[14] = static_cast<std::uint8_t>(mac >> 8);  // MAC address
   force_ip_command[15] = static_cast<std::uint8_t>(mac >> 0);  // MAC address
