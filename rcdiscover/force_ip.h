@@ -20,6 +20,9 @@
 namespace rcdiscover
 {
 
+/**
+ * @brief Class for sending GigE Vision FORCEIP_CMD to camera.
+ */
 class ForceIP
 {
   public:
@@ -30,8 +33,21 @@ class ForceIP
 #endif
 
   public:
+    /**
+     * @brief Constructor.
+     * Sets up sockets.
+     */
     ForceIP();
 
+    /**
+     * @brief Send FORCEIP_CMD.
+     * @param mac the destination MAC address
+     * @param ip the desired IP address
+     * @param subnet the desired subnet mask
+     * @param gateway the desired default gateway
+     *
+     * @note If \p ip is set to 0, the camera will perform a reconnect.
+     */
     void sendCommand(std::uint64_t mac, std::uint32_t ip,
                      std::uint32_t subnet, std::uint32_t gateway);
 

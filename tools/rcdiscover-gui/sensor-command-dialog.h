@@ -24,6 +24,12 @@ class wxBoxSizer;
 class wxPanel;
 class wxFlexGridSizer;
 
+/**
+ * @brief Base class for dialogs for sending commands to a camera.
+ *
+ * It will add a drop down list containing the discovered cameras
+ * and text boxes for the MAC address.
+ */
 class SensorCommandDialog : public wxDialog
 {
   public:

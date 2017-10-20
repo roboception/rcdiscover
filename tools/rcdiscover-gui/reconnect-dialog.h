@@ -13,6 +13,9 @@
 
 #include "sensor-command-dialog.h"
 
+/**
+ * @brief Dialog for sending FORCEIP_CMD with IP set to 0 to camera.
+ */
 class ReconnectDialog : public SensorCommandDialog
 {
   public:

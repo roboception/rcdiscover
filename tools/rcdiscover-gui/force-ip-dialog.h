@@ -15,6 +15,9 @@
 
 #include <map>
 
+/**
+ * @brief Dialog for sending FORCEIP_CMD to camera.
+ */
 class ForceIpDialog : public SensorCommandDialog
 {
   public:

@@ -173,11 +173,29 @@ class DiscoverFrame : public wxFrame
      * @param row row of currently selected rc_visard in the table
      */
     void openResetDialog(int row);
+
+    /**
+     * @brief Open Force IP dialog.
+     * @param row row of currently selected rc_visard in the table
+     */
     void openForceIpDialog(int row);
+
+    /**
+     * @brief Open Reconnect dialog.
+     * @param row row of currently selected rc_visard in the table
+     */
     void openReconnectDialog(int row);
 
+    /**
+     * @brief Event handler for change of the "only RC cameras" checkbox.
+     * @param evt event
+     */
     void onOnlyRcCheckbox(wxCommandEvent &evt);
 
+    /**
+     * @brief Updates the device table.
+     * @param d discovered cameras
+     */
     void updateDeviceList(const std::vector<wxVector<wxVariant>> &d);
 
     wxDECLARE_EVENT_TABLE();
