@@ -55,6 +55,7 @@ enum
   ID_Reset_All,
   ID_Switch_Partition,
   ID_Force_IP,
+  ID_Clear_IP_Form,
   ID_Reconnect,
   ID_Help,
   ID_Help_Discovery,

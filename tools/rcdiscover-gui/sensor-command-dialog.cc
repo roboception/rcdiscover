@@ -119,6 +119,8 @@ void SensorCommandDialog::setDiscoveredSensors(
 
 void SensorCommandDialog::setActiveSensor(const unsigned int row)
 {
+  clear();
+
   sensors_->Select(row_map_.at(static_cast<int>(row)));
   fillMac();
 }
@@ -193,13 +195,18 @@ void SensorCommandDialog::displayHelp(const std::string &section)
   help_ctrl_->Display(url);
 }
 
+void SensorCommandDialog::clear()
+{
+  clearMac();
+}
+
 void SensorCommandDialog::onSensorSelected(wxCommandEvent &event)
 {
   if (sensors_->GetSelection() != wxNOT_FOUND)
   {
     if (sensors_->GetSelection() == 0)
     {
-      clear();
+      clearMac();
     }
     else
     {
@@ -231,7 +238,7 @@ void SensorCommandDialog::fillMac()
   }
 }
 
-void SensorCommandDialog::clear()
+void SensorCommandDialog::clearMac()
 {
   sensors_->SetSelection(0);
 

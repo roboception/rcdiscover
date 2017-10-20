@@ -75,9 +75,14 @@ class SensorCommandDialog : public wxDialog
     void onSensorSelected(wxCommandEvent &event);
 
     /**
-     * @brief Fill MAC address according to selected rc_visard
+     * @brief Fill MAC address according to selected rc_visard.
      */
     void fillMac();
+
+    /**
+     * @brief Clear MAC address.
+     */
+    void clearMac();
 
     wxDECLARE_EVENT_TABLE();
 

@@ -28,9 +28,6 @@ class ForceIpDialog : public SensorCommandDialog
 
     virtual ~ForceIpDialog() = default;
 
-  protected:
-    virtual void clear() override;
-
   private:
     void addIpToBoxSizer(wxBoxSizer *sizer,
                          std::array<wxTextCtrl *, 4> &ip, int id);
@@ -40,6 +37,8 @@ class ForceIpDialog : public SensorCommandDialog
                                           const std::string &v);
 
   private:
+    void onClearButton(wxCommandEvent &event);
+
     void onForceIpButton(wxCommandEvent &event);
     void onHelpButton(wxCommandEvent &event);
 

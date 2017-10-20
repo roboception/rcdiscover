@@ -58,6 +58,9 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
   auto *set_ip_button = new wxButton(panel, ID_Force_IP,
                                      "Set temporary IP address");
   button_box->Add(set_ip_button, 1);
+  auto *clear_button = new wxButton(panel, ID_Clear_IP_Form,
+                                     "Clear form");
+  button_box->Add(clear_button, 0);
 
   button_box->AddSpacer(20);
 
@@ -72,6 +75,9 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
   Connect(ID_Force_IP,
           wxEVT_BUTTON,
           wxCommandEventHandler(ForceIpDialog::onForceIpButton));
+  Connect(ID_Clear_IP_Form,
+          wxEVT_BUTTON,
+          wxCommandEventHandler(ForceIpDialog::onClearButton));
   Connect(ID_Help_Force_IP,
           wxEVT_BUTTON,
           wxCommandEventHandler(ForceIpDialog::onHelpButton));
@@ -81,12 +87,8 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
   Centre();
 }
 
-void ForceIpDialog::clear()
+void ForceIpDialog::onClearButton(wxCommandEvent &)
 {
-  std::cout << "clear" << std::endl;
-
-  SensorCommandDialog::clear();
-
   for (auto &x : ip_)
   {
     x->ChangeValue("");
