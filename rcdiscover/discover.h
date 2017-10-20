@@ -89,6 +89,7 @@ class Discover
 
   private:
     std::vector<SocketType> sockets_;
+    std::vector<std::tuple<std::uint8_t, std::uint8_t>> req_nums_;
 };
 
 }

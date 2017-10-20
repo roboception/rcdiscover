@@ -46,9 +46,12 @@ class wxDataViewListCtrl;
 class wxButton;
 class wxDataViewEvent;
 class wxPanel;
-class ResetDialog;
-class AboutDialog;
 class wxHtmlHelpController;
+
+class ResetDialog;
+class ForceIpDialog;
+class ReconnectDialog;
+class AboutDialog;
 
 /**
  * @brief Main window in which the table of discovered rc_visards is displayed.
@@ -104,6 +107,16 @@ class DiscoverFrame : public wxFrame
     void onResetButton(wxCommandEvent &);
 
     /**
+     * @brief Event handler for ForceIP button click.
+     */
+    void onForceIpButton(wxCommandEvent &);
+
+    /**
+     * @brief Event handler for Reconnect button click.
+     */
+    void onReconnectButton(wxCommandEvent &);
+
+    /**
      * @brief Event handler for double click on an rc_visard.
      * @param event event
      */
@@ -131,6 +144,16 @@ class DiscoverFrame : public wxFrame
     void onResetContextMenu(wxMenuEvent &);
 
     /**
+     * @brief Event handler for "force ip" context menu item.
+     */
+    void onForceIpContextMenu(wxMenuEvent &);
+
+    /**
+     * @brief Event handler for "reconnect" context menu item.
+     */
+    void onReconnectContextMenu(wxMenuEvent &);
+
+    /**
      * @brief Event handler for exit command.
      */
     void onExit(wxCommandEvent &);
@@ -151,8 +174,28 @@ class DiscoverFrame : public wxFrame
      */
     void openResetDialog(int row);
 
+    /**
+     * @brief Open Force IP dialog.
+     * @param row row of currently selected rc_visard in the table
+     */
+    void openForceIpDialog(int row);
+
+    /**
+     * @brief Open Reconnect dialog.
+     * @param row row of currently selected rc_visard in the table
+     */
+    void openReconnectDialog(int row);
+
+    /**
+     * @brief Event handler for change of the "only RC cameras" checkbox.
+     * @param evt event
+     */
     void onOnlyRcCheckbox(wxCommandEvent &evt);
 
+    /**
+     * @brief Updates the device table.
+     * @param d discovered cameras
+     */
     void updateDeviceList(const std::vector<wxVector<wxVariant>> &d);
 
     wxDECLARE_EVENT_TABLE();
@@ -161,7 +204,11 @@ class DiscoverFrame : public wxFrame
     wxDataViewListCtrl *device_list_;
     wxButton *discover_button_;
     wxButton *reset_button_;
+    wxButton *force_ip_button_;
+    wxButton *reconnect_button_;
     ResetDialog *reset_dialog_;
+    ForceIpDialog *force_ip_dialog_;
+    ReconnectDialog *reconnect_dialog_;
     AboutDialog *about_dialog_;
     wxAnimation spinner_;
     wxAnimationCtrl *spinner_ctrl_;

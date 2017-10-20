@@ -36,22 +36,16 @@
 #ifndef RESETDIALOG_H
 #define RESETDIALOG_H
 
+#include "sensor-command-dialog.h"
+
 #include <array>
 #include <unordered_map>
 
-#include <wx/dialog.h>
-
-class wxChoice;
-class wxCheckBox;
-class wxTextCtrl;
-class wxDataViewListModel;
-class wxHtmlHelpController;
 
 /**
  * @brief Dialog for Magic Packets reset of rc_visard.
  */
-
-class ResetDialog : public wxDialog
+class ResetDialog : public SensorCommandDialog
 {
   public:
     ResetDialog() = default;
@@ -64,27 +58,7 @@ class ResetDialog : public wxDialog
 
     virtual ~ResetDialog() = default;
 
-    /**
-     * @brief Set list of discovered rc_visards to provide a drop down menu
-     * to the user.
-     * @param sensor_list list of rc_visards
-     */
-    void setDiscoveredSensors(const wxDataViewListModel *sensor_list);
-
-    /**
-     * @brief Select a specific rc_visard of the list set by
-     * setDiscoveredSensors.
-     * @param row row of rc_visard list
-     */
-    void setActiveSensor(const unsigned int row);
-
   private:
-    /**
-     * @brief Event handler for selection of an rc_visard from drop down menu.
-     * @param event event
-     */
-    void onSensorSelected(wxCommandEvent &event);
-
     /**
      * @brief Event handler for click on one of the four reset buttons.
      * @param event event
@@ -96,27 +70,7 @@ class ResetDialog : public wxDialog
      */
     void onHelpButton(wxCommandEvent &);
 
-    /**
-     * @brief Reset and clear all fields.
-     */
-    void clear();
-
-    /**
-     * @brief Fill MAC address according to selected rc_visard
-     */
-    void fillMac();
-
     wxDECLARE_EVENT_TABLE();
-
-  private:
-    wxChoice *sensors_;
-    std::array<wxTextCtrl *, 6> mac_;
-    std::unordered_map<unsigned int, unsigned int> row_map_;
-    std::unordered_map<unsigned int, unsigned int> row_map_inv_;
-
-    const wxDataViewListModel *sensor_list_;
-
-    wxHtmlHelpController *help_ctrl_;
 };
 
 #endif // RESETDIALOG_H

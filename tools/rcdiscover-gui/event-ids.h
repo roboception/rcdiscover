@@ -46,21 +46,33 @@ enum
 {
   ID_DiscoverButton = wxID_HIGHEST + 1,
   ID_ResetButton,
+  ID_ForceIpButton,
+  ID_ReconnectButton,
   ID_DataViewListCtrl,
   ID_OpenWebGUI,
   ID_Reset_Params,
   ID_Reset_GigE,
   ID_Reset_All,
   ID_Switch_Partition,
+  ID_Force_IP,
+  ID_Clear_IP_Form,
+  ID_Reconnect,
   ID_Help,
   ID_Help_Discovery,
   ID_Help_Reset,
+  ID_Help_Force_IP,
+  ID_Help_Reconnect,
   ID_OnlyRcCheckbox,
+  ID_ForceIp_IpChanged,
+  ID_ForceIp_SubnetChanged,
+  ID_ForceIp_GatewayChanged,
 
   ID_Sensor_Combobox,
   ID_MAC_Textbox,
+  ID_IP_Checkbox,
   ID_IP_Textbox,
-  ID_IP_Checkbox
+  ID_Subnet_Textbox,
+  ID_Gateway_Textbox
 };
 
 #endif // EVENT_IDS_H
