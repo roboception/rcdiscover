@@ -50,6 +50,7 @@ class wxHtmlHelpController;
 
 class ResetDialog;
 class ForceIpDialog;
+class ReconnectDialog;
 class AboutDialog;
 
 /**
@@ -111,6 +112,11 @@ class DiscoverFrame : public wxFrame
     void onForceIpButton(wxCommandEvent &);
 
     /**
+     * @brief Event handler for Reconnect button click.
+     */
+    void onReconnectButton(wxCommandEvent &);
+
+    /**
      * @brief Event handler for double click on an rc_visard.
      * @param event event
      */
@@ -143,6 +149,11 @@ class DiscoverFrame : public wxFrame
     void onForceIpContextMenu(wxMenuEvent &);
 
     /**
+     * @brief Event handler for "reconnect" context menu item.
+     */
+    void onReconnectContextMenu(wxMenuEvent &);
+
+    /**
      * @brief Event handler for exit command.
      */
     void onExit(wxCommandEvent &);
@@ -163,6 +174,7 @@ class DiscoverFrame : public wxFrame
      */
     void openResetDialog(int row);
     void openForceIpDialog(int row);
+    void openReconnectDialog(int row);
 
     void onOnlyRcCheckbox(wxCommandEvent &evt);
 
@@ -175,8 +187,10 @@ class DiscoverFrame : public wxFrame
     wxButton *discover_button_;
     wxButton *reset_button_;
     wxButton *force_ip_button_;
+    wxButton *reconnect_button_;
     ResetDialog *reset_dialog_;
     ForceIpDialog *force_ip_dialog_;
+    ReconnectDialog *reconnect_dialog_;
     AboutDialog *about_dialog_;
     wxAnimation spinner_;
     wxAnimationCtrl *spinner_ctrl_;

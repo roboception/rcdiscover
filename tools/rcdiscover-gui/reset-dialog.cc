@@ -180,7 +180,7 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
   }
   catch(const rcdiscover::OperationNotPermitted&)
   {
-    wxMessageBox(std::string("rcdiscovery probably requires root/admin ") +
+    wxMessageBox(std::string("rcdiscover probably requires root/admin ") +
                  "privileges for this operation.",
                  "Operation not permitted",
                  wxOK | wxICON_ERROR);

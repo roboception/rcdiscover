@@ -42,6 +42,7 @@
 #include "event-ids.h"
 #include "reset-dialog.h"
 #include "force-ip-dialog.h"
+#include "reconnect-dialog.h"
 #include "about-dialog.h"
 #include "resources.h"
 
@@ -176,8 +177,12 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
     reset_button_->GetSize(&w, &h);
 
     force_ip_button_ = new wxButton(panel, ID_ForceIpButton,
-                                    "Force temporary IP");
+                                    "Set temporary IP address");
     button_box->Add(force_ip_button_, 1);
+
+    reconnect_button_ = new wxButton(panel, ID_ReconnectButton,
+                                    "Reconnect rc_visard");
+    button_box->Add(reconnect_button_, 1);
 
     button_box->Add(-1, 0, wxEXPAND);
 
@@ -209,6 +214,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_ForceIpButton,
           wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(DiscoverFrame::onForceIpButton));
+  Connect(ID_ReconnectButton,
+          wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(DiscoverFrame::onReconnectButton));
   Connect(ID_Help_Discovery,
           wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(DiscoverFrame::onHelpDiscovery));
@@ -230,6 +238,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_ForceIpButton,
           wxEVT_MENU,
           wxMenuEventHandler(DiscoverFrame::onForceIpContextMenu));
+  Connect(ID_ReconnectButton,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onReconnectContextMenu));
   Connect(wxID_EXIT,
           wxEVT_MENU,
           wxCommandEventHandler(DiscoverFrame::onExit));
@@ -245,6 +256,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
 
   reset_dialog_ = new ResetDialog(help_ctrl_, panel, wxID_ANY);
   force_ip_dialog_ = new ForceIpDialog(help_ctrl_, panel, wxID_ANY);
+  reconnect_dialog_ = new ReconnectDialog(help_ctrl_, panel, wxID_ANY);
   about_dialog_ = new AboutDialog(panel, wxID_ANY);
 
   // start discovery on startup
@@ -257,6 +269,7 @@ void DiscoverFrame::setBusy()
   discover_button_->Disable();
   reset_button_->Disable();
   force_ip_button_->Disable();
+  reconnect_button_->Disable();
   spinner_ctrl_->Play();
 }
 
@@ -265,6 +278,7 @@ void DiscoverFrame::clearBusy()
   discover_button_->Enable();
   reset_button_->Enable();
   force_ip_button_->Enable();
+  reconnect_button_->Enable();
   spinner_ctrl_->Stop();
 
   // on Windows, wxAnimationCtrl is sometimes not stopping even if
@@ -312,6 +326,7 @@ void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
 
   reset_dialog_->setDiscoveredSensors(device_list_->GetStore());
   force_ip_dialog_->setDiscoveredSensors(device_list_->GetStore());
+  reconnect_dialog_->setDiscoveredSensors(device_list_->GetStore());
 }
 
 void DiscoverFrame::onDiscoveryError(wxThreadEvent &event)
@@ -331,6 +346,11 @@ void DiscoverFrame::onResetButton(wxCommandEvent &)
 void DiscoverFrame::onForceIpButton(wxCommandEvent &)
 {
   openForceIpDialog(device_list_->GetSelectedRow());
+}
+
+void DiscoverFrame::onReconnectButton(wxCommandEvent &)
+{
+  openReconnectDialog(device_list_->GetSelectedRow());
 }
 
 void DiscoverFrame::onHelpDiscovery(wxCommandEvent&)
@@ -385,7 +405,8 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
     menu.Append(ID_OpenWebGUI, "Open &WebGUI");
     menu.AppendSeparator();
     menu.Append(ID_ResetButton, "Reset");
-    menu.Append(ID_ForceIpButton, "Force temporary IP");
+    menu.Append(ID_ForceIpButton, "Set temporary IP");
+    menu.Append(ID_ReconnectButton, "Reconnect");
     appended = true;
   }
 
@@ -451,6 +472,17 @@ void DiscoverFrame::onForceIpContextMenu(wxMenuEvent &)
   openForceIpDialog(menu_event_item_->first);
 }
 
+void DiscoverFrame::onReconnectContextMenu(wxMenuEvent &)
+{
+  if (!menu_event_item_ ||
+      menu_event_item_->first < 0)
+  {
+    return;
+  }
+
+  openReconnectDialog(menu_event_item_->first);
+}
+
 void DiscoverFrame::onExit(wxCommandEvent &)
 {
   Close(true);
@@ -490,6 +522,16 @@ void DiscoverFrame::openForceIpDialog(const int row)
   }
 
   force_ip_dialog_->Show();
+}
+
+void DiscoverFrame::openReconnectDialog(const int row)
+{
+  if (row != wxNOT_FOUND)
+  {
+    reconnect_dialog_->setActiveSensor(static_cast<unsigned int>(row));
+  }
+
+  reconnect_dialog_->Show();
 }
 
 BEGIN_EVENT_TABLE(DiscoverFrame, wxFrame)

@@ -29,7 +29,7 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
                              const wxPoint &pos,
                              long style,
                              const wxString &name) :
-  SensorCommandDialog(help_ctrl, parent, id, "Force temporary IP address", 3,
+  SensorCommandDialog(help_ctrl, parent, id, "Set temporary IP address", 3,
                       pos, style, name)
 {
   auto *const panel = getPanel();
@@ -39,27 +39,27 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
   auto *ip_text = new wxStaticText(panel, wxID_ANY, "IP address");
   grid->Add(ip_text);
   auto *ip_box = new wxBoxSizer(wxHORIZONTAL);
-  addIpToBoxSizer(ip_box, ip_);
+  addIpToBoxSizer(ip_box, ip_, ID_ForceIp_IpChanged);
   grid->Add(ip_box);
 
   auto *subnet_text = new wxStaticText(panel, wxID_ANY, "Subnet mask");
   grid->Add(subnet_text);
   auto *subnet_box = new wxBoxSizer(wxHORIZONTAL);
-  addIpToBoxSizer(subnet_box, subnet_);
+  addIpToBoxSizer(subnet_box, subnet_, ID_ForceIp_SubnetChanged);
   grid->Add(subnet_box);
 
   auto *gateway_text = new wxStaticText(panel, wxID_ANY, "Default gateway");
   grid->Add(gateway_text);
   auto *gateway_box = new wxBoxSizer(wxHORIZONTAL);
-  addIpToBoxSizer(gateway_box, gateway_);
+  addIpToBoxSizer(gateway_box, gateway_, ID_ForceIp_GatewayChanged);
   grid->Add(gateway_box);
 
   auto *button_box = new wxBoxSizer(wxHORIZONTAL);
   auto *set_ip_button = new wxButton(panel, ID_Force_IP,
-                                     "Set IP address");
+                                     "Set temporary IP address");
   button_box->Add(set_ip_button, 1);
 
-  button_box->AddStretchSpacer(2);
+  button_box->AddSpacer(20);
 
   int w, h;
   set_ip_button->GetSize(&w, &h);
@@ -83,13 +83,32 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
 
 void ForceIpDialog::clear()
 {
+  std::cout << "clear" << std::endl;
+
   SensorCommandDialog::clear();
 
+  for (auto &x : ip_)
+  {
+    x->ChangeValue("");
+  }
+  for (auto &x : subnet_)
+  {
+    x->ChangeValue("");
+  }
+  for (auto &x : gateway_)
+  {
+    x->ChangeValue("");
+  }
 
+  for (auto &x : changed_by_user_)
+  {
+    x.second = false;
+  }
 }
 
 void ForceIpDialog::addIpToBoxSizer(wxBoxSizer *sizer,
-                                    std::array<wxTextCtrl *, 4> &ip)
+                                    std::array<wxTextCtrl *, 4> &ip,
+                                    int id)
 {
   bool first = true;
   for (auto &i : ip)
@@ -98,8 +117,10 @@ void ForceIpDialog::addIpToBoxSizer(wxBoxSizer *sizer,
     {
       sizer->Add(new wxStaticText(getPanel(), ID_IP_Textbox, "."));
     }
-    i = new wxTextCtrl(getPanel(), wxID_ANY, wxEmptyString, wxDefaultPosition,
+    i = new wxTextCtrl(getPanel(), id, wxEmptyString, wxDefaultPosition,
                        wxSize(45, -1));
+    changed_by_user_.emplace(i, false);
+    Connect(id, wxEVT_TEXT, wxCommandEventHandler(ForceIpDialog::onIpChanged));
     sizer->Add(i, 1);
     first = false;
   }
@@ -131,6 +152,93 @@ uint32_t ForceIpDialog::parseIp(const std::array<wxTextCtrl *, 4> &ip)
   }
 
   return result;
+}
+
+void ForceIpDialog::changeTextCtrlIfNotChangedByUser(wxTextCtrl *ctrl,
+                                                     const std::string &v)
+{
+  if (ctrl->HasFocus())
+  {
+    return;
+  }
+
+  if (ctrl->GetValue().empty())
+  {
+    changed_by_user_[ctrl] = false;
+  }
+
+  if (!changed_by_user_[ctrl])
+  {
+    ctrl->ChangeValue(v);
+    ctrl->SetBackgroundColour(wxColour(240, 240, 240));
+  }
+}
+
+void ForceIpDialog::onIpChanged(wxCommandEvent &event)
+{
+  auto *const text_ctrl =
+      dynamic_cast<wxTextCtrl *>(event.GetEventObject());
+  if (text_ctrl != nullptr)
+  {
+    if (!text_ctrl->GetValue().empty())
+    {
+      changed_by_user_[text_ctrl] = true;
+      text_ctrl->SetBackgroundColour(wxColor(255, 255, 255));
+    }
+  }
+
+  if (event.GetId() == ID_ForceIp_IpChanged ||
+      event.GetId() == ID_ForceIp_SubnetChanged)
+  {
+    try
+    {
+      const auto ip = parseIp(ip_);
+
+      // 10.0.0.0/8 addresses
+      if (static_cast<std::uint8_t>(ip >> 24) == 10)
+      {
+        changeTextCtrlIfNotChangedByUser(subnet_[0], "255");
+        changeTextCtrlIfNotChangedByUser(subnet_[1], "0");
+        changeTextCtrlIfNotChangedByUser(subnet_[2], "0");
+        changeTextCtrlIfNotChangedByUser(subnet_[3], "0");
+      }
+
+      // 172.16.0.0/12 addresses
+      if (static_cast<std::uint8_t>(ip >> 24) == 172 &&
+          (static_cast<std::uint8_t>(ip >> 16) & 16) != 0)
+      {
+        changeTextCtrlIfNotChangedByUser(subnet_[0], "255");
+        changeTextCtrlIfNotChangedByUser(subnet_[1], "240");
+        changeTextCtrlIfNotChangedByUser(subnet_[2], "0");
+        changeTextCtrlIfNotChangedByUser(subnet_[3], "0");
+      }
+
+      // 192.168.0.0/16 addresses
+      if (static_cast<std::uint8_t>(ip >> 24) == 192
+          && static_cast<std::uint8_t>(ip >> 16) == 168)
+      {
+        changeTextCtrlIfNotChangedByUser(subnet_[0], "255");
+        changeTextCtrlIfNotChangedByUser(subnet_[1], "255");
+        changeTextCtrlIfNotChangedByUser(subnet_[2], "0");
+        changeTextCtrlIfNotChangedByUser(subnet_[3], "0");
+      }
+
+      const auto subnet = parseIp(subnet_);
+
+      const auto predicted_gateway = (ip & subnet) | 0x1;
+
+      changeTextCtrlIfNotChangedByUser(gateway_[0],
+          std::to_string(static_cast<std::uint8_t>(predicted_gateway >> 24)));
+      changeTextCtrlIfNotChangedByUser(gateway_[1],
+          std::to_string(static_cast<std::uint8_t>(predicted_gateway >> 16)));
+      changeTextCtrlIfNotChangedByUser(gateway_[2],
+          std::to_string(static_cast<std::uint8_t>(predicted_gateway >> 8)));
+      changeTextCtrlIfNotChangedByUser(gateway_[3],
+          std::to_string(static_cast<std::uint8_t>(predicted_gateway >> 0)));
+    }
+    catch(const std::runtime_error &)
+    { }
+  }
 }
 
 void ForceIpDialog::onForceIpButton(wxCommandEvent &event)

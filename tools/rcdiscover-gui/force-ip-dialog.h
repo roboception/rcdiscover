@@ -13,6 +13,8 @@
 
 #include "sensor-command-dialog.h"
 
+#include <map>
+
 class ForceIpDialog : public SensorCommandDialog
 {
   public:
@@ -31,17 +33,24 @@ class ForceIpDialog : public SensorCommandDialog
 
   private:
     void addIpToBoxSizer(wxBoxSizer *sizer,
-                         std::array<wxTextCtrl *, 4> &ip);
+                         std::array<wxTextCtrl *, 4> &ip, int id);
     static std::uint32_t parseIp(const std::array<wxTextCtrl *, 4> &ip);
+
+    void changeTextCtrlIfNotChangedByUser(wxTextCtrl *ctrl,
+                                          const std::string &v);
 
   private:
     void onForceIpButton(wxCommandEvent &event);
     void onHelpButton(wxCommandEvent &event);
 
+    void onIpChanged(wxCommandEvent &event);
+
   private:
     std::array<wxTextCtrl *, 4> ip_;
     std::array<wxTextCtrl *, 4> subnet_;
     std::array<wxTextCtrl *, 4> gateway_;
+
+    std::map<const wxTextCtrl *, bool> changed_by_user_;
 
     wxDECLARE_EVENT_TABLE();
 };
