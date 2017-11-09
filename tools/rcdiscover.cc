@@ -50,15 +50,21 @@
 int main(int argc, char *argv[])
 {
 #ifdef WIN32
-	WSADATA wsaData;
-	WSAStartup(MAKEWORD(2, 2), &wsaData);
+  WSADATA wsaData;
+  WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
   bool iponly=false;
+  bool serialonly=false;
 
   if (argc > 1 && std::strcmp(argv[1], "-iponly") == 0)
   {
     iponly=true;
+  }
+
+  if (argc > 1 && std::strcmp(argv[1], "-serialonly") == 0)
+  {
+    serialonly=true;
   }
 
   rcdiscover::Discover discover;
@@ -66,7 +72,7 @@ int main(int argc, char *argv[])
 
   std::vector<rcdiscover::DeviceInfo> infos;
 
-  if (!iponly)
+  if (!iponly && !serialonly)
   {
     std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
 
@@ -76,12 +82,12 @@ int main(int argc, char *argv[])
     const auto it = std::unique(infos.begin(), infos.end());
     infos.erase(it, infos.end());
 
-		for (rcdiscover::DeviceInfo &info : infos)
+    for (rcdiscover::DeviceInfo &info : infos)
     {
-			if (!info.isValid())
-			{
-			  continue;
-			}
+      if (!info.isValid())
+      {
+        continue;
+      }
 
       std::string name=info.getUserName();
 
@@ -103,6 +109,24 @@ int main(int argc, char *argv[])
       std::cout << std::endl;
     }
   }
+  else if (iponly)
+  {
+    while (discover.getResponse(infos, 100)) {}
+
+    std::sort(infos.begin(), infos.end());
+    const auto it = std::unique(infos.begin(), infos.end());
+    infos.erase(it, infos.end());
+
+    for (rcdiscover::DeviceInfo &info : infos)
+    {
+      if (!info.isValid())
+      {
+        continue;
+      }
+
+      std::cout << ip2string(info.getIP()) << std::endl;
+    }
+  }
   else
   {
     while (discover.getResponse(infos, 100)) {}
@@ -111,14 +135,14 @@ int main(int argc, char *argv[])
     const auto it = std::unique(infos.begin(), infos.end());
     infos.erase(it, infos.end());
 
-		for (rcdiscover::DeviceInfo &info : infos)
+    for (rcdiscover::DeviceInfo &info : infos)
     {
-			if (!info.isValid())
-			{
-			  continue;
-			}
+      if (!info.isValid())
+      {
+        continue;
+      }
 
-      std::cout << ip2string(info.getIP()) << std::endl;
+      std::cout << info.getSerialNumber() << std::endl;
     }
   }
 
