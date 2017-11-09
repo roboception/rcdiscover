@@ -1,3 +1,8 @@
+## [0.6.0] - 2017-11-09
+### Added
+- Force IP command: setting of temporary IP address
+- -serialonly flag for command line tool
+
 ## [0.5.0] - 2017-09-29
 ### Added
 - Optional disabling of RP filtering during installation on Ubuntu
