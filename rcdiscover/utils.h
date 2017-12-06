@@ -40,6 +40,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <array>
 
 inline std::string mac2string(const uint64_t mac)
 {
