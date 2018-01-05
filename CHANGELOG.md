@@ -1,3 +1,8 @@
+## [0.7.0] - 2018-01-05
+### Added
+- Added possibility to filter for name, serial number and mac address to command line tool
+- include <array> in utils
+
 ## [0.6.0] - 2017-11-09
 ### Added
 - Force IP command: setting of temporary IP address
