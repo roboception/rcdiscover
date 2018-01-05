@@ -54,48 +54,139 @@ int main(int argc, char *argv[])
   WSAStartup(MAKEWORD(2, 2), &wsaData);
 #endif
 
+  // interpret command line parameters
+
+  bool printheader=true;
   bool iponly=false;
   bool serialonly=false;
+  std::string fname;
+  std::string fserial;
+  std::string fmac;
 
-  if (argc > 1 && std::strcmp(argv[1], "-iponly") == 0)
+  int i=1;
+  while (i < argc)
   {
-    iponly=true;
+    std::string p=argv[i++];
+
+    if (p == "-iponly" || p == "--iponly")
+    {
+      iponly=true;
+      printheader=false;
+    }
+    else if (p == "-serialonly" || p == "--serialonly")
+    {
+      serialonly=true;
+      printheader=false;
+    }
+    else if (p == "-f" && i < argc)
+    {
+      p=argv[i++];
+
+      if (p.compare(0, 5, "name=") == 0)
+      {
+        fname=p.substr(5);
+      }
+      else if (p.compare(0, 7, "serial=") == 0)
+      {
+        fserial=p.substr(7);
+      }
+      else if (p.compare(0, 4, "mac=") == 0)
+      {
+        fmac=p.substr(4);
+
+        // ensure correct format of mac address
+
+        std::array<uint8_t, 6> amac=string2mac(fmac);
+        uint64_t mac=0;
+
+        for (int i=0; i<6; i++)
+        {
+          mac<<=8;
+          mac|=amac[i];
+        }
+
+        fmac=mac2string(mac);
+      }
+      else
+      {
+        std::cerr << "Unknown option for parameter -f: " << p << std::endl;
+        return 1;
+      }
+
+      printheader=false;
+    }
+    else
+    {
+      std::cout << argv[0] << " <parameters>" << std::endl;
+      std::cout << std::endl;
+      std::cout << "-h:                 Shows this help and exits." << std::endl;
+      std::cout << "-f name=<name>:     Filter by name" << std::endl;
+      std::cout << "-f serial=<serial>: Filter by serial number" << std::endl;
+      std::cout << "-f mac=<mac>:       Filter by MAC address" << std::endl;
+      std::cout << "--iponly:           Shows only the IP addresses of discoverd sensors" << std::endl;
+      std::cout << "--serialonly:       Shows only the serial number of discovered sensors" << std::endl;
+      return 0;
+    }
   }
 
-  if (argc > 1 && std::strcmp(argv[1], "-serialonly") == 0)
-  {
-    serialonly=true;
-  }
+  // broadcast discover request
 
   rcdiscover::Discover discover;
   discover.broadcastRequest();
 
   std::vector<rcdiscover::DeviceInfo> infos;
 
-  if (!iponly && !serialonly)
+  // print header line
+
+  if (printheader)
   {
     std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
+  }
 
-    while (discover.getResponse(infos, 100)) { }
+  // get all responses, sort them and remove multiple entries
 
-    std::sort(infos.begin(), infos.end());
-    const auto it = std::unique(infos.begin(), infos.end());
-    infos.erase(it, infos.end());
+  while (discover.getResponse(infos, 100)) { }
 
-    for (rcdiscover::DeviceInfo &info : infos)
+  std::sort(infos.begin(), infos.end());
+  const auto it = std::unique(infos.begin(), infos.end());
+  infos.erase(it, infos.end());
+
+  // go through all valid entries
+
+  for (rcdiscover::DeviceInfo &info : infos)
+  {
+    if (!info.isValid())
     {
-      if (!info.isValid())
-      {
-        continue;
-      }
+      continue;
+    }
 
-      std::string name=info.getUserName();
+    // get name of sensor with fall back to model name
 
-      if (name.size() == 0)
-      {
-        name=info.getModelName();
-      }
+    std::string name=info.getUserName();
 
+    if (name.size() == 0)
+    {
+      name=info.getModelName();
+    }
+
+    // filter as requested
+
+    if (fname.size() > 0 && fname.compare(name) != 0) continue;
+    if (fserial.size() > 0 && fserial.compare(info.getSerialNumber()) != 0) continue;
+    if (fmac.size() > 0 && fmac.compare(mac2string(info.getMAC())) != 0) continue;
+
+    // print information about the device
+
+    if (iponly)
+    {
+      std::cout << ip2string(info.getIP()) << std::endl;
+    }
+    else if (serialonly)
+    {
+      std::cout << info.getSerialNumber() << std::endl;
+    }
+    else
+    {
       std::cout << name << "\t";
       std::cout << info.getSerialNumber() << "\t";
       std::cout << ip2string(info.getIP()) << "\t";
@@ -107,42 +198,6 @@ int main(int argc, char *argv[])
       }
 
       std::cout << std::endl;
-    }
-  }
-  else if (iponly)
-  {
-    while (discover.getResponse(infos, 100)) {}
-
-    std::sort(infos.begin(), infos.end());
-    const auto it = std::unique(infos.begin(), infos.end());
-    infos.erase(it, infos.end());
-
-    for (rcdiscover::DeviceInfo &info : infos)
-    {
-      if (!info.isValid())
-      {
-        continue;
-      }
-
-      std::cout << ip2string(info.getIP()) << std::endl;
-    }
-  }
-  else
-  {
-    while (discover.getResponse(infos, 100)) {}
-
-    std::sort(infos.begin(), infos.end());
-    const auto it = std::unique(infos.begin(), infos.end());
-    infos.erase(it, infos.end());
-
-    for (rcdiscover::DeviceInfo &info : infos)
-    {
-      if (!info.isValid())
-      {
-        continue;
-      }
-
-      std::cout << info.getSerialNumber() << std::endl;
     }
   }
 
