@@ -115,16 +115,22 @@ int main(int argc, char *argv[])
 
       printheader=false;
     }
+    else if (p == "--version")
+    {
+      std::cout << PACKAGE_VERSION << std::endl;
+      return 0;
+    }
     else
     {
       std::cout << argv[0] << " <parameters>" << std::endl;
       std::cout << std::endl;
-      std::cout << "-h:                 Shows this help and exits." << std::endl;
-      std::cout << "-f name=<name>:     Filter by name" << std::endl;
-      std::cout << "-f serial=<serial>: Filter by serial number" << std::endl;
-      std::cout << "-f mac=<mac>:       Filter by MAC address" << std::endl;
-      std::cout << "--iponly:           Shows only the IP addresses of discoverd sensors" << std::endl;
-      std::cout << "--serialonly:       Shows only the serial number of discovered sensors" << std::endl;
+      std::cout << "-h                 Shows this help and exits." << std::endl;
+      std::cout << "-f name=<name>     Filter by name" << std::endl;
+      std::cout << "-f serial=<serial> Filter by serial number" << std::endl;
+      std::cout << "-f mac=<mac>       Filter by MAC address" << std::endl;
+      std::cout << "--iponly           Shows only the IP addresses of discoverd sensors" << std::endl;
+      std::cout << "--serialonly       Shows only the serial number of discovered sensors" << std::endl;
+      std::cout << "--version          Print version." << std::endl;
       return 0;
     }
   }

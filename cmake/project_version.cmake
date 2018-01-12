@@ -134,9 +134,9 @@ string(TOUPPER "${PROJECT_NAME}" PROJECT_NAME_UPPER)
 # These files provide compile-time and runtime version information about your project.
 # To offer the version info to the users of your library, you need to
 # adapt the following lines in your respective CMakeLists.txt:
-#   add_library(<yourlibraryname> SHARED <your code files> ${CMAKE_BINARY_DIR}/project_version.cc)
-#   install(FILES ${CMAKE_BINARY_DIR}/project_version.h COMPONENT dev DESTINATION include/<your-include-dir>)
+#   add_library(<yourlibraryname> SHARED <your code files> ${CMAKE_CURRENT_BINARY_DIR}/project_version.cc)
+#   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}/project_version.h COMPONENT dev DESTINATION include/<your-include-dir>)
 # To use it within your library or tests you need to add the include directory:
-# > target_include_directories(yourtarget PUBLIC ${CMAKE_BINARY_DIR})
-configure_file(cmake/project_version.h.in  project_version.h @ONLY)
-configure_file(cmake/project_version.cc.in project_version.cc @ONLY)
+# > target_include_directories(yourtarget PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME})
+configure_file(cmake/project_version.h.in  ${PROJECT_NAME}/project_version.h @ONLY)
+configure_file(cmake/project_version.cc.in ${PROJECT_NAME}/project_version.cc @ONLY)

@@ -11,6 +11,10 @@ else ()
     set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 endif ()
 
+# add date stamp to CPACK_PACKAGE_VERSION
+string(TIMESTAMP STAMP "%Y%m%d-%H%M%S")
+set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}-0-${STAMP}")
+
 
 ###############################
 # debian package specific stuff
@@ -20,7 +24,7 @@ set(CPACK_GENERATOR "DEB")
 
 if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
 # if architecture is already set (e.g. to "all"), this is not needed
-# add -1~distribution-codename (e.g. -1~trusty or -1~xenial) to end of package version
+# add ~distribution-codename (e.g. ~trusty or ~xenial) to end of package version
 # if lsb_release is available, take it from there or fall back to DISTRO_CODENAME env variable
     set(DISTRO_CODENAME $ENV{DISTRO_CODENAME})
     find_program(LSB_RELEASE_CMD lsb_release)
@@ -31,7 +35,7 @@ if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
     endif ()
     if (DISTRO_CODENAME)
-        set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}-1~${DISTRO_CODENAME})
+        set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION}~${DISTRO_CODENAME})
     else ()
         message(STATUS "Could not find lsb_release nor is DISTRO_CODENAME set.")
     endif ()
@@ -47,6 +51,7 @@ if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
                 OUTPUT_STRIP_TRAILING_WHITESPACE)
     endif ()
 endif ()
+message(STATUS "CPACK_PACKAGE_VERSION: " ${CPACK_PACKAGE_VERSION})
 
 # package name is lower case of project name with _ replaced by -
 string(TOLOWER "${PROJECT_NAME}" PROJECT_NAME_LOWER)
@@ -83,6 +88,7 @@ if(EXCLUSIVE_CUSTOMER)
 endif()
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+message(STATUS "CPACK_PACKAGE_FILE_NAME: " ${CPACK_PACKAGE_FILE_NAME})
 
 #########################################
 ## things you might need to change ??? ##
@@ -92,45 +98,45 @@ if (NOT DEFINED CPACK_DEBIAN_PACKAGE_SHLIBDEPS)
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 endif ()
 
-## ??? this defaults to PROJECT_LIBRARIES which should be defined in main CMakeLists.txt before including this file
-## list of shared library this package provides (; separated, comment or empty list if there are none)
-## IMPORTANT: also the lib needs to set SOVERSION via set_target_properties, e.g.:
-## set_target_properties(rcimage PROPERTIES SOVERSION ${abiversion})
-#if (PROJECT_LIBRARIES)
-#    set(sharedlibs ${PROJECT_LIBRARIES})
-#endif ()
+# ??? this defaults to PROJECT_LIBRARIES which should be defined in main CMakeLists.txt before including this file
+# list of shared library this package provides (; separated, comment or empty list if there are none)
+# IMPORTANT: also the lib needs to set SOVERSION via set_target_properties, e.g.:
+# set_target_properties(rcimage PROPERTIES SOVERSION ${abiversion})
+if (PROJECT_LIBRARIES)
+    set(sharedlibs ${PROJECT_LIBRARIES})
+endif ()
 
-## if there are shared libs exported by this package:
-## generate debian shlibs file and call ldconf in postinst and postrm scripts
-#if (sharedlibs)
-#    set(SHLIBS_FILE "${CMAKE_CURRENT_BINARY_DIR}/shlibs")
-#    set(POSTINST_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postinst")
-#    set(POSTRM_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postrm")
+# if there are shared libs exported by this package:
+# generate debian shlibs file and call ldconf in postinst and postrm scripts
+if (sharedlibs)
+    set(SHLIBS_FILE "${CMAKE_CURRENT_BINARY_DIR}/shlibs")
+    set(POSTINST_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postinst")
+    set(POSTRM_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/postrm")
 
-#    # Generate postinst, prerm and postrm hooks
-#    file(WRITE "${POSTINST_SCRIPT}" "#!/bin/sh\n\nset -e\n")
-#    file(WRITE "${POSTRM_SCRIPT}" "#!/bin/sh\n\nset -e\n")
-#    file(APPEND "${POSTINST_SCRIPT}" "if [ \"$1\" = \"configure\" ]; then\n        ldconfig\nfi\n")
-#    file(APPEND "${POSTRM_SCRIPT}" "if [ \"$1\" = \"remove\" ]; then\n        ldconfig\nfi\n")
+    # Generate postinst, prerm and postrm hooks
+    file(WRITE "${POSTINST_SCRIPT}" "#!/bin/sh\n\nset -e\n")
+    file(WRITE "${POSTRM_SCRIPT}" "#!/bin/sh\n\nset -e\n")
+    file(APPEND "${POSTINST_SCRIPT}" "if [ \"$1\" = \"configure\" ]; then\n        ldconfig\nfi\n")
+    file(APPEND "${POSTRM_SCRIPT}" "if [ \"$1\" = \"remove\" ]; then\n        ldconfig\nfi\n")
 
-#    # Generate shlibs file
-#    # also the lib needs to set SOVERSION via set_target_properties:
-#    # set_target_properties(rcimage PROPERTIES SOVERSION ${abiversion})
-#    file(WRITE "${SHLIBS_FILE}" "")
-#    foreach (libname ${sharedlibs})
-#        get_target_property(so_abiversion ${libname} SOVERSION)
-#        if(NOT ${so_abiversion})
-#          set(so_abiversion ${abiversion})
-#          message(STATUS "SOVERSION of shared lib \"${libname}\" not set explicitly. Using <Major.Minor> of latest tag: ${so_abiversion}")
-#          set_target_properties(${libname} PROPERTIES SOVERSION ${so_abiversion})
-#        endif()
-#        file(APPEND "${SHLIBS_FILE}" "lib${libname} ${so_abiversion} ${CPACK_PACKAGE_NAME}\n")
-#    endforeach (libname)
+    # Generate shlibs file
+    # also the lib needs to set SOVERSION via set_target_properties:
+    # set_target_properties(rcimage PROPERTIES SOVERSION ${abiversion})
+    file(WRITE "${SHLIBS_FILE}" "")
+    foreach (libname ${sharedlibs})
+        get_target_property(so_abiversion ${libname} SOVERSION)
+        if(NOT ${so_abiversion})
+          set(so_abiversion ${abiversion})
+          message(STATUS "SOVERSION of shared lib \"${libname}\" not set explicitly. Using <Major.Minor> of latest tag: ${so_abiversion}")
+          set_target_properties(${libname} PROPERTIES SOVERSION ${so_abiversion})
+        endif()
+        file(APPEND "${SHLIBS_FILE}" "lib${libname} ${so_abiversion} ${CPACK_PACKAGE_NAME}\n")
+    endforeach (libname)
 
-#    execute_process(COMMAND chmod 644 "${SHLIBS_FILE}")
-#    execute_process(COMMAND chmod 755 "${POSTINST_SCRIPT}" "${POSTRM_SCRIPT}")
-#    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${SHLIBS_FILE};${POSTINST_SCRIPT};${POSTRM_SCRIPT}")
-#endif ()
+    execute_process(COMMAND chmod 644 "${SHLIBS_FILE}")
+    execute_process(COMMAND chmod 755 "${POSTINST_SCRIPT}" "${POSTRM_SCRIPT}")
+    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${SHLIBS_FILE};${POSTINST_SCRIPT};${POSTRM_SCRIPT}")
+endif ()
 
 if (conffiles)
   set(CONFFILES_FILE "${CMAKE_CURRENT_BINARY_DIR}/conffiles")
