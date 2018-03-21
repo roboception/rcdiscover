@@ -94,23 +94,18 @@ void SensorCommandDialog::setDiscoveredSensors(
     unsigned int sensors_row = 0;
     for (typename std::decay<decltype(rows)>::type i = 0; i < rows; ++i)
     {
-      wxVariant manufacturer{};
-      sensor_list->GetValueByRow(manufacturer, i, 1);
-      if (manufacturer.GetString() == ROBOCEPTION)
-      {
-        wxVariant hostname{};
-        wxVariant mac{};
-        sensor_list->GetValueByRow(hostname, i, 0);
-        sensor_list->GetValueByRow(mac, i, 4);
-        const auto s = wxString::Format("%s - %s",
-                                        hostname.GetString(),
-                                        mac.GetString());
-        sensors_->Append(s);
-        row_map_.emplace(i, sensors_row + 1);
-        row_map_inv_.emplace(sensors_row + 1, i);
+      wxVariant hostname{};
+      wxVariant mac{};
+      sensor_list->GetValueByRow(hostname, i, 0);
+      sensor_list->GetValueByRow(mac, i, 4);
+      const auto s = wxString::Format("%s - %s",
+                                      hostname.GetString(),
+                                      mac.GetString());
+      sensors_->Append(s);
+      row_map_.emplace(i, sensors_row + 1);
+      row_map_inv_.emplace(sensors_row + 1, i);
 
-        ++sensors_row;
-      }
+      ++sensors_row;
     }
   }
 
