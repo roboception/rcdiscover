@@ -369,7 +369,7 @@ void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event)
   }
 
   const auto manufacturer = device_list_->GetTextValue(row, 1);
-  if (manufacturer == ROBOCEPTION)
+  if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
   {
     const auto ip_wxstring = device_list_->GetTextValue(
                                static_cast<unsigned int>(row), 3);
@@ -400,7 +400,7 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
   const auto manufacturer = device_list_->GetTextValue(
                         static_cast<unsigned int>(menu_event_item_->first),
                         1);
-  if (manufacturer == ROBOCEPTION)
+  if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
   {
     menu.Append(ID_OpenWebGUI, "Open &WebGUI");
     menu.AppendSeparator();
