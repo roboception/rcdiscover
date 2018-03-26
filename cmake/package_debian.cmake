@@ -12,8 +12,8 @@ else ()
 endif ()
 
 # add date stamp to CPACK_PACKAGE_VERSION
-string(TIMESTAMP STAMP "%Y%m%d-%H%M%S")
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}-0-${STAMP}")
+string(TIMESTAMP STAMP "%Y%m%d+%H%M%S")
+set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}-0+${STAMP}")
 
 
 ###############################
