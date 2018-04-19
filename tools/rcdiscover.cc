@@ -47,6 +47,39 @@
 #include <winsock2.h>
 #endif
 
+void printTable(const std::vector<std::vector<std::string>> &to_be_printed)
+{
+  std::size_t max_columns = 0;
+  for (const auto &row : to_be_printed)
+  {
+    max_columns = std::max(max_columns, row.size());
+  }
+
+  std::vector<std::size_t> column_width(max_columns, 0);
+  for (const auto &row : to_be_printed)
+  {
+    for (std::size_t col = 0; col < row.size(); ++col)
+    {
+      column_width[col] = std::max(column_width[col], row[col].size());
+    }
+  }
+
+  for (const auto &row : to_be_printed)
+  {
+    for (std::size_t col = 0; col < row.size(); ++col)
+    {
+      std::string s = row[col];
+      if (col < row.size() - 1)
+      {
+        s.append(column_width[col] - s.length(), ' ');
+        s += '\t';
+      }
+      std::cout << s;
+    }
+    std::cout << '\n';
+  }
+}
+
 int main(int argc, char *argv[])
 {
 #ifdef WIN32
@@ -144,9 +177,11 @@ int main(int argc, char *argv[])
 
   // print header line
 
+  std::vector<std::vector<std::string>> to_be_printed;
+
   if (printheader)
   {
-    std::cout << "User name\tSerial number\tIP\t\tMAC" << std::endl;
+    to_be_printed.push_back({"User name", "Serial number", "IP", "MAC"});
   }
 
   // get all responses, sort them and remove multiple entries
@@ -183,29 +218,32 @@ int main(int argc, char *argv[])
 
     // print information about the device
 
+    to_be_printed.emplace_back();
+    auto &print = to_be_printed.back();
+
     if (iponly)
     {
-      std::cout << ip2string(info.getIP()) << std::endl;
+      print.push_back(ip2string(info.getIP()));
     }
     else if (serialonly)
     {
-      std::cout << info.getSerialNumber() << std::endl;
+      print.push_back(info.getSerialNumber());
     }
     else
     {
-      std::cout << name << "\t";
-      std::cout << info.getSerialNumber() << "\t";
-      std::cout << ip2string(info.getIP()) << "\t";
-      std::cout << mac2string(info.getMAC());
+      print.push_back(name);
+      print.push_back(info.getSerialNumber());
+      print.push_back(ip2string(info.getIP()));
+      print.push_back(mac2string(info.getMAC()));
 
       if (info.getModelName() != "rc_visard")
       {
-        std::cout << "\t[other GEV device]";
+        print.push_back("[other GEV device]");
       }
-
-      std::cout << std::endl;
     }
   }
+
+  printTable(to_be_printed);
 
 #ifdef WIN32
   ::WSACleanup();
