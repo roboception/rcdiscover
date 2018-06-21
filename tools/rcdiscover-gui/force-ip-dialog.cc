@@ -299,6 +299,8 @@ void ForceIpDialog::onForceIpButton(wxCommandEvent &event)
   {
     wxMessageBox(ex.what(), "Error", wxOK | wxICON_ERROR);
   }
+
+  Hide();
 }
 
 void ForceIpDialog::onHelpButton(wxCommandEvent &event)

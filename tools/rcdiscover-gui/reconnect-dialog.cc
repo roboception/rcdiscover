@@ -89,6 +89,8 @@ void ReconnectDialog::onReconnectButton(wxCommandEvent &event)
   {
     wxMessageBox(ex.what(), "Error", wxOK | wxICON_ERROR);
   }
+
+  Hide();
 }
 
 void ReconnectDialog::onHelpButton(wxCommandEvent &event)
