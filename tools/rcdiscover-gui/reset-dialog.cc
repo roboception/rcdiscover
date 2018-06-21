@@ -163,14 +163,28 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
 
       rcdiscover::WOL wol(mac, 9);
 
-      std::ostringstream oss;
-      oss << "Are you sure to " << func_name <<
+      std::ostringstream reset_check_str;
+      reset_check_str << "Are you sure to " << func_name <<
              " of rc_visard with MAC-address " << mac_string << "?";
-      const int answer = wxMessageBox(oss.str(), "", wxYES_NO);
+      const int reset_check_answer =
+          wxMessageBox(reset_check_str.str(), "", wxYES_NO);
 
-      if (answer == wxYES)
+      if (reset_check_answer == wxYES)
       {
-        wol.send({{0xEE, 0xEE, 0xEE, func_id}});
+        bool try_again = false;
+        do
+        {
+          wol.send({{0xEE, 0xEE, 0xEE, func_id}});
+
+          auto sent_dialog = new wxMessageDialog(
+              this,
+              "Please check whether rc_visard's LED turned white and whether rc_visard is rebooting.",
+              "Command sent", wxOK | wxCANCEL | wxCANCEL_DEFAULT | wxCENTRE);
+          sent_dialog->SetOKCancelLabels("Try again", "Done");
+          const int sent_answer = sent_dialog->ShowModal();
+          try_again = sent_answer == wxID_OK;
+        }
+        while (try_again);
       }
     }
     catch(const std::runtime_error& ex)
@@ -185,6 +199,8 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
                  "Operation not permitted",
                  wxOK | wxICON_ERROR);
   }
+
+  Hide();
 }
 
 void ResetDialog::onHelpButton(wxCommandEvent &)
