@@ -11,17 +11,6 @@
 /// package version as string, possibly with git commit: v1.2.3+4+g56789abc
 #define @PROJECT_NAME_UPPER@_PACKAGE_VERSION "@PACKAGE_VERSION@"
 
-/// project version as major.minor.patch string
-const char* const @PROJECT_NAME@_project_version = "@PROJECT_VERSION@";
-/// package version as string, possibly with git commit: v1.2.3+4+g56789abc
-const char* const @PROJECT_NAME@_package_version = "@PACKAGE_VERSION@";
-/// project version as integer: major * 10000 + minor * 100 + patch
-const int @PROJECT_NAME@_version_int   = @PROJECT_VERSION_INT@;
-
-const int @PROJECT_NAME@_version_major = @PACKAGE_VERSION_MAJOR@;
-const int @PROJECT_NAME@_version_minor = @PACKAGE_VERSION_MINOR@;
-const int @PROJECT_NAME@_version_patch = @PACKAGE_VERSION_PATCH@;
-
 ///runtime versions, where the above values are linked into a lib and therefore reflect the version
 ///of the library itself (not the version of the header at compile time of the user code)
 const char* @PROJECT_NAME@_runtime_project_version();
@@ -35,10 +24,10 @@ int @PROJECT_NAME@_runtime_version_patch();
 ///for compilation was from the same version as the linked library.
 inline bool @PROJECT_NAME@_check_version_consistency(bool major_minor_only)
 {
-  return @PROJECT_NAME@_runtime_version_major() == @PROJECT_NAME@_version_major &&
-         @PROJECT_NAME@_runtime_version_minor() == @PROJECT_NAME@_version_minor &&
+  return @PROJECT_NAME@_runtime_version_major() == @PROJECT_NAME_UPPER@_VERSION_MAJOR &&
+         @PROJECT_NAME@_runtime_version_minor() == @PROJECT_NAME_UPPER@_VERSION_MINOR &&
          (major_minor_only ||
-          @PROJECT_NAME@_runtime_version_patch() == @PROJECT_NAME@_version_patch);
+          @PROJECT_NAME@_runtime_version_patch() == @PROJECT_NAME_UPPER@_VERSION_PATCH);
 }
 
 
