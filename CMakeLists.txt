@@ -78,8 +78,6 @@ if (WIN32)
   set(CMAKE_CXX_FLAGS_DEBUG "-O0")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static")
-else ()
-  include(cmake/optimization_flags.cmake)
 endif ()
 
 add_subdirectory(rcdiscover)
