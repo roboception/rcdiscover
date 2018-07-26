@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
   if (printheader)
   {
-    to_be_printed.push_back({"User name", "Serial number", "IP", "MAC"});
+    to_be_printed.push_back({"Username", "Serialnumber", "IP", "MAC"});
   }
 
   // get all responses, sort them and remove multiple entries
