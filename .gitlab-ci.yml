@@ -46,18 +46,18 @@ before_script:
     - make -j4 package
     - cmake -DRCDISCOVER_CLI_ONLY_DEB=OFF -DRCDISCOVER_GUI_ONLY_DEB=ON ..
     - make -j4 package
-    - upload_deb.sh $REPO_PREFIX *.deb
+    - upload_deb.sh $DISTRO_CODENAME-$REPO_POSTFIX *.deb
 
 .package_testing_t: &package_testing
   variables:
-    REPO_PREFIX: $DISTRO_CODENAME-testing
+    REPO_POSTFIX: testing
   <<: *package
   only:
     - master
 
 .package_stable_t: &package_stable
   variables:
-    REPO_PREFIX: $DISTRO_CODENAME-stable
+    REPO_POSTFIX: stable
   <<: *package
   only:
     - /^v[0-9]+\.[0-9]+\.[0-9]+/
