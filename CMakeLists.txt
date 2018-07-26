@@ -81,24 +81,39 @@ if (WIN32)
 endif ()
 
 add_subdirectory(rcdiscover)
-add_subdirectory(tools)
+
+# by default install commandline and gui tools
+option(INSTALL_RCDISCOVER_CLI "install rcdiscover commandline tool" ON)
+option(INSTALL_RCDISCOVER_GUI "install rcdiscover-gui GUI tool" ON)
 
 if (UNIX)
-  install(FILES debian/50-rcdiscover-rpfilter.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/share/rcdiscover)
-  set(CONFIG_FILE "${PROJECT_BINARY_DIR}/config")
-  set(POSTINST_FILE "${PROJECT_BINARY_DIR}/postinst")
-  set(POSTRM_FILE "${PROJECT_BINARY_DIR}/postrm")
-  set(TEMPLATES_FILE "${PROJECT_BINARY_DIR}/templates")
-  configure_file(${PROJECT_SOURCE_DIR}/debian/config.in ${CONFIG_FILE})
-  configure_file(${PROJECT_SOURCE_DIR}/debian/postinst.in ${POSTINST_FILE})
-  configure_file(${PROJECT_SOURCE_DIR}/debian/postrm.in ${POSTRM_FILE})
-  configure_file(${PROJECT_SOURCE_DIR}/debian/templates.in ${TEMPLATES_FILE})
-  execute_process(COMMAND chmod 755 "${CONFIG_FILE}")
-  execute_process(COMMAND chmod 755 "${POSTINST_FILE}")
-  execute_process(COMMAND chmod 755 "${POSTRM_FILE}")
-  execute_process(COMMAND chmod 644 "${TEMPLATES_FILE}")
-  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${POSTINST_FILE};${POSTRM_FILE};${TEMPLATES_FILE};${CONFIG_FILE}")
+  # workaround to build two debian packages: rcdiscover and rcdiscover-gui:
+  # - building package without extra cmake options builds one debian package with everything
+  # - building package with -DRCDISCOVER_CLI_ONLY_DEB=ON builds rcdiscover-cli package only with cmdline tool
+  # - building package with -DRCDISCOVER_GUI_ONLY_DEB=ON will build the rcdiscover-gui deb which recommends rcdiscover-cli
+  option(RCDISCOVER_CLI_ONLY_DEB "build debian package 'rcdiscover' with only cmdline tool" OFF)
+  option(RCDISCOVER_GUI_ONLY_DEB "build debian package 'rcdiscover-gui' with only gui tool" OFF)
+
+  if (RCDISCOVER_CLI_ONLY_DEB AND RCDISCOVER_GUI_ONLY_DEB)
+    message(FATAL_ERROR "Can't enable RCDISCOVER_CLI_ONLY_DEB and RCDISCOVER_GUI_ONLY_DEB at the same time!")
+  endif ()
+
+  if (RCDISCOVER_CLI_ONLY_DEB)
+    # build the rcdiscover debian package
+    # force installing of only the cmdline tool
+    set(INSTALL_RCDISCOVER_CLI ON CACHE BOOL "Override option" FORCE)
+    set(INSTALL_RCDISCOVER_GUI OFF CACHE BOOL "Override option" FORCE)
+  endif()
+
+  if (RCDISCOVER_GUI_ONLY_DEB)
+    # build rcdiscover-gui debian package
+    # force installing of only gui tool
+    set(INSTALL_RCDISCOVER_CLI OFF CACHE BOOL "Override option" FORCE)
+    set(INSTALL_RCDISCOVER_GUI ON CACHE BOOL "Override option" FORCE)
+  endif ()
 endif ()
+
+add_subdirectory(tools)
 
 # export project targets
 
@@ -129,7 +144,39 @@ add_subdirectory(doc)
 # optionally set package maintainer (otherwise defaults to Roboception <info@roboception.de>)
 #set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your Name <your.name@roboception.de>")
 
-# optionally specify dependencies of the debian package here (comma separated!)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "debconf")
+if (RCDISCOVER_GUI_ONLY_DEB)
+  set(CPACK_PACKAGE_NAME "rcdiscover-gui")
+  set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "rcdiscover-cli")
+  set(CPACK_DEBIAN_PACKAGE_CONFLICTS "rcdiscover")
+endif ()
+
+if (RCDISCOVER_CLI_ONLY_DEB)
+  set(CPACK_PACKAGE_NAME "rcdiscover-cli")
+  set(CPACK_DEBIAN_PACKAGE_CONFLICTS "rcdiscover")
+endif ()
+
+
+  # don't install rpfilter sysctl for gui package (would conflict with cli package)
+if (UNIX AND NOT RCDISCOVER_GUI_ONLY_DEB)
+  # install example sysctl config to disable reverse path filtering
+  install(FILES debian/50-rcdiscover-rpfilter.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/share/rcdiscover)
+  # ask if this config should be applied when installing this as debian package
+  set(CONFIG_FILE "${PROJECT_BINARY_DIR}/config")
+  set(POSTINST_FILE "${PROJECT_BINARY_DIR}/postinst")
+  set(POSTRM_FILE "${PROJECT_BINARY_DIR}/postrm")
+  set(TEMPLATES_FILE "${PROJECT_BINARY_DIR}/templates")
+  configure_file(${PROJECT_SOURCE_DIR}/debian/config.in ${CONFIG_FILE})
+  configure_file(${PROJECT_SOURCE_DIR}/debian/postinst.in ${POSTINST_FILE})
+  configure_file(${PROJECT_SOURCE_DIR}/debian/postrm.in ${POSTRM_FILE})
+  configure_file(${PROJECT_SOURCE_DIR}/debian/templates.in ${TEMPLATES_FILE})
+  execute_process(COMMAND chmod 755 "${CONFIG_FILE}")
+  execute_process(COMMAND chmod 755 "${POSTINST_FILE}")
+  execute_process(COMMAND chmod 755 "${POSTRM_FILE}")
+  execute_process(COMMAND chmod 644 "${TEMPLATES_FILE}")
+  set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${POSTINST_FILE};${POSTRM_FILE};${TEMPLATES_FILE};${CONFIG_FILE}")
+
+  # optionally specify dependencies of the debian package here (comma separated!)
+  set(CPACK_DEBIAN_PACKAGE_DEPENDS "debconf")
+endif ()
 
 include(cmake/package_debian.cmake)

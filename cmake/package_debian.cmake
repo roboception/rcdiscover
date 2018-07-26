@@ -53,9 +53,12 @@ if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
 endif ()
 message(STATUS "CPACK_PACKAGE_VERSION: " ${CPACK_PACKAGE_VERSION})
 
-# package name is lower case of project name with _ replaced by -
-string(TOLOWER "${PROJECT_NAME}" PROJECT_NAME_LOWER)
-string(REPLACE "_" "-" CPACK_PACKAGE_NAME "${PROJECT_NAME_LOWER}")
+# package name defaults to lower case of project name with _ replaced by -
+if (NOT CPACK_PACKAGE_NAME)
+    string(TOLOWER "${PROJECT_NAME}" PROJECT_NAME_LOWER)
+    string(REPLACE "_" "-" CPACK_PACKAGE_NAME "${PROJECT_NAME_LOWER}")
+endif ()
+message(STATUS "CPACK_PACKAGE_NAME: " ${CPACK_PACKAGE_NAME})
 
 # check if it is a ROS/catkin package
 if (EXISTS "${PROJECT_SOURCE_DIR}/package.xml")

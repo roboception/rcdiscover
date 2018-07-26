@@ -38,27 +38,27 @@ before_script:
     - make -j 4
     - CTEST_OUTPUT_ON_FAILURE=1 make test
 
-.package_testing_t: &package_testing
+.package_t: &package
   stage: deploy
   script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh $DISTRO_CODENAME-testing *.deb
+    - mkdir build && cd build
+    - cmake -DRCDISCOVER_CLI_ONLY_DEB=ON -DRCDISCOVER_GUI_ONLY_DEB=OFF ..
+    - make -j4 package
+    - cmake -DRCDISCOVER_CLI_ONLY_DEB=OFF -DRCDISCOVER_GUI_ONLY_DEB=ON ..
+    - make -j4 package
+    - upload_deb.sh $REPO_PREFIX *.deb
+
+.package_testing_t: &package_testing
+  variables:
+    REPO_PREFIX: $DISTRO_CODENAME-testing
+  <<: *package
   only:
     - master
 
 .package_stable_t: &package_stable
-  stage: deploy
-  script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make -j 4
-    - make package
-    - upload_deb.sh $DISTRO_CODENAME-stable *.deb
+  variables:
+    REPO_PREFIX: $DISTRO_CODENAME-stable
+  <<: *package
   only:
     - /^v[0-9]+\.[0-9]+\.[0-9]+/
   except:
