@@ -64,6 +64,17 @@ before_script:
   except:
     - branches
 
+.docker_build_t: &docker_build
+  image: docker:latest
+  script:
+    - docker info
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - if [ "$CI_COMMIT_REF_SLUG" = "master" ]; then export IMAGE_TAG=latest ; else export IMAGE_TAG=$CI_COMMIT_REF_SLUG ; fi
+    - docker build $DOCKER_BUILD_FLAGS -t $CI_REGISTRY_IMAGE:$IMAGE_TAG .
+    - docker push $CI_REGISTRY_IMAGE:$IMAGE_TAG
+  tags:
+    - docker-build
+
 ##############
 #### Jobs ####
 ##############
@@ -138,3 +149,18 @@ package_stable_xenial_amd64:
 package_stable_xenial_armhf:
   <<: *armhf_xenial_job
   <<: *package_stable
+
+# Build and push as docker image
+################################
+build:image:
+  stage: deploy
+  <<: *docker_build
+  except:
+    - schedules
+
+build:image:nocache:
+  stage: deploy
+  variables:
+    DOCKER_BUILD_FLAGS: "--no-cache"
+  <<: *docker_build
+  when: manual
