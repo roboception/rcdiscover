@@ -17,6 +17,16 @@ For `rcdiscover-gui`, however, static libraries of
 [WxWidgets](http://www.wxwidgets.org/) must be provided by installing
 `libwxgtk3.0-dev`.
 
+### rcdiscover-gui
+
+Build with `build_linux.sh`
+
+It will ask for sudo privileges to install `libwxgtx3.0-dev` and `cmake`.
+
+Run the gui with the command `build/tools/rcdiscover-gui`.
+
+To find the camera you need to have a wired connection set up with the `iPv4`-method `Link-Local Only`. A visual description of setting this up can be found in the Quickstart Guide.
+
 ### Building rcdiscover
 
 It's required to do an out-of-source build:
