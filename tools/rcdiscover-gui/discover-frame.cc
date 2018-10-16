@@ -229,7 +229,19 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_OpenWebGUI,
           wxEVT_MENU,
           wxMenuEventHandler(DiscoverFrame::onOpenWebGUI));
-  Connect(wxCOPY,
+  Connect(ID_CopyName,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onCopy));
+  Connect(ID_CopyManufacturer,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onCopy));
+  Connect(ID_CopySerial,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onCopy));
+  Connect(ID_CopyIP,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onCopy));
+  Connect(ID_CopyMac,
           wxEVT_MENU,
           wxMenuEventHandler(DiscoverFrame::onCopy));
   Connect(ID_ResetButton,
@@ -389,46 +401,60 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
   }
 
   wxMenu menu;
-  bool appended = false;
-  if (menu_event_item_->second >= 0)
-  {
-    menu.Append(wxCOPY, "&Copy");
-    menu.AppendSeparator();
-    appended = true;
-  }
+  menu.Append(ID_CopyName, "Copy name");
+  menu.Append(ID_CopyManufacturer, "Copy manufacturer");
+  menu.Append(ID_CopySerial, "Copy serial number");
+  menu.Append(ID_CopyIP, "Copy IP address");
+  menu.Append(ID_CopyMac, "Copy MAC address");
 
   const auto manufacturer = device_list_->GetTextValue(
                         static_cast<unsigned int>(menu_event_item_->first),
                         1);
   if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
   {
+    menu.AppendSeparator();
     menu.Append(ID_OpenWebGUI, "Open &WebGUI");
     menu.AppendSeparator();
     menu.Append(ID_ResetButton, "Reset");
     menu.Append(ID_ForceIpButton, "Set temporary IP");
     menu.Append(ID_ReconnectButton, "Reconnect");
-    appended = true;
   }
 
-  if (appended)
-  {
-    PopupMenu(&menu);
-  }
+  PopupMenu(&menu);
 }
 
-void DiscoverFrame::onCopy(wxMenuEvent &)
+void DiscoverFrame::onCopy(wxMenuEvent &evt)
 {
-  if (!menu_event_item_ ||
-      menu_event_item_->first < 0 ||
-      menu_event_item_->second < 0)
+  int column;
+  switch (evt.GetId())
   {
-    return;
+    case ID_CopyName:
+      column = 0;
+      break;
+
+    case ID_CopyManufacturer:
+      column = 1;
+      break;
+
+    case ID_CopySerial:
+      column = 2;
+      break;
+
+    case ID_CopyIP:
+      column = 3;
+      break;
+
+    case ID_CopyMac:
+      column = 4;
+      break;
+
+    default:
+      return;
   }
 
   const auto row = static_cast<unsigned int>(menu_event_item_->first);
-  const auto cell = device_list_->GetTextValue(
-                      row, static_cast<unsigned int>(menu_event_item_->second));
-
+  const auto cell = device_list_->GetTextValue(row, column);
+  
   if (wxTheClipboard->Open())
   {
     wxTheClipboard->SetData(new wxTextDataObject(cell));
