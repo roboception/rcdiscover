@@ -48,6 +48,7 @@
 
 #include <memory>
 #include <sstream>
+#include <algorithm>
 
 #include <wx/frame.h>
 #include <wx/dataview.h>
@@ -62,6 +63,7 @@
 #include <wx/msgdlg.h>
 #include <wx/html/helpctrl.h>
 #include <wx/cshelp.h>
+#include <wx/statline.h>
 
 #include "resources/logo_128.xpm"
 #include "resources/logo_32_rotate.h"
@@ -71,13 +73,15 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   wxFrame(NULL, wxID_ANY, title, pos, wxSize(820,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
+  filter_input_(nullptr),
   reset_button_(nullptr),
   force_ip_button_(nullptr),
   reset_dialog_(nullptr),
   force_ip_dialog_(nullptr),
   about_dialog_(nullptr),
   menu_event_item_(nullptr),
-  only_rc_sensors_(true)
+  only_rc_sensors_(true),
+  filter_text_()
 {
   // spinner
   wxIcon icon_128(logo_128_xpm);
@@ -119,6 +123,20 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                         wxDefaultPosition, wxSize(-1, h));
     only_rc_cbox->SetValue(only_rc_sensors_);
     button_box->Add(only_rc_cbox, 1);
+
+    button_box->AddSpacer(10);
+    button_box->Add(new wxStaticLine(panel, wxID_ANY, wxDefaultPosition,
+                    wxSize(30,30), wxLI_VERTICAL));
+    button_box->AddSpacer(10);
+
+    auto *filter_text = new wxStaticText(panel, wxID_ANY, "Filter");
+    button_box->Add(filter_text, 1, wxTOP, 6);
+
+    button_box->AddSpacer(10);
+    filter_input_ = new wxTextCtrl(panel, ID_FilterTextInput, wxEmptyString,
+                                   wxDefaultPosition, wxSize(150, -1));
+    filter_input_->SetToolTip("Use * and ? as wildcards");
+    button_box->Add(filter_input_, 0);
 
     button_box->Add(-1, 0, wxEXPAND);
 
@@ -265,6 +283,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   Connect(ID_OnlyRcCheckbox,
           wxEVT_CHECKBOX,
           wxCommandEventHandler(DiscoverFrame::onOnlyRcCheckbox));
+  Connect(ID_FilterTextInput,
+          wxEVT_TEXT,
+          wxCommandEventHandler(DiscoverFrame::onFilterTextChange));
 
   reset_dialog_ = new ResetDialog(help_ctrl_, panel, wxID_ANY);
   force_ip_dialog_ = new ForceIpDialog(help_ctrl_, panel, wxID_ANY);
@@ -322,6 +343,43 @@ void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent &event)
   clearBusy();
 }
 
+static bool wildcardMatch(std::string::const_iterator str_first,
+                          std::string::const_iterator str_last,
+                          std::string::const_iterator p_first,
+                          std::string::const_iterator p_last)
+{
+  if (str_first == str_last && p_first == p_last)
+  { return true; }
+
+  if (str_first == str_last)
+  {
+    if (*p_first == '*')
+    {
+      // if there is no more character after * => match
+      return std::next(p_first) == p_last;
+    }
+  }
+
+  if (p_first == p_last)
+  {
+    return false;
+  }
+
+  if (*p_first == '?' || *p_first == std::tolower(*str_first))
+  {
+    return wildcardMatch(std::next(str_first), str_last,
+                         std::next(p_first), p_last);
+  }
+
+  if (*p_first == '*')
+  {
+    return wildcardMatch(std::next(str_first), str_last, p_first, p_last) ||
+           wildcardMatch(str_first, str_last, std::next(p_first), p_last);
+  }
+
+  return false;
+}
+
 void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
 {
   device_list_->DeleteAllItems();
@@ -332,6 +390,18 @@ void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
     const auto manufacturer = d[1].GetString();
     if (!only_rc_sensors_ || manufacturer == ROBOCEPTION)
     {
+      if (!filter_text_.empty())
+      {
+        const auto &filter_text = filter_text_;
+        const bool none = std::none_of(d.begin(), d.end(), [&filter_text](const wxVariant &v)
+        {
+          const auto s = v.GetString().ToStdString();
+          return wildcardMatch(s.begin(), s.end(), filter_text.begin(), filter_text.end());
+        });
+        if (none)
+        { continue; }
+      }
+
       device_list_->AppendItem(d);
     }
   }
@@ -522,6 +592,20 @@ void DiscoverFrame::onHelp(wxCommandEvent&)
 void DiscoverFrame::onOnlyRcCheckbox(wxCommandEvent &evt)
 {
   only_rc_sensors_ = evt.IsChecked();
+  updateDeviceList(last_data_);
+}
+
+void DiscoverFrame::onFilterTextChange(wxCommandEvent &evt)
+{
+  filter_text_ = evt.GetString();
+  std::transform(filter_text_.begin(), filter_text_.end(), filter_text_.begin(), ::tolower);
+  if (!filter_text_.empty())
+  {
+    if (filter_text_.front() != '*')
+    { filter_text_ = '*' + filter_text_; }
+    if (filter_text_.back() != '*')
+    { filter_text_ = filter_text_ + '*'; }
+  }
   updateDeviceList(last_data_);
 }
 

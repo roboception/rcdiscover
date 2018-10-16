@@ -193,6 +193,12 @@ class DiscoverFrame : public wxFrame
     void onOnlyRcCheckbox(wxCommandEvent &evt);
 
     /**
+     * @brief Event handler for change of the filter text box.
+     * @param evt event
+     */
+    void onFilterTextChange(wxCommandEvent &evt);
+
+    /**
      * @brief Updates the device table.
      * @param d discovered cameras
      */
@@ -203,6 +209,7 @@ class DiscoverFrame : public wxFrame
   private:
     wxDataViewListCtrl *device_list_;
     wxButton *discover_button_;
+    wxTextCtrl *filter_input_;
     wxButton *reset_button_;
     wxButton *force_ip_button_;
     wxButton *reconnect_button_;
@@ -215,6 +222,7 @@ class DiscoverFrame : public wxFrame
     wxHtmlHelpController *help_ctrl_;
     std::unique_ptr<std::pair<int, int>> menu_event_item_;
     bool only_rc_sensors_;
+    std::string filter_text_;
     std::vector<wxVector<wxVariant>> last_data_;
 };
 

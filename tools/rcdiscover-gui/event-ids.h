@@ -45,6 +45,7 @@ wxDECLARE_EVENT(wxEVT_COMMAND_DISCOVERY_ERROR, wxThreadEvent);
 enum
 {
   ID_DiscoverButton = wxID_HIGHEST + 1,
+  ID_FilterTextInput,
   ID_ResetButton,
   ID_ForceIpButton,
   ID_ReconnectButton,
