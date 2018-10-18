@@ -115,7 +115,12 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
     auto *button_box = new wxBoxSizer(wxHORIZONTAL);
     discover_button_ = new wxButton(panel, ID_DiscoverButton, "Rerun Discovery");
     button_box->Add(discover_button_, 1);
+    
     button_box->AddSpacer(10);
+    button_box->Add(new wxStaticLine(panel, wxID_ANY, wxDefaultPosition,
+                    wxSize(-1,30), wxLI_VERTICAL));
+    button_box->AddSpacer(10);
+    
     int w, h;
     discover_button_->GetSize(&w, &h);
     auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox,
@@ -126,7 +131,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
 
     button_box->AddSpacer(10);
     button_box->Add(new wxStaticLine(panel, wxID_ANY, wxDefaultPosition,
-                    wxSize(30,30), wxLI_VERTICAL));
+                    wxSize(-1,30), wxLI_VERTICAL));
     button_box->AddSpacer(10);
 
     auto *filter_text = new wxStaticText(panel, wxID_ANY, "Filter");
