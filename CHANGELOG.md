@@ -1,3 +1,12 @@
+## [0.8.0] - 2018-11-12
+### Added
+- Copying device info to clipboard
+- Device filter text field
+
+### Changed
+- Changed some dialog workflows
+- Added KUKA to manufacturer filter
+
 ## [0.7.0] - 2018-01-05
 ### Added
 - Added possibility to filter for name, serial number and mac address to command line tool
