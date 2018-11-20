@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
   if (printheader)
   {
-    to_be_printed.push_back({"Username", "Serialnumber", "IP", "MAC"});
+    to_be_printed.push_back({"Username", "Serialnumber", "IP", "MAC", "Model"});
   }
 
   // get all responses, sort them and remove multiple entries
@@ -235,11 +235,7 @@ int main(int argc, char *argv[])
       print.push_back(info.getSerialNumber());
       print.push_back(ip2string(info.getIP()));
       print.push_back(mac2string(info.getMAC()));
-
-      if (info.getModelName() != "rc_visard")
-      {
-        print.push_back("[other GEV device]");
-      }
+      print.push_back(info.getModelName());
     }
   }
 
