@@ -53,6 +53,7 @@ enum
   ID_OpenWebGUI,
   ID_CopyName,
   ID_CopyManufacturer,
+  ID_CopyModel,
   ID_CopySerial,
   ID_CopyIP,
   ID_CopyMac,
