@@ -46,6 +46,7 @@ ReconnectDialog::ReconnectDialog(
   button_box->Add(help_button, 0);
 
   vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
+  vbox->Fit(this);
 
   Connect(ID_Reconnect,
           wxEVT_BUTTON,
@@ -54,8 +55,6 @@ ReconnectDialog::ReconnectDialog(
           wxEVT_BUTTON,
           wxCommandEventHandler(ReconnectDialog::onHelpButton));
 
-  getPanel()->Fit();
-  this->Fit();
   Centre();
 }
 

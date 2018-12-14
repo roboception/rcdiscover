@@ -71,6 +71,7 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
   button_box->Add(help_button, 0);
 
   vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
+  vbox->Fit(this);
 
   Connect(ID_Force_IP,
           wxEVT_BUTTON,
@@ -82,8 +83,6 @@ ForceIpDialog::ForceIpDialog(wxHtmlHelpController *help_ctrl,
           wxEVT_BUTTON,
           wxCommandEventHandler(ForceIpDialog::onHelpButton));
 
-  getPanel()->Fit();
-  this->Fit();
   Centre();
 }
 

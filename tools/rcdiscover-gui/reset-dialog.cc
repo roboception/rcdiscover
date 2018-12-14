@@ -93,6 +93,7 @@ ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
   button_box->Add(help_button, 0, wxEXPAND);
 
   vbox->Add(button_box, 0, wxLEFT | wxRIGHT | wxBOTTOM, 15);
+  vbox->Fit(this);
 
   Connect(ID_Reset_Params,
           wxEVT_BUTTON,
@@ -110,9 +111,7 @@ ResetDialog::ResetDialog(wxHtmlHelpController *help_ctrl,
           wxEVT_BUTTON,
           wxCommandEventHandler(ResetDialog::onHelpButton));
 
-  getPanel()->Fit();
   Centre();
-  this->Fit();
 }
 
 void ResetDialog::onResetButton(wxCommandEvent &event)
