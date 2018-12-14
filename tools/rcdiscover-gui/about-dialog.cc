@@ -61,10 +61,7 @@ AboutDialog::AboutDialog(wxWindow *parent, wxWindowID id,
 
   // title
   auto *title_box = new wxBoxSizer(wxHORIZONTAL);
-  auto *title = new wxStaticText(panel, wxID_ANY, "rcdiscover "
-                                 TOSTRING(PACKAGE_VERSION_MAJOR) "."
-                                 TOSTRING(PACKAGE_VERSION_MINOR) "."
-                                 TOSTRING(PACKAGE_VERSION_PATCH),
+  auto *title = new wxStaticText(panel, wxID_ANY, "rcdiscover " PACKAGE_VERSION,
                                  wxDefaultPosition,
                                  wxDefaultSize,
                                  wxALIGN_CENTRE);
