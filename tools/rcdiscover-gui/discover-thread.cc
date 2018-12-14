@@ -98,6 +98,7 @@ wxThread::ExitCode DiscoverThread::Entry()
       wxVector<wxVariant> data;
       data.push_back(wxVariant(name));
       data.push_back(wxVariant(manufacturer));
+      data.push_back(wxVariant(info.getModelName()));
       data.push_back(wxVariant(info.getSerialNumber()));
       data.push_back(wxVariant(ip2string(info.getIP())));
       data.push_back(wxVariant(mac2string(info.getMAC())));

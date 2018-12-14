@@ -97,7 +97,7 @@ void SensorCommandDialog::setDiscoveredSensors(
       wxVariant hostname{};
       wxVariant mac{};
       sensor_list->GetValueByRow(hostname, i, 0);
-      sensor_list->GetValueByRow(mac, i, 4);
+      sensor_list->GetValueByRow(mac, i, 5);
       const auto s = wxString::Format("%s - %s",
                                       hostname.GetString(),
                                       mac.GetString());
@@ -222,7 +222,7 @@ void SensorCommandDialog::fillMac()
   wxVariant mac_string{};
   sensor_list_->GetValueByRow(mac_string,
                               row_map_inv_.at(static_cast<unsigned int>(row)),
-                              4);
+                              5);
 
   const auto mac = split<6>(mac_string.GetString().ToStdString(), ':');
 

@@ -70,7 +70,7 @@
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
-  wxFrame(NULL, wxID_ANY, title, pos, wxSize(820,350)),
+  wxFrame(NULL, wxID_ANY, title, pos, wxSize(950,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
   filter_input_(nullptr),
@@ -168,6 +168,10 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                    wxDATAVIEW_CELL_INERT,
                                    170, wxALIGN_LEFT,
                                    wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("Model",
+                                   wxDATAVIEW_CELL_INERT,
+                                   130, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
     device_list_->AppendTextColumn("Serial Number",
                                    wxDATAVIEW_CELL_INERT,
                                    130, wxALIGN_LEFT,
@@ -256,6 +260,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
           wxEVT_MENU,
           wxMenuEventHandler(DiscoverFrame::onCopy));
   Connect(ID_CopyManufacturer,
+          wxEVT_MENU,
+          wxMenuEventHandler(DiscoverFrame::onCopy));
+  Connect(ID_CopyModel,
           wxEVT_MENU,
           wxMenuEventHandler(DiscoverFrame::onCopy));
   Connect(ID_CopySerial,
@@ -459,7 +466,7 @@ void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event)
   if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
   {
     const auto ip_wxstring = device_list_->GetTextValue(
-                               static_cast<unsigned int>(row), 3);
+                               static_cast<unsigned int>(row), 4);
     wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
   }
 }
@@ -478,6 +485,7 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
   wxMenu menu;
   menu.Append(ID_CopyName, "Copy name");
   menu.Append(ID_CopyManufacturer, "Copy manufacturer");
+  menu.Append(ID_CopyModel, "Copy model");
   menu.Append(ID_CopySerial, "Copy serial number");
   menu.Append(ID_CopyIP, "Copy IP address");
   menu.Append(ID_CopyMac, "Copy MAC address");
@@ -511,16 +519,20 @@ void DiscoverFrame::onCopy(wxMenuEvent &evt)
       column = 1;
       break;
 
-    case ID_CopySerial:
+    case ID_CopyModel:
       column = 2;
       break;
 
-    case ID_CopyIP:
+    case ID_CopySerial:
       column = 3;
       break;
 
-    case ID_CopyMac:
+    case ID_CopyIP:
       column = 4;
+      break;
+
+    case ID_CopyMac:
+      column = 5;
       break;
 
     default:
