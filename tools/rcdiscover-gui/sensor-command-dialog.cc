@@ -166,7 +166,6 @@ std::string SensorCommandDialog::getMacString() const
   const auto mac = getMac();
 
   std::ostringstream mac_string;
-  mac_string << std::hex << std::setw(2) << std::setfill('0');
   bool first = true;
   for (const auto m : mac)
   {
@@ -174,6 +173,7 @@ std::string SensorCommandDialog::getMacString() const
     {
       mac_string << ":";
     }
+    mac_string << std::hex << std::setfill('0') << std::setw(2);
     mac_string << static_cast<unsigned int>(m);
     first = false;
   }
