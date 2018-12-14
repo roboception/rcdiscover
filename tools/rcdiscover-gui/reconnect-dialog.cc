@@ -84,13 +84,13 @@ void ReconnectDialog::onReconnectButton(wxCommandEvent &event)
       m |= static_cast<std::uint64_t>(mac[5]) << 0;
       force_ip.sendCommand(m, 0, 0, 0);
     }
+
+    Hide();
   }
   catch(const std::runtime_error &ex)
   {
     wxMessageBox(ex.what(), "Error", wxOK | wxICON_ERROR);
   }
-
-  Hide();
 }
 
 void ReconnectDialog::onHelpButton(wxCommandEvent &event)

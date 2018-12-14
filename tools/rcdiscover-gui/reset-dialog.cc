@@ -186,6 +186,8 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
         }
         while (try_again);
       }
+
+      Hide();
     }
     catch(const std::runtime_error& ex)
     {
@@ -199,8 +201,6 @@ void ResetDialog::onResetButton(wxCommandEvent &event)
                  "Operation not permitted",
                  wxOK | wxICON_ERROR);
   }
-
-  Hide();
 }
 
 void ResetDialog::onHelpButton(wxCommandEvent &)

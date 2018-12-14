@@ -82,6 +82,23 @@ class RcDiscoverApp : public wxApp
       return 0;
     }
 
+    virtual bool OnExceptionInMainLoop() override
+    {
+      try
+      {
+        throw;
+      }
+      catch (const std::exception &ex)
+      {
+        std::string error_msg = "Caught exception of type ";
+        error_msg += typeid(ex).name();
+        error_msg += ": ";
+        error_msg += ex.what();
+        wxMessageBox(error_msg, "Error", wxOK | wxICON_ERROR);
+        return true;
+      }
+    }
+
   private:
     wxWindow *frame_;
 };
