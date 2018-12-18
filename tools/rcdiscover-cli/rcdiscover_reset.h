@@ -1,7 +1,7 @@
 /*
  * rcdiscover - the network discovery tool for rc_visard
  *
- * Copyright (c) 2017 Roboception GmbH
+ * Copyright (c) 2018 Roboception GmbH
  * All rights reserved
  *
  * Author: Raphael Schaller
@@ -32,86 +32,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
- 
-#ifndef RCDISCOVER_SOCKET_H
-#define RCDISCOVER_SOCKET_H
 
-#include <vector>
-#include <cstdint>
+#ifndef RCDISCOVER_RCDISCOVER_RESET_H
+#define RCDISCOVER_RCDISCOVER_RESET_H
 
-struct sockaddr_in;
+#include <string>
 
-namespace rcdiscover
-{
+int runReset(const std::string &command, int argc, char **argv);
 
-/**
- * CRTP class for platform specific socket implementation.
- */
-template<typename Derived>
-class Socket
-{
-  private:
-    Derived &getDerived()
-    {
-      return *static_cast<Derived *>(this);
-    }
-
-    const Derived &getDerived() const
-    {
-      return *static_cast<const Derived *>(this);
-    }
-
-  public:
-    Socket() = default;
-
-    Socket(const Socket&) = delete;
-    Socket& operator=(const Socket&) = delete;
-
-    /**
-     * @brief Returns the native socket handle.
-     * @return native socket handle
-     */
-    template<typename T>
-    const T &getHandle() const
-    {
-      return getDerived().getHandleImpl();
-    }
-
-    /**
-     * @brief Binds the socket to an interface.
-     * @param addr sockaddr_in specifying the interface
-     */
-    void bind(const sockaddr_in& addr)
-    {
-      getDerived().bindImpl(addr);
-    }
-
-    /**
-     * @brief Sends data.
-     * @param sendbuf data to send
-     */
-    void send(const std::vector<uint8_t>& sendbuf)
-    {
-      getDerived().sendImpl(sendbuf);
-    }
-
-    /**
-     * @brief Enables broadcast for this socket.
-     */
-    void enableBroadcast()
-    {
-      getDerived().enableBroadcastImpl();
-    }
-
-    /**
-     * @brief Enables non-blocking operation for this socket.
-     */
-    void enableNonBlocking()
-    {
-      getDerived().enableNonBlockingImpl();
-    }
-};
-
-}
-
-#endif //RCDISCOVER_SOCKET_H
+#endif //RCDISCOVER_RCDISCOVER_RESET_H

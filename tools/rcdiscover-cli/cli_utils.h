@@ -1,7 +1,7 @@
 /*
  * rcdiscover - the network discovery tool for rc_visard
  *
- * Copyright (c) 2017 Roboception GmbH
+ * Copyright (c) 2018 Roboception GmbH
  * All rights reserved
  *
  * Author: Raphael Schaller
@@ -32,86 +32,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
- 
-#ifndef RCDISCOVER_SOCKET_H
-#define RCDISCOVER_SOCKET_H
 
+#ifndef RCDISCOVER_CLI_UTILS_H
+#define RCDISCOVER_CLI_UTILS_H
+
+#include <string>
 #include <vector>
-#include <cstdint>
+#include <map>
 
-struct sockaddr_in;
+#include <rcdiscover/deviceinfo.h>
 
-namespace rcdiscover
+struct DeviceFilter
 {
-
-/**
- * CRTP class for platform specific socket implementation.
- */
-template<typename Derived>
-class Socket
-{
-  private:
-    Derived &getDerived()
-    {
-      return *static_cast<Derived *>(this);
-    }
-
-    const Derived &getDerived() const
-    {
-      return *static_cast<const Derived *>(this);
-    }
-
-  public:
-    Socket() = default;
-
-    Socket(const Socket&) = delete;
-    Socket& operator=(const Socket&) = delete;
-
-    /**
-     * @brief Returns the native socket handle.
-     * @return native socket handle
-     */
-    template<typename T>
-    const T &getHandle() const
-    {
-      return getDerived().getHandleImpl();
-    }
-
-    /**
-     * @brief Binds the socket to an interface.
-     * @param addr sockaddr_in specifying the interface
-     */
-    void bind(const sockaddr_in& addr)
-    {
-      getDerived().bindImpl(addr);
-    }
-
-    /**
-     * @brief Sends data.
-     * @param sendbuf data to send
-     */
-    void send(const std::vector<uint8_t>& sendbuf)
-    {
-      getDerived().sendImpl(sendbuf);
-    }
-
-    /**
-     * @brief Enables broadcast for this socket.
-     */
-    void enableBroadcast()
-    {
-      getDerived().enableBroadcastImpl();
-    }
-
-    /**
-     * @brief Enables non-blocking operation for this socket.
-     */
-    void enableNonBlocking()
-    {
-      getDerived().enableNonBlockingImpl();
-    }
+  std::string name;
+  std::string serial;
+  std::string mac;
 };
 
+int parseFilterArguments(int argc, char **argv, DeviceFilter &filter);
+
+bool filterDevice(const rcdiscover::DeviceInfo &device_info,
+                  const DeviceFilter &filter);
+
+std::vector<rcdiscover::DeviceInfo> discoverWithFilter(
+    const DeviceFilter &filter);
+
+void printTable(std::ostream &oss,
+                const std::vector<std::vector<std::string>> &to_be_printed);
+
+void printDeviceTable(std::ostream &oss,
+                      const std::vector<rcdiscover::DeviceInfo> &devices,
+                      bool print_header, bool iponly, bool serialonly);
+
+template<typename K, typename V>
+int getMaxCommandLen(const std::map<K, V> &commands)
+{
+  int max_size = 0;
+  for (const auto &cmd : commands)
+  {
+    max_size = std::max(max_size, static_cast<int>(cmd.first.length()));
+  }
+  return max_size;
 }
 
-#endif //RCDISCOVER_SOCKET_H
+#endif //RCDISCOVER_CLI_UTILS_H

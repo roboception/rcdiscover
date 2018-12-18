@@ -1,10 +1,10 @@
 /*
  * rcdiscover - the network discovery tool for rc_visard
  *
- * Copyright (c) 2017 Roboception GmbH
+ * Copyright (c) 2018 Roboception GmbH
  * All rights reserved
  *
- * Author: Heiko Hirschmueller
+ * Author: Raphael Schaller
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,217 +33,115 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rcdiscover/discover.h"
-#include "rcdiscover/deviceinfo.h"
-#include "rcdiscover/utils.h"
+#include "rcdiscover-cli/rcdiscover_discover.h"
+#include "rcdiscover-cli/rcdiscover_reconnect.h"
+#include "rcdiscover-cli/rcdiscover_reset.h"
+#include "rcdiscover-cli/rcdiscover_force_ip.h"
+#include "rcdiscover-cli/cli_utils.h"
 
-#include <string>
-#include <sstream>
 #include <iostream>
-#include <iomanip>
-#include <cstring>
+#include <map>
+#include <functional>
 
 #ifdef WIN32
 #include <winsock2.h>
 #endif
 
-void printTable(const std::vector<std::vector<std::string>> &to_be_printed)
+struct Command
 {
-  std::size_t max_columns = 0;
-  for (const auto &row : to_be_printed)
-  {
-    max_columns = std::max(max_columns, row.size());
-  }
+  std::string description;
+  std::function<int(const std::string &, int, char **)> fun;
+};
 
-  std::vector<std::size_t> column_width(max_columns, 0);
-  for (const auto &row : to_be_printed)
-  {
-    for (std::size_t col = 0; col < row.size(); ++col)
+static const std::map<std::string, Command> commands =
     {
-      column_width[col] = std::max(column_width[col], row[col].size());
-    }
-  }
+        {"ls", {"List available devices", runDiscover}},
+        {"reconnect", {"Reconnect a device", runReconnect}},
+        {"forceip", {"Temporarily set the IP of a device", runForceIP}},
+        {"reset", {"Reset a device's parameters", runReset}}
+    };
 
-  for (const auto &row : to_be_printed)
-  {
-    for (std::size_t col = 0; col < row.size(); ++col)
+class WSA
+{
+  public:
+    WSA()
     {
-      std::string s = row[col];
-      if (col < row.size() - 1)
-      {
-        s.append(column_width[col] - s.length(), ' ');
-        s += '\t';
-      }
-      std::cout << s;
+#ifdef WIN32
+      WSADATA wsaData;
+      WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
     }
-    std::cout << '\n';
-  }
-}
+
+    ~WSA()
+    {
+#ifdef WIN32
+      ::WSACleanup();
+#endif
+    }
+};
 
 int main(int argc, char *argv[])
 {
-#ifdef WIN32
-  WSADATA wsaData;
-  WSAStartup(MAKEWORD(2, 2), &wsaData);
-#endif
+  WSA wsa;
 
-  // interpret command line parameters
+  std::string help_string = std::string("Usage: ") +
+      argv[0] + " [-h | --help] [--version] <command> [<args>]\n\n" +
+      "Available commands are:\n";
 
-  bool printheader=true;
-  bool iponly=false;
-  bool serialonly=false;
-  std::string fname;
-  std::string fserial;
-  std::string fmac;
-
-  int i=1;
-  while (i < argc)
+  const int max_command_len = getMaxCommandLen(commands);
+  for (const auto &cmd : commands)
   {
-    std::string p=argv[i++];
+    const int min_padding = 3;
+    const int padding = max_command_len + min_padding - cmd.first.length();
+    help_string += "    " + cmd.first + std::string(padding, ' ') +
+                   cmd.second.description + "\n";
+  }
 
-    if (p == "-iponly" || p == "--iponly")
+  help_string += std::string("\n") +
+      "If no command is given, 'ls' is assumed.\n" +
+      "See '" + argv[0] + " <command> --help' for command-specific help.";
+
+  auto command = commands.find("ls");
+
+  int argc_subcommand = argc - 1;
+  char **argv_subcommand = argv + 1;
+
+  if (argc > 1)
+  {
+    const std::string argv_1(argv[1]);
+    if (argv_1 == "--help" || argv_1 == "-h")
     {
-      iponly=true;
-      printheader=false;
+      std::cout << help_string << std::endl;
+      return 0;
     }
-    else if (p == "-serialonly" || p == "--serialonly")
-    {
-      serialonly=true;
-      printheader=false;
-    }
-    else if (p == "-f" && i < argc)
-    {
-      p=argv[i++];
-
-      if (p.compare(0, 5, "name=") == 0)
-      {
-        fname=p.substr(5);
-      }
-      else if (p.compare(0, 7, "serial=") == 0)
-      {
-        fserial=p.substr(7);
-      }
-      else if (p.compare(0, 4, "mac=") == 0)
-      {
-        fmac=p.substr(4);
-
-        // ensure correct format of mac address
-
-        std::array<uint8_t, 6> amac=string2mac(fmac);
-        uint64_t mac=0;
-
-        for (int i=0; i<6; i++)
-        {
-          mac<<=8;
-          mac|=amac[i];
-        }
-
-        fmac=mac2string(mac);
-      }
-      else
-      {
-        std::cerr << "Unknown option for parameter -f: " << p << std::endl;
-        return 1;
-      }
-
-      printheader=false;
-    }
-    else if (p == "--version")
+    if (argv_1 == "--version")
     {
       std::cout << PACKAGE_VERSION << std::endl;
       return 0;
     }
-    else
+
+    if (!argv_1.empty() && argv_1[0] != '-')
     {
-      std::cout << argv[0] << " <parameters>" << std::endl;
-      std::cout << std::endl;
-      std::cout << "-h                 Shows this help and exits." << std::endl;
-      std::cout << "-f name=<name>     Filter by name" << std::endl;
-      std::cout << "-f serial=<serial> Filter by serial number" << std::endl;
-      std::cout << "-f mac=<mac>       Filter by MAC address" << std::endl;
-      std::cout << "--iponly           Shows only the IP addresses of discoverd sensors" << std::endl;
-      std::cout << "--serialonly       Shows only the serial number of discovered sensors" << std::endl;
-      std::cout << "--version          Print version." << std::endl;
-      return 0;
+      command = commands.find(argv[1]);
+      --argc_subcommand;
+      ++argv_subcommand;
     }
   }
 
-  // broadcast discover request
-
-  rcdiscover::Discover discover;
-  discover.broadcastRequest();
-
-  std::vector<rcdiscover::DeviceInfo> infos;
-
-  // print header line
-
-  std::vector<std::vector<std::string>> to_be_printed;
-
-  if (printheader)
+  if (command == commands.end())
   {
-    to_be_printed.push_back({"Username", "Serialnumber", "IP", "MAC", "Model"});
+    std::cerr << "Invalid command\n";
+    std::cerr << help_string << '\n';
+    return 1;
   }
 
-  // get all responses, sort them and remove multiple entries
-
-  while (discover.getResponse(infos, 100)) { }
-
-  std::sort(infos.begin(), infos.end());
-  const auto it = std::unique(infos.begin(), infos.end());
-  infos.erase(it, infos.end());
-
-  // go through all valid entries
-
-  for (rcdiscover::DeviceInfo &info : infos)
+  std::string command_str;
+  for (int i = 0; i < (argc - argc_subcommand); ++i)
   {
-    if (!info.isValid())
-    {
-      continue;
-    }
-
-    // get name of sensor with fall back to model name
-
-    std::string name=info.getUserName();
-
-    if (name.size() == 0)
-    {
-      name=info.getModelName();
-    }
-
-    // filter as requested
-
-    if (fname.size() > 0 && fname.compare(name) != 0) continue;
-    if (fserial.size() > 0 && fserial.compare(info.getSerialNumber()) != 0) continue;
-    if (fmac.size() > 0 && fmac.compare(mac2string(info.getMAC())) != 0) continue;
-
-    // print information about the device
-
-    to_be_printed.emplace_back();
-    auto &print = to_be_printed.back();
-
-    if (iponly)
-    {
-      print.push_back(ip2string(info.getIP()));
-    }
-    else if (serialonly)
-    {
-      print.push_back(info.getSerialNumber());
-    }
-    else
-    {
-      print.push_back(name);
-      print.push_back(info.getSerialNumber());
-      print.push_back(ip2string(info.getIP()));
-      print.push_back(mac2string(info.getMAC()));
-      print.push_back(info.getModelName());
-    }
+    if (!command_str.empty())
+    { command_str += ' '; }
+    command_str += argv[i];
   }
 
-  printTable(to_be_printed);
-
-#ifdef WIN32
-  ::WSACleanup();
-#endif
-
-  return 0;
+  return command->second.fun(command_str, argc_subcommand, argv_subcommand);
 }

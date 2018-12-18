@@ -111,4 +111,52 @@ inline std::array<uint8_t, 4> string2ip(const std::string& ip)
   return string2byte<4>(ip, 10, '.');
 }
 
+template<std::size_t N>
+std::uint64_t byteArrayToInt(const std::array<std::uint8_t, N> &a)
+{
+  std::uint64_t result{};
+  for (std::size_t i = 0; i < N; ++i)
+  {
+    result |= (static_cast<std::uint64_t>(a[i]) << ((N - 1 - i) * 8));
+  }
+  return result;
+}
+
+inline bool wildcardMatch(std::string::const_iterator str_first,
+                          std::string::const_iterator str_last,
+                          std::string::const_iterator p_first,
+                          std::string::const_iterator p_last)
+{
+  if (str_first == str_last && p_first == p_last)
+  { return true; }
+
+  if (str_first == str_last)
+  {
+    if (*p_first == '*')
+    {
+      // if there is no more character after * => match
+      return std::next(p_first) == p_last;
+    }
+  }
+
+  if (p_first == p_last)
+  {
+    return false;
+  }
+
+  if (*p_first == '?' || *p_first == std::tolower(*str_first))
+  {
+    return wildcardMatch(std::next(str_first), str_last,
+                         std::next(p_first), p_last);
+  }
+
+  if (*p_first == '*')
+  {
+    return wildcardMatch(std::next(str_first), str_last, p_first, p_last) ||
+           wildcardMatch(str_first, str_last, std::next(p_first), p_last);
+  }
+
+  return false;
+}
+
 #endif // UTILS_H

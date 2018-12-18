@@ -38,7 +38,13 @@ project(tools CXX)
 #
 # rcdiscover commandline program
 #
-add_executable(rcdiscover rcdiscover.cc)
+add_executable(rcdiscover
+  rcdiscover.cc
+  rcdiscover-cli/rcdiscover_discover.cc
+  rcdiscover-cli/rcdiscover_reconnect.cc
+  rcdiscover-cli/rcdiscover_force_ip.cc
+  rcdiscover-cli/rcdiscover_reset.cc
+  rcdiscover-cli/cli_utils.cc)
 target_link_libraries(rcdiscover rcdiscover_static)
 
 if (WIN32)
