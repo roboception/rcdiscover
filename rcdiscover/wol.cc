@@ -98,7 +98,7 @@ std::array<uint8_t, num> WOL::toByteArray(uint64_t data) noexcept
   std::array<uint8_t, num> result;
   for (uint8_t i = 0; i < num; ++i)
   {
-    result[i] = static_cast<uint8_t>((data >> (i*8)) & 0xFF);
+    result[i] = static_cast<uint8_t>((data >> (((num - 1 - i)*8))) & 0xFF);
   }
   return result;
 }

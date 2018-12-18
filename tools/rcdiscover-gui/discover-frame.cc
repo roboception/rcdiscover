@@ -35,6 +35,7 @@
 
 // placed here to make sure to include winsock2.h before windows.h
 #include "rcdiscover/wol.h"
+#include "rcdiscover/utils.h"
 
 #include "discover-frame.h"
 
@@ -353,43 +354,6 @@ void DiscoverFrame::onDiscoveryCompleted(wxThreadEvent &event)
   updateDeviceList(event.GetPayload<std::vector<wxVector<wxVariant>>>());
 
   clearBusy();
-}
-
-static bool wildcardMatch(std::string::const_iterator str_first,
-                          std::string::const_iterator str_last,
-                          std::string::const_iterator p_first,
-                          std::string::const_iterator p_last)
-{
-  if (str_first == str_last && p_first == p_last)
-  { return true; }
-
-  if (str_first == str_last)
-  {
-    if (*p_first == '*')
-    {
-      // if there is no more character after * => match
-      return std::next(p_first) == p_last;
-    }
-  }
-
-  if (p_first == p_last)
-  {
-    return false;
-  }
-
-  if (*p_first == '?' || *p_first == std::tolower(*str_first))
-  {
-    return wildcardMatch(std::next(str_first), str_last,
-                         std::next(p_first), p_last);
-  }
-
-  if (*p_first == '*')
-  {
-    return wildcardMatch(std::next(str_first), str_last, p_first, p_last) ||
-           wildcardMatch(str_first, str_last, std::next(p_first), p_last);
-  }
-
-  return false;
 }
 
 void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)

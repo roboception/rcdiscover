@@ -33,6 +33,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef RCDISCOVER_SOCKET_WINDOW_H
+#define RCDISCOVER_SOCKET_WINDOW_H
+
 #include "socket.h"
 
 #include <winsock2.h>
@@ -123,3 +126,5 @@ class SocketWindows : public Socket<SocketWindows>
 };
 
 }
+
+#endif //RCDISCOVER_SOCKET_WINDOW_H
