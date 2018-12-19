@@ -252,7 +252,7 @@ void ForceIpDialog::onIpChanged(wxCommandEvent &event)
   }
 }
 
-void ForceIpDialog::onForceIpButton(wxCommandEvent &event)
+void ForceIpDialog::onForceIpButton(wxCommandEvent &)
 {
   try
   {
@@ -302,7 +302,7 @@ void ForceIpDialog::onForceIpButton(wxCommandEvent &event)
   }
 }
 
-void ForceIpDialog::onHelpButton(wxCommandEvent &event)
+void ForceIpDialog::onHelpButton(wxCommandEvent &)
 {
   displayHelp("forceip");
 }

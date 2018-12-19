@@ -32,7 +32,7 @@ std::tuple<std::uint8_t, std::uint8_t> GigERequestCounter::getNext()
     }
     else
     {
-      new_value = current + 1;
+      new_value = static_cast<std::uint_fast16_t>(current + 1);
     }
   }
   while (!counter.compare_exchange_weak(current, new_value));

@@ -92,8 +92,10 @@ int main(int argc, char *argv[])
   for (const auto &cmd : commands)
   {
     const int min_padding = 3;
-    const int padding = max_command_len + min_padding - cmd.first.length();
-    help_string += "    " + cmd.first + std::string(padding, ' ') +
+    const int padding =
+        max_command_len + min_padding - static_cast<int>(cmd.first.length());
+    help_string += "    " + cmd.first +
+                   std::string(static_cast<std::size_t>(padding), ' ') +
                    cmd.second.description + "\n";
   }
 

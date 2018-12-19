@@ -44,9 +44,9 @@
 
 struct DeviceFilter
 {
-  std::string name;
-  std::string serial;
-  std::string mac;
+  std::string name = {};
+  std::string serial = {};
+  std::string mac = {};
 };
 
 int parseFilterArguments(int argc, char **argv, DeviceFilter &filter);

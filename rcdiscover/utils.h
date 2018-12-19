@@ -69,6 +69,14 @@ std::array<std::string, n> split(const std::string& s, const char sep)
 {
   std::array<std::string, n> result;
 
+  if (!s.empty())
+  {
+    if (s.front() == sep || s.back() == sep)
+    {
+      throw std::invalid_argument("strings starts or ends with separator");
+    }
+  }
+
   std::istringstream iss(s);
   for (uint32_t i = 0; i < n; ++i)
   {
@@ -76,6 +84,12 @@ std::array<std::string, n> split(const std::string& s, const char sep)
     {
       throw std::out_of_range("n");
     }
+  }
+
+  std::string tmp;
+  if (std::getline(iss, tmp, sep))
+  {
+    throw std::out_of_range("n");
   }
 
   return result;
@@ -93,9 +107,14 @@ std::array<uint8_t, n> string2byte(const std::string& s,
   std::transform(std::begin(splitted),
                  std::end(splitted),
                  std::begin(result),
-                 [&base](const std::string& s)
+                 [&base](const std::string& s) -> std::uint8_t
   {
-    return std::stoul(s, nullptr, base);
+    const auto v = std::stoul(s, nullptr, base);
+    if (v > 255)
+    {
+      throw std::out_of_range("number is larger than 255");
+    }
+    return static_cast<std::uint8_t>(v);
   });
 
   return result;
@@ -111,13 +130,25 @@ inline std::array<uint8_t, 4> string2ip(const std::string& ip)
   return string2byte<4>(ip, 10, '.');
 }
 
+template<std::size_t N> struct MinFittingType { };
+template<> struct MinFittingType<1> { using type = std::uint8_t; };
+template<> struct MinFittingType<2> { using type = std::uint16_t; };
+template<> struct MinFittingType<3> { using type = std::uint32_t; };
+template<> struct MinFittingType<4> { using type = std::uint32_t; };
+template<> struct MinFittingType<5> { using type = std::uint64_t; };
+template<> struct MinFittingType<6> { using type = std::uint64_t; };
+template<> struct MinFittingType<7> { using type = std::uint64_t; };
+template<> struct MinFittingType<8> { using type = std::uint64_t; };
+
 template<std::size_t N>
-std::uint64_t byteArrayToInt(const std::array<std::uint8_t, N> &a)
+typename MinFittingType<N>::type
+byteArrayToInt(const std::array<std::uint8_t, N> &a)
 {
-  std::uint64_t result{};
+  using ReturnType = typename MinFittingType<N>::type;
+  ReturnType result{};
   for (std::size_t i = 0; i < N; ++i)
   {
-    result |= (static_cast<std::uint64_t>(a[i]) << ((N - 1 - i) * 8));
+    result |= (static_cast<ReturnType>(a[i]) << ((N - 1 - i) * 8));
   }
   return result;
 }

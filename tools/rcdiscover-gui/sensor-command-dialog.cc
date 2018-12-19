@@ -195,7 +195,7 @@ void SensorCommandDialog::clear()
   clearMac();
 }
 
-void SensorCommandDialog::onSensorSelected(wxCommandEvent &event)
+void SensorCommandDialog::onSensorSelected(wxCommandEvent &)
 {
   if (sensors_->GetSelection() != wxNOT_FOUND)
   {
