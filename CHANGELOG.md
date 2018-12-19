@@ -1,3 +1,18 @@
+## [0.9.0] - 2018-12-19
+### Added
+- CLI: print model
+- extend CLI interface (SW-302)
+  - reset
+  - forceip
+  - reconnect
+- show model on GUI (SW-300)
+
+### Changed
+- GUI: show complete package version in about dialog
+
+### Fixed
+- buttons hidden for Ubuntu Bionic
+
 ## [0.8.0] - 2018-11-12
 ### Added
 - Copying device info to clipboard
