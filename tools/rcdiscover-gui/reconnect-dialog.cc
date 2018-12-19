@@ -58,7 +58,7 @@ ReconnectDialog::ReconnectDialog(
   Centre();
 }
 
-void ReconnectDialog::onReconnectButton(wxCommandEvent &event)
+void ReconnectDialog::onReconnectButton(wxCommandEvent &)
 {
   try
   {
@@ -92,7 +92,7 @@ void ReconnectDialog::onReconnectButton(wxCommandEvent &event)
   }
 }
 
-void ReconnectDialog::onHelpButton(wxCommandEvent &event)
+void ReconnectDialog::onHelpButton(wxCommandEvent &)
 {
   displayHelp("reconnect");
 }

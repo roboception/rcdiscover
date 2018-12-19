@@ -59,12 +59,14 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RELEASE CACHE STRING "Build type: DEBUG or RELEASE" FORCE)
 endif ()
 
-#
-
 # - Standard definitions -
 
 if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-Wall)
+  add_definitions(-Wextra)
+  add_definitions(-Wpedantic)
+  add_definitions(-Wconversion)
+  add_definitions(-Werror)
 endif ()
 
 add_definitions(-std=c++11)
