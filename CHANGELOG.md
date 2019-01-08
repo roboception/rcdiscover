@@ -1,3 +1,8 @@
+## [0.9.1] - 2019-01-08
+### Fixed
+- GUI: reading of device name
+- CLI: rename 'username' to 'name' and 'serialnumber' to 'serial number' in device list header
+
 ## [0.9.0] - 2018-12-19
 ### Added
 - CLI: print model
