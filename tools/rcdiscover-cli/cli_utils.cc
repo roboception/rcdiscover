@@ -151,7 +151,7 @@ void printDeviceTable(std::ostream &oss,
 
   if (print_header)
   {
-    to_be_printed.push_back({"Username", "Serialnumber", "IP", "MAC", "Model"});
+    to_be_printed.push_back({"Name", "Serial Number", "IP", "MAC", "Model"});
   }
 
   for (const auto &info : devices)
