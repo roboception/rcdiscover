@@ -86,12 +86,9 @@ wxThread::ExitCode DiscoverThread::Entry()
         continue;
       }
 
-      std::string name=info.getUserName();
-
-      if (name.size() == 0)
-      {
-        name = "rc_visard";
-      }
+      const std::string &name = info.getUserName().empty()
+                                ? info.getModelName()
+                                : info.getUserName();
 
       const std::string manufacturer = info.getManufacturerName();
 
