@@ -426,13 +426,7 @@ void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event)
     return;
   }
 
-  const auto manufacturer = device_list_->GetTextValue(row, 1);
-  if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
-  {
-    const auto ip_wxstring = device_list_->GetTextValue(
-                               static_cast<unsigned int>(row), 4);
-    wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
-  }
+  openWebGUI(row);
 }
 
 void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
@@ -521,10 +515,7 @@ void DiscoverFrame::onOpenWebGUI(wxMenuEvent &)
     return;
   }
 
-  const auto ip_wxstring = device_list_->GetTextValue(
-                             static_cast<unsigned int>(menu_event_item_->first),
-                             3);
-  wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
+  openWebGUI(menu_event_item_->first);
 }
 
 void DiscoverFrame::onResetContextMenu(wxMenuEvent &)
@@ -623,6 +614,17 @@ void DiscoverFrame::openReconnectDialog(const int row)
   }
 
   reconnect_dialog_->Show();
+}
+
+void DiscoverFrame::openWebGUI(int row)
+{
+  const auto manufacturer = device_list_->GetTextValue(row, 1);
+  if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
+  {
+    const auto ip_wxstring = device_list_->GetTextValue(
+        static_cast<unsigned int>(row), 4);
+    wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
+  }
 }
 
 BEGIN_EVENT_TABLE(DiscoverFrame, wxFrame)

@@ -204,6 +204,11 @@ class DiscoverFrame : public wxFrame
      */
     void updateDeviceList(const std::vector<wxVector<wxVariant>> &d);
 
+    /**
+     * @brief Open WebGUI for device in specific row.
+     */
+    void openWebGUI(int row);
+
     wxDECLARE_EVENT_TABLE();
 
   private:
