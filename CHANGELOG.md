@@ -1,3 +1,7 @@
+## [0.9.2] - 2019-01-10
+### Fixed
+- GUI: WebGUI cannot be opened via context menu (GitHub issue #4)
+
 ## [0.9.1] - 2019-01-08
 ### Fixed
 - GUI: reading of device name
