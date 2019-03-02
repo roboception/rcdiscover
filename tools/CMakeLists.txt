@@ -62,7 +62,6 @@ endif ()
 #
 if(wxWidgets_FOUND)
   message(STATUS ${wxWidgets_INCLUDE_DIRS})
-  include_directories(${wxWidgets_INCLUDE_DIRS})
 
   set(rcdiscover-gui-src
     rcdiscover-gui.cc
@@ -91,6 +90,10 @@ if(wxWidgets_FOUND)
     add_executable(rcdiscover-gui ${rcdiscover-gui-src})
   endif (WIN32)
 
+  target_include_directories(rcdiscover-gui
+    PRIVATE
+      ${wxWidgets_INCLUDE_DIRS}
+  )
   target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
 
   if (WIN32)

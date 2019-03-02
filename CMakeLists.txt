@@ -38,7 +38,6 @@ include(cmake/project_version.cmake)
 
 enable_testing()
 
-include_directories(${CMAKE_SOURCE_DIR})
 # - Find manditory packages -
 
 set(wxWidgets_USE_STATIC ON)

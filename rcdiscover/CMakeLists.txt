@@ -54,3 +54,8 @@ else (WIN32)
 endif (WIN32)
 
 add_library(rcdiscover_static STATIC ${rcdiscover_src})
+target_include_directories(rcdiscover_static
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+)
