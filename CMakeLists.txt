@@ -69,8 +69,6 @@ else ()
   set(CMAKE_CXX_STANDARD 11)
 endif ()
 
-# - Build individual parts -
-
 if (WIN32)
   add_definitions(-DWIN32)
   set(CMAKE_C_FLAGS "-mtune=generic -mno-abm")
@@ -79,6 +77,8 @@ if (WIN32)
   set(CMAKE_CXX_FLAGS_RELEASE "-O2")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static")
 endif ()
+
+# - Build individual parts -
 
 add_subdirectory(rcdiscover)
 
@@ -115,34 +115,11 @@ endif ()
 
 add_subdirectory(tools)
 
-# export project targets
-
-# Declare (shared) libraries that are created by your project. For all
-# libraries that appear here, the following line should exist in a cmake
-# file in a sub directory:
-# install(TARGETS rcXXX EXPORT PROJECTTargets COMPONENT bin DESTINATION lib)
-#set(PROJECT_LIBRARIES rcXXX)
-
-# Declare static libraries that are created by your project. For all
-# libraries that appear here, the following line should exist in a cmake
-# file in a sub directory:
-# install(TARGETS rcXXX_static EXPORT PROJECTTargets COMPONENT dev DESTINATION lib)
-#set(PROJECT_STATIC_LIBRARIES rcdiscover_static)
-
-# comment the following line if your project does not provide any library
-#include(cmake/configure_link_libs.cmake)
-
 # add a target to generate API documentation with Doxygen
 
 add_subdirectory(doc)
 
 # - Define information for packaging -
-
-# optionally set description and maintainer (if not set will use defaults from package_debian.cmake)
-#set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Roboception package description")
-
-# optionally set package maintainer (otherwise defaults to Roboception <info@roboception.de>)
-#set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Your Name <your.name@roboception.de>")
 
 if (RCDISCOVER_GUI_ONLY_DEB)
   set(CPACK_PACKAGE_NAME "rcdiscover-gui")
