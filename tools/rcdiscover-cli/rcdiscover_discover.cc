@@ -117,10 +117,6 @@ int runDiscover(const std::string &command, int argc, char **argv)
 
   std::vector<rcdiscover::DeviceInfo> infos;
 
-  // print header line
-
-  std::vector<std::vector<std::string>> to_be_printed;
-
   // get all responses, sort them and remove multiple entries
 
   while (discover.getResponse(infos, 100)) { }
