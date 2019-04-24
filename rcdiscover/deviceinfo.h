@@ -37,6 +37,7 @@
 #define RCDISCOVER_DEVICEINFO
 
 #include <string>
+#include <tuple>
 #include <stdint.h>
 
 namespace rcdiscover
@@ -46,7 +47,7 @@ class DeviceInfo
 {
   public:
 
-    DeviceInfo();
+    explicit DeviceInfo(std::string iface_name);
 
     /**
       Extracts the RAW GigE Vision information according to the given
@@ -167,18 +168,20 @@ class DeviceInfo
     const std::string &getUserName() const { return user_name; }
 
     /**
-      Returns true if the MAC addresses conicide.
-    */
-
-    bool operator == (const DeviceInfo &info) const { return mac == info.mac; }
-
-    /**
-     * Returns true if MAC address of this is less than MAC of other device.
+     * First compares the MAC address, then the interface name.
      */
 
-    bool operator < (const DeviceInfo &info) const { return mac < info.mac; }
+    bool operator < (const DeviceInfo &info) const
+    { return std::tie(mac, iface_name) < std::tie(info.mac, info.iface_name); }
+
+    /**
+     * Returns the name of the interface on which this device was found.
+     */
+    const std::string &getIfaceName() const { return iface_name; }
 
   private:
+
+    std::string iface_name;
 
     int major;
     int minor;

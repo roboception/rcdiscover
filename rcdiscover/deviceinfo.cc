@@ -70,7 +70,8 @@ std::string extract(const uint8_t *p, size_t len)
 
 }
 
-DeviceInfo::DeviceInfo()
+DeviceInfo::DeviceInfo(std::string iface_name) :
+    iface_name(std::move(iface_name))
 {
   clear();
 }

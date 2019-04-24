@@ -69,6 +69,20 @@ class DiscoverFrame : public wxFrame
 
     virtual ~DiscoverFrame() = default;
 
+    enum COLUMNS
+    {
+      NAME = 0,
+      MANUFACTURER = 1,
+      MODEL = 2,
+      SERIAL = 3,
+      IP = 4,
+      MAC = 5,
+      IFACE = 6,
+      REACHABLE = 7,
+
+      NUM_COLUMNS = 8
+    };
+
   private:
     /**
      * @brief Let spinner rotate.

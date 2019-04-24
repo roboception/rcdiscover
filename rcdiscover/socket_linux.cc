@@ -37,6 +37,7 @@
 
 #include "socket_exception.h"
 #include "operation_not_permitted.h"
+#include "utils.h"
 
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -49,6 +50,7 @@
 #include <fcntl.h>
 
 #include <iostream>
+#include <algorithm>
 
 namespace rcdiscover
 {
@@ -64,9 +66,11 @@ const sockaddr_in& SocketLinux::getDestSockAddr() const
   return dst_addr_;
 }
 
-SocketLinux SocketLinux::create(const in_addr_t dst_ip, const uint16_t port)
+SocketLinux SocketLinux::create(const in_addr_t dst_ip, const uint16_t port,
+                                std::string iface_name)
 {
-  return SocketLinux(AF_INET, SOCK_DGRAM, IPPROTO_UDP, dst_ip, port);
+  return SocketLinux(AF_INET, SOCK_DGRAM, IPPROTO_UDP, dst_ip, port,
+                     std::move(iface_name));
 }
 
 std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
@@ -101,7 +105,7 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
 
         {
           // limited broadcast
-          sockets.emplace_back(SocketLinux::create(getBroadcastAddr(), port));
+          sockets.emplace_back(SocketLinux::create(getBroadcastAddr(), port, name));
 
           sockaddr_in addr;
           addr.sin_family = AF_INET;
@@ -122,7 +126,7 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
 
         {
           // limited broadcast receiver
-          sockets.emplace_back(SocketLinux::create(htonl(INADDR_ANY), port));
+          sockets.emplace_back(SocketLinux::create(htonl(INADDR_ANY), port, name));
 
           sockaddr_in addr;
           addr.sin_family = AF_INET;
@@ -136,7 +140,7 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
           sockets.emplace_back(
                 SocketLinux::create(
                   reinterpret_cast<struct sockaddr_in *>(baddr)->
-                  sin_addr.s_addr, port));
+                  sin_addr.s_addr, port, name));
           sockaddr_in addr;
           addr.sin_family = AF_INET;
           addr.sin_port = local_port;
@@ -156,7 +160,9 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
 }
 
 SocketLinux::SocketLinux(int domain, int type, int protocol,
-                         in_addr_t dst_ip, uint16_t port) :
+                         in_addr_t dst_ip, uint16_t port,
+                         std::string iface_name) :
+  Socket(std::move(iface_name)),
   sock_(-1),
   dst_addr_()
 {
@@ -187,6 +193,7 @@ SocketLinux::SocketLinux(int domain, int type, int protocol,
 }
 
 SocketLinux::SocketLinux(SocketLinux &&other) :
+  Socket(std::move(other)),
   sock_(-1),
   dst_addr_(std::move(other.dst_addr_))
 {

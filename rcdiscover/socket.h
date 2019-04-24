@@ -38,6 +38,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 struct sockaddr_in;
 
@@ -62,10 +63,14 @@ class Socket
     }
 
   public:
-    Socket() = default;
+    explicit Socket(std::string iface_name) : iface_name_(std::move(iface_name))
+    { }
 
     Socket(const Socket&) = delete;
     Socket& operator=(const Socket&) = delete;
+
+    Socket(Socket &&) = default;
+    Socket& operator=(Socket &&) = default;
 
     /**
      * @brief Returns the native socket handle.
@@ -110,6 +115,17 @@ class Socket
     {
       getDerived().enableNonBlockingImpl();
     }
+
+    /**
+     * @brief Returns the interface name.
+     */
+    const std::string &getIfaceName() const
+    {
+      return iface_name_;
+    }
+
+  private:
+    std::string iface_name_;
 };
 
 }
