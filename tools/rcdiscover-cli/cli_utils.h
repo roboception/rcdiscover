@@ -44,10 +44,10 @@
 
 struct DeviceFilter
 {
-  std::vector<std::string> name;
-  std::vector<std::string> serial;
-  std::vector<std::string> mac;
-  std::vector<std::string> iface;
+  std::vector<std::string> name = {};
+  std::vector<std::string> serial = {};
+  std::vector<std::string> mac = {};
+  std::vector<std::string> iface = {};
 };
 
 int parseFilterArguments(int argc, char **argv, DeviceFilter &filter);
