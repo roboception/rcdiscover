@@ -39,6 +39,7 @@
 
 #include <iphlpapi.h>
 #include <iostream>
+#include <map>
 
 namespace rcdiscover
 {
@@ -49,19 +50,47 @@ const ULONG &SocketWindows::getBroadcastAddr()
   return baddr;
 }
 
-SocketWindows SocketWindows::create(const ULONG dst_ip, const uint16_t port)
+SocketWindows SocketWindows::create(const ULONG dst_ip, const uint16_t port, std::string iface_name)
 {
   return SocketWindows(AF_INET,
                        SOCK_DGRAM,
                        IPPROTO_UDP,
                        dst_ip,
-                       port);
+                       port,
+                       std::move(iface_name));
+}
+
+static std::map<int, std::string> getInterfaceNames()
+{
+  PIP_ADAPTER_INFO adapter_info;
+  adapter_info = static_cast<IP_ADAPTER_INFO *>(malloc(sizeof(IP_ADAPTER_INFO)));
+  ULONG buflen = sizeof(IP_ADAPTER_INFO);
+
+  if(GetAdaptersInfo(adapter_info, &buflen) == ERROR_BUFFER_OVERFLOW) 
+  {
+    free(adapter_info);
+    adapter_info = static_cast<IP_ADAPTER_INFO *>(malloc(buflen));
+  }
+
+  std::map<int, std::string> result;
+  if(GetAdaptersInfo(adapter_info, &buflen) == NO_ERROR) 
+  {
+    PIP_ADAPTER_INFO adapter = adapter_info;
+    while (adapter) 
+    {
+      result.emplace(adapter->Index, adapter->Description);
+      adapter = adapter->Next;
+    }
+  }
+  return result;
 }
 
 std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
   const uint16_t port)
 {
   std::vector<SocketWindows> sockets;
+
+  const auto interface_names = getInterfaceNames();
   
   {
     // limited broadcast
@@ -97,15 +126,19 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
       if (row->dwForwardDest == getBroadcastAddr() &&
           row->dwForwardMask == ULONG_MAX &&
           row->dwForwardType == MIB_IPROUTE_TYPE_DIRECT)
-      {     
-        sockets.emplace_back(SocketWindows::create(getBroadcastAddr(), port));
+      {
+        const auto iface = interface_names.find(row->dwForwardIfIndex);
+        if (iface != interface_names.end())
+        {
+          sockets.emplace_back(SocketWindows::create(getBroadcastAddr(), port, iface->second));
 
-        sockaddr_in src_addr;
-        src_addr.sin_family = AF_INET;
-        src_addr.sin_port = 0;
-        src_addr.sin_addr.s_addr = row->dwForwardNextHop;
+          sockaddr_in src_addr;
+          src_addr.sin_family = AF_INET;
+          src_addr.sin_port = 0;
+          src_addr.sin_addr.s_addr = row->dwForwardNextHop;
 
-        sockets.back().bind(src_addr);
+          sockets.back().bind(src_addr);
+        }
       }
     }
   }
@@ -146,16 +179,20 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
         continue;
       }
       
-      const ULONG baddr = row->dwAddr | (~row->dwMask);
-      
-      sockets.emplace_back(SocketWindows::create(baddr, port));
+      const auto iface = interface_names.find(row->dwIndex);
+      if (iface != interface_names.end())
+      {
+        const ULONG baddr = row->dwAddr | (~row->dwMask);
+        
+        sockets.emplace_back(SocketWindows::create(baddr, port, iface->second));
 
-      sockaddr_in src_addr;
-      src_addr.sin_family = AF_INET;
-      src_addr.sin_port = 0;
-      src_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+        sockaddr_in src_addr;
+        src_addr.sin_family = AF_INET;
+        src_addr.sin_port = 0;
+        src_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-      sockets.back().bind(src_addr);
+        sockets.back().bind(src_addr);
+      }
     }
   }
   return sockets;
@@ -165,7 +202,9 @@ SocketWindows::SocketWindows(int domain,
                              int type,
                              int protocol,
                              const ULONG dst_ip,
-                             const uint16_t port) :
+                             const uint16_t port,
+                             std::string iface_name) :
+  Socket(std::move(iface_name)),
   sock_(INVALID_SOCKET),
   dst_addr_()
 {
@@ -181,6 +220,7 @@ SocketWindows::SocketWindows(int domain,
 }
 
 SocketWindows::SocketWindows(SocketWindows&& other) :
+  Socket(std::move(other)),
   sock_(INVALID_SOCKET),
   dst_addr_(other.dst_addr_)
 {

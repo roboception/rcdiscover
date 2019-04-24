@@ -60,7 +60,7 @@ class SocketWindows : public Socket<SocketWindows>
      * @param port destination port
      * @return the created socket
      */
-    static SocketWindows create(ULONG dst_ip, uint16_t port);
+    static SocketWindows create(ULONG dst_ip, uint16_t port, std::string iface_name);
 
     /**
      * @brief Creates sockets for all interfaces and binds them to the
@@ -80,7 +80,8 @@ class SocketWindows : public Socket<SocketWindows>
      * @param port destination port
      */
     SocketWindows(int domain, int type, int protocol,
-                  ULONG dst_ip, uint16_t port);
+                  ULONG dst_ip, uint16_t port,
+                  std::string iface_name);
     SocketWindows(SocketWindows &&other);
     SocketWindows &operator=(SocketWindows &&other);
     ~SocketWindows();
