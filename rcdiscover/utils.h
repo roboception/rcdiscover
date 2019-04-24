@@ -175,7 +175,7 @@ inline bool wildcardMatch(std::string::const_iterator str_first,
     return false;
   }
 
-  if (*p_first == '?' || *p_first == std::tolower(*str_first))
+  if (*p_first == '?' || std::tolower(*p_first) == std::tolower(*str_first))
   {
     return wildcardMatch(std::next(str_first), str_last,
                          std::next(p_first), p_last);
