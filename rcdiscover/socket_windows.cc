@@ -78,7 +78,7 @@ static std::map<int, std::string> getInterfaceNames()
     PIP_ADAPTER_INFO adapter = adapter_info;
     while (adapter) 
     {
-      result.emplace(adapter->Index, adapter->Description);
+      result.emplace(adapter->Index, adapter->AdapterName);
       adapter = adapter->Next;
     }
   }
