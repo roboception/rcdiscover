@@ -40,6 +40,8 @@ enable_testing()
 
 # - Find manditory packages -
 
+find_package(Threads REQUIRED)
+
 set(wxWidgets_USE_STATIC ON)
 set(wxWidgets_USE_UNICODE ON)
 find_package(wxWidgets COMPONENTS html adv core base)

@@ -52,15 +52,19 @@ int parseFilterArguments(int argc, char **argv, DeviceFilter &filter)
 
   if (p.compare(0, 5, "name=") == 0)
   {
-    filter.name = p.substr(5);
+    filter.name.push_back(p.substr(5));
   }
   else if (p.compare(0, 7, "serial=") == 0)
   {
-    filter.serial = p.substr(7);
+    filter.serial.push_back(p.substr(7));
   }
   else if (p.compare(0, 4, "mac=") == 0)
   {
-    filter.mac = p.substr(4);
+    filter.mac.push_back(p.substr(4));
+  }
+  else if (p.compare(0, 6, "iface=") == 0)
+  {
+    filter.iface.push_back(p.substr(6));
   }
   else
   {
@@ -73,15 +77,27 @@ int parseFilterArguments(int argc, char **argv, DeviceFilter &filter)
 bool filterDevice(const rcdiscover::DeviceInfo &device_info,
                   const DeviceFilter &filter)
 {
-  const std::string &fname = filter.name;
-  const std::string &fserial = filter.serial;
-  const std::string &fmac = filter.mac;
-  const std::string &name = device_info.getUserName().empty() ? device_info.getModelName() : device_info.getUserName();
-  if (!fname.empty() && !wildcardMatch(name.begin(), name.end(), fname.begin(), fname.end())) return false;
+  const auto matches_filter = [](const std::string &str,
+                                 const std::vector<std::string> &filter)
+  {
+    return filter.empty() ||
+           std::any_of(filter.begin(), filter.end(),
+                       [&str](const std::string &f)
+                       {
+                         return wildcardMatch(str.begin(), str.end(),
+                                              f.begin(), f.end());
+                       });
+  };
+  const std::string &name = device_info.getUserName().empty()
+                            ? device_info.getModelName()
+                            : device_info.getUserName();
+  if (!matches_filter(name, filter.name)) return false;
   const auto &serial = device_info.getSerialNumber();
-  if (!fserial.empty() && !wildcardMatch(serial.begin(), serial.end(), fserial.begin(), fserial.end())) return false;
+  if (!matches_filter(serial, filter.serial)) return false;
   const auto &mac = mac2string(device_info.getMAC());
-  if (!fmac.empty() && !wildcardMatch(mac.begin(), mac.end(), fmac.begin(), fmac.end())) return false;
+  if (!matches_filter(mac, filter.mac)) return false;
+  const auto &iface = device_info.getIfaceName();
+  if (!matches_filter(iface, filter.iface)) return false;
   return true;
 }
 
@@ -92,10 +108,17 @@ std::vector<rcdiscover::DeviceInfo> discoverWithFilter(
   discover.broadcastRequest();
 
   std::vector<rcdiscover::DeviceInfo> infos;
-  while (discover.getResponse(infos, 100)) { }
+  while (discover.getResponse(infos, 100))
+  {}
 
   std::sort(infos.begin(), infos.end());
-  infos.erase(std::unique(infos.begin(), infos.end()), infos.end());
+  infos.erase(std::unique(infos.begin(), infos.end(),
+                          [](const rcdiscover::DeviceInfo &lhs,
+                             const rcdiscover::DeviceInfo &rhs)
+                          {
+                            return lhs.getMAC() == rhs.getMAC() &&
+                                   lhs.getIfaceName() == rhs.getIfaceName();
+                          }), infos.end());
 
   std::vector<rcdiscover::DeviceInfo> filtered_devices;
   for (const auto &info : infos)
@@ -151,11 +174,22 @@ void printDeviceTable(std::ostream &oss,
 
   if (print_header)
   {
-    to_be_printed.push_back({"Name", "Serial Number", "IP", "MAC", "Model"});
+    to_be_printed.push_back({"Name", "Serial Number", "IP", "MAC", "Model", "Interface(s)"});
   }
 
+  const rcdiscover::DeviceInfo *last_info = nullptr;
   for (const auto &info : devices)
   {
+    if (last_info)
+    {
+      if (info.getMAC() == last_info->getMAC())
+      {
+        // append this interface to the existing interface list
+        to_be_printed.back().back() += "," + info.getIfaceName();
+        continue;
+      }
+    }
+
     to_be_printed.emplace_back();
     auto &print = to_be_printed.back();
 
@@ -178,7 +212,10 @@ void printDeviceTable(std::ostream &oss,
       print.push_back(ip2string(info.getIP()));
       print.push_back(mac2string(info.getMAC()));
       print.push_back(info.getModelName());
+      print.push_back(info.getIfaceName());
     }
+
+    last_info = &info;
   }
 
   printTable(oss, to_be_printed);

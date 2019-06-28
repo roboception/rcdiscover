@@ -59,3 +59,6 @@ target_include_directories(rcdiscover_static
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
 )
+target_link_libraries(rcdiscover_static
+  PRIVATE
+    ${CMAKE_THREAD_LIBS_INIT})

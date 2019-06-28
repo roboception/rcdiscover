@@ -71,7 +71,7 @@
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
-  wxFrame(NULL, wxID_ANY, title, pos, wxSize(950,350)),
+  wxFrame(NULL, wxID_ANY, title, pos, wxSize(1080,350)),
   device_list_(nullptr),
   discover_button_(nullptr),
   filter_input_(nullptr),
@@ -182,6 +182,10 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
                                    120, wxALIGN_LEFT,
                                    wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
     device_list_->AppendTextColumn("MAC Address",
+                                   wxDATAVIEW_CELL_INERT,
+                                   130, wxALIGN_LEFT,
+                                   wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
+    device_list_->AppendTextColumn("Interface(s)",
                                    wxDATAVIEW_CELL_INERT,
                                    130, wxALIGN_LEFT,
                                    wxDATAVIEW_COL_RESIZABLE | wxDATAVIEW_COL_SORTABLE);
@@ -363,7 +367,7 @@ void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
   last_data_ = d;
   for(const auto& d : last_data_)
   {
-    const auto manufacturer = d[1].GetString();
+    const auto manufacturer = d[MANUFACTURER].GetString();
     if (!only_rc_sensors_ || manufacturer == ROBOCEPTION)
     {
       if (!filter_text_.empty())
@@ -450,7 +454,7 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
 
   const auto manufacturer = device_list_->GetTextValue(
                         static_cast<unsigned int>(menu_event_item_->first),
-                        1);
+                        MANUFACTURER);
   if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
   {
     menu.AppendSeparator();
@@ -470,27 +474,27 @@ void DiscoverFrame::onCopy(wxMenuEvent &evt)
   switch (evt.GetId())
   {
     case ID_CopyName:
-      column = 0;
+      column = NAME;
       break;
 
     case ID_CopyManufacturer:
-      column = 1;
+      column = MANUFACTURER;
       break;
 
     case ID_CopyModel:
-      column = 2;
+      column = MODEL;
       break;
 
     case ID_CopySerial:
-      column = 3;
+      column = SERIAL;
       break;
 
     case ID_CopyIP:
-      column = 4;
+      column = IP;
       break;
 
     case ID_CopyMac:
-      column = 5;
+      column = MAC;
       break;
 
     default:
@@ -618,11 +622,11 @@ void DiscoverFrame::openReconnectDialog(const int row)
 
 void DiscoverFrame::openWebGUI(int row)
 {
-  const auto manufacturer = device_list_->GetTextValue(row, 1);
+  const auto manufacturer = device_list_->GetTextValue(row, MANUFACTURER);
   if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
   {
     const auto ip_wxstring = device_list_->GetTextValue(
-        static_cast<unsigned int>(row), 4);
+        static_cast<unsigned int>(row), IP);
     wxLaunchDefaultBrowser("http://" + ip_wxstring + "/");
   }
 }

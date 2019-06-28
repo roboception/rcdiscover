@@ -55,6 +55,7 @@ static void printHelp(std::ostream &os, const std::string &command)
   os << "-f name=<name>     Filter by name\n";
   os << "-f serial=<serial> Filter by serial number\n";
   os << "-f mac=<mac>       Filter by MAC address\n";
+  os << "-f iface=<mac>     Filter by interface name\n";
   os << "--iponly           Show only the IP addresses of discovered sensors\n";
   os << "--serialonly       Show only the serial number of discovered sensors\n";
 }
@@ -63,25 +64,25 @@ int runDiscover(const std::string &command, int argc, char **argv)
 {
   // interpret command line parameters
 
-  bool printheader=true;
-  bool iponly=false;
-  bool serialonly=false;
+  bool printheader = true;
+  bool iponly = false;
+  bool serialonly = false;
   DeviceFilter device_filter;
 
-  int i=0;
+  int i = 0;
   while (i < argc)
   {
-    std::string p=argv[i++];
+    std::string p = argv[i++];
 
     if (p == "-iponly" || p == "--iponly")
     {
-      iponly=true;
-      printheader=false;
+      iponly = true;
+      printheader = false;
     }
     else if (p == "-serialonly" || p == "--serialonly")
     {
-      serialonly=true;
-      printheader=false;
+      serialonly = true;
+      printheader = false;
     }
     else if (p == "-f")
     {
@@ -95,7 +96,7 @@ int runDiscover(const std::string &command, int argc, char **argv)
         return 1;
       }
 
-      printheader=false;
+      printheader = false;
     }
     else if (p == "-h" || p == "--help")
     {
@@ -119,10 +120,17 @@ int runDiscover(const std::string &command, int argc, char **argv)
 
   // get all responses, sort them and remove multiple entries
 
-  while (discover.getResponse(infos, 100)) { }
+  while (discover.getResponse(infos, 100))
+  {}
 
   std::sort(infos.begin(), infos.end());
-  const auto it = std::unique(infos.begin(), infos.end());
+  const auto it = std::unique(infos.begin(), infos.end(),
+                              [](const rcdiscover::DeviceInfo &lhs,
+                                 const rcdiscover::DeviceInfo &rhs)
+                              {
+                                return lhs.getMAC() == rhs.getMAC() &&
+                                       lhs.getIfaceName() == rhs.getIfaceName();
+                              });
   infos.erase(it, infos.end());
 
   // go through all valid entries

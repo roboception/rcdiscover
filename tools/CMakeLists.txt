@@ -97,7 +97,7 @@ if(wxWidgets_FOUND)
   target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
 
   if (WIN32)
-    target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib)
+    target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib uxtheme)
     set_target_properties(rcdiscover-gui PROPERTIES LINK_FLAGS -mwindows)
   endif (WIN32)
 

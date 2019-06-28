@@ -39,6 +39,7 @@
 
 #include "discover-thread.h"
 
+#include "discover-frame.h"
 #include "event-ids.h"
 #include "rcdiscover/utils.h"
 
@@ -59,10 +60,18 @@ wxThread::ExitCode DiscoverThread::Entry()
 
     std::vector<rcdiscover::DeviceInfo> infos;
 
-    while (discover.getResponse(infos, 100)) { }
+    while (discover.getResponse(infos, 100))
+    {}
 
     std::sort(infos.begin(), infos.end());
-    const auto it = std::unique(infos.begin(), infos.end());
+    const auto it = std::unique(infos.begin(), infos.end(),
+                                [](const rcdiscover::DeviceInfo &lhs,
+                                   const rcdiscover::DeviceInfo &rhs)
+                                {
+                                  return lhs.getMAC() == rhs.getMAC() &&
+                                         lhs.getIfaceName() ==
+                                         rhs.getIfaceName();
+                                });
     infos.erase(it, infos.end());
 
     std::vector<std::future<bool>> reachable;
@@ -78,6 +87,8 @@ wxThread::ExitCode DiscoverThread::Entry()
       }));
     }
 
+    rcdiscover::DeviceInfo *last_info = nullptr;
+
     size_t i = 0;
     for (rcdiscover::DeviceInfo &info : infos)
     {
@@ -86,27 +97,39 @@ wxThread::ExitCode DiscoverThread::Entry()
         continue;
       }
 
+      if (last_info && last_info->getMAC() == info.getMAC())
+      {
+        device_list.back()[DiscoverFrame::IFACE] = wxVariant(
+                device_list.back()[DiscoverFrame::IFACE].GetString() + ',' +
+                info.getIfaceName());
+        continue;
+      }
+
+      last_info = &info;
+
       const std::string &name = info.getUserName().empty()
                                 ? info.getModelName()
                                 : info.getUserName();
 
-      const std::string manufacturer = info.getManufacturerName();
+      const std::string &manufacturer = info.getManufacturerName();
 
-      wxVector<wxVariant> data;
-      data.push_back(wxVariant(name));
-      data.push_back(wxVariant(manufacturer));
-      data.push_back(wxVariant(info.getModelName()));
-      data.push_back(wxVariant(info.getSerialNumber()));
-      data.push_back(wxVariant(ip2string(info.getIP())));
-      data.push_back(wxVariant(mac2string(info.getMAC())));
-      data.push_back(wxVariant(reachable[i].get() ? L"\u2713" : L"\u2717"));
+      wxVector<wxVariant> data(DiscoverFrame::NUM_COLUMNS);
+      data[DiscoverFrame::NAME] = wxVariant(name);
+      data[DiscoverFrame::MANUFACTURER] = wxVariant(manufacturer);
+      data[DiscoverFrame::MODEL] = wxVariant(info.getModelName());
+      data[DiscoverFrame::SERIAL] = wxVariant(info.getSerialNumber());
+      data[DiscoverFrame::IP] = wxVariant(ip2string(info.getIP()));
+      data[DiscoverFrame::MAC] = wxVariant(mac2string(info.getMAC()));
+      data[DiscoverFrame::IFACE] = wxVariant(info.getIfaceName());
+      data[DiscoverFrame::REACHABLE] = wxVariant(
+              reachable[i].get() ? L"\u2713" : L"\u2717");
 
       device_list.push_back(std::move(data));
 
       ++i;
     }
   }
-  catch(const std::exception& ex)
+  catch (const std::exception &ex)
   {
     wxThreadEvent event(wxEVT_COMMAND_DISCOVERY_ERROR);
     event.SetString(ex.what());

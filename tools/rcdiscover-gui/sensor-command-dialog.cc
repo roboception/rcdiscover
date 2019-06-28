@@ -14,6 +14,7 @@
 #include "resources.h"
 
 #include "rcdiscover/utils.h"
+#include "discover-frame.h"
 
 #include <sstream>
 
@@ -96,8 +97,8 @@ void SensorCommandDialog::setDiscoveredSensors(
     {
       wxVariant hostname{};
       wxVariant mac{};
-      sensor_list->GetValueByRow(hostname, i, 0);
-      sensor_list->GetValueByRow(mac, i, 5);
+      sensor_list->GetValueByRow(hostname, i, DiscoverFrame::NAME);
+      sensor_list->GetValueByRow(mac, i, DiscoverFrame::MAC);
       const auto s = wxString::Format("%s - %s",
                                       hostname.GetString(),
                                       mac.GetString());
@@ -222,7 +223,7 @@ void SensorCommandDialog::fillMac()
   wxVariant mac_string{};
   sensor_list_->GetValueByRow(mac_string,
                               row_map_inv_.at(static_cast<unsigned int>(row)),
-                              5);
+                              DiscoverFrame::MAC);
 
   const auto mac = split<6>(mac_string.GetString().ToStdString(), ':');
 

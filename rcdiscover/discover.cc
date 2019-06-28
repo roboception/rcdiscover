@@ -122,7 +122,7 @@ bool Discover::getResponse(std::vector<DeviceInfo> &info,
   {
     futures.push_back(std::async(std::launch::async, [&socket, &tv, &req_nums]
     {
-      DeviceInfo device_info;
+      DeviceInfo device_info(socket.getIfaceName());
       device_info.clear();
 
       int count = 10;

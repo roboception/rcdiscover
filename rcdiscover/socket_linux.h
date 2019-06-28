@@ -63,9 +63,10 @@ class SocketLinux : public Socket<SocketLinux>
      * @brief Create a new socket.
      * @param dst_ip destination IP address
      * @param port destination port
+     * @param iface_name name of the interface
      * @return the created socket
      */
-    static SocketLinux create(in_addr_t dst_ip, uint16_t port);
+    static SocketLinux create(in_addr_t dst_ip, uint16_t port, std::string iface_name);
 
     /**
      * @brief Creates sockets for all interfaces and binds them to the
@@ -82,9 +83,11 @@ class SocketLinux : public Socket<SocketLinux>
      * @param protocol protocol of socket()
      * @param dst_ip destination IP address
      * @param port destination port
+     * @param iface_name name of the interface
      */
     SocketLinux(int domain, int type, int protocol,
-                in_addr_t dst_ip, uint16_t port);
+                in_addr_t dst_ip, uint16_t port,
+                std::string iface_name);
     SocketLinux(SocketLinux &&other);
     SocketLinux &operator=(SocketLinux &&other);
     ~SocketLinux();
