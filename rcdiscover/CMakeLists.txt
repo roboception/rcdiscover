@@ -32,33 +32,76 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 project(rcdiscover CXX)
+include(GNUInstallDirs)
+
+if (UNIX)
+  find_package( Threads REQUIRED)
+endif ()
 
 add_definitions(-DHAVE_PCAP)
 
 set(rcdiscover_src
-  deviceinfo.cc
-  discover.cc
-  force_ip.cc
-  operation_not_permitted.cc
-  wol_exception.cc
-  socket_exception.cc
-  ping.cc
-  wol.cc
-  gige_request_counter.cc
-)
+        deviceinfo.cc
+        discover.cc
+        force_ip.cc
+        operation_not_permitted.cc
+        wol_exception.cc
+        socket_exception.cc
+        ping.cc
+        wol.cc
+        gige_request_counter.cc
+        )
+set(rcdiscover_hh
+        deviceinfo.h
+        discover.h
+        force_ip.h
+        operation_not_permitted.h
+        wol_exception.h
+        socket_exception.h
+        socket.h
+        ping.h
+        wol.h
+        gige_request_counter.h
+        utils.h)
 
 if (WIN32)
   set(rcdiscover_src ${rcdiscover_src} socket_windows.cc)
+  set(rcdiscover_hh ${rcdiscover_hh} socket_windows.h)
 else (WIN32)
   set(rcdiscover_src ${rcdiscover_src} socket_linux.cc)
+  set(rcdiscover_hh ${rcdiscover_hh} socket_linux.h)
 endif (WIN32)
 
-add_library(rcdiscover_static STATIC ${rcdiscover_src})
-target_include_directories(rcdiscover_static
-  PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-)
-target_link_libraries(rcdiscover_static
-  PRIVATE
-    ${CMAKE_THREAD_LIBS_INIT})
+# Static library
+add_library(rc_discover_static STATIC ${rcdiscover_src})
+add_library(${PROJECT_NAMESPACE}::rcdiscover_static ALIAS rc_discover_static)
+
+target_include_directories(rc_discover_static
+        PUBLIC
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+
+# Install shared library
+add_library(rc_discover SHARED ${rcdiscover_src})
+add_library(${PROJECT_NAMESPACE}::rc_discover_shared ALIAS rc_discover)
+target_include_directories(rc_discover
+    PUBLIC
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+
+set_target_properties(rc_discover PROPERTIES SOVERSION ${abiversion})
+target_compile_options(rc_discover PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
+if (UNIX)
+  target_link_libraries (rc_discover ${CMAKE_THREAD_LIBS_INIT})
+endif(UNIX)
+
+
+install(TARGETS rc_discover
+        EXPORT PROJECTTargets
+        COMPONENT bin
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(FILES ${rcdiscover_hh} COMPONENT dev DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rc_discover)

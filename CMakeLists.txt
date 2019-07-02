@@ -83,6 +83,7 @@ endif ()
 # - Build individual parts -
 
 add_subdirectory(rcdiscover)
+set(PROJECT_LIBRARIES rc_discover)
 
 # by default install commandline and gui tools
 option(INSTALL_RCDISCOVER_CLI "install rcdiscover commandline tool" ON)
@@ -122,6 +123,9 @@ add_subdirectory(tools)
 add_subdirectory(doc)
 
 # - Define information for packaging -
+
+install(FILES package.xml COMPONENT dev DESTINATION share/${PROJECT_NAME_LOWER})
+
 
 if (RCDISCOVER_GUI_ONLY_DEB)
   set(CPACK_PACKAGE_NAME "rcdiscover-gui")

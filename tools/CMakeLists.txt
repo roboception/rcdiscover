@@ -45,7 +45,7 @@ add_executable(rcdiscover
   rcdiscover-cli/rcdiscover_force_ip.cc
   rcdiscover-cli/rcdiscover_reset.cc
   rcdiscover-cli/cli_utils.cc)
-target_link_libraries(rcdiscover rcdiscover_static)
+target_link_libraries(rcdiscover rc_discover_static)
 
 if (WIN32)
   target_link_libraries(rcdiscover iphlpapi.lib ws2_32.lib)
@@ -94,7 +94,7 @@ if(wxWidgets_FOUND)
     PRIVATE
       ${wxWidgets_INCLUDE_DIRS}
   )
-  target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
+  target_link_libraries(rcdiscover-gui rc_discover_static ${wxWidgets_LIBRARIES})
 
   if (WIN32)
     target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib uxtheme)
