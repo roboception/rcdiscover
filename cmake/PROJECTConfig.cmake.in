@@ -6,26 +6,15 @@
 # @PROJECT_NAME_UPPER@_LIBRARIES        - all dynamic libraries
 # @PROJECT_NAME_UPPER@_STATIC_LIBRARIES - all static libraries
 
-get_filename_component(PROJECT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+@PACKAGE_INIT@
 
-set(@PROJECT_NAME_UPPER@_INCLUDE_DIRS "${PROJECT_CMAKE_DIR}/../../include")
+set_and_check(@PROJECT_NAME_UPPER@_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME_UPPER@Targets.cmake")
 
 set(@PROJECT_NAME_UPPER@_STATIC_LIBRARIES @PROJECT_STATIC_LIBRARIES@)
 set(@PROJECT_NAME_UPPER@_LIBRARIES @PROJECT_LIBRARIES@)
 
-# include the targets if this file exists
-include("${PROJECT_CMAKE_DIR}/@PROJECT_NAME_UPPER@Targets.cmake" OPTIONAL)
-
-# If this library's header files include header files of your dependencies
-# (e.g. Eigen) then you need to include them here as well (the same way you
-# included them in your main CMakeLists.txt) and add them to this library's
-# include dirs:
-#
-# find_package(Eigen3 REQUIRED)
-# list(APPEND @PROJECT_NAME_UPPER@_INCLUDE_DIRS	${EIGEN3_INCLUDE_DIR})
-#
-# find_package(rcXXX REQUIRED)
-# list(APPEND @PROJECT_NAME_UPPER@_INCLUDE_DIRS	${RCXXX_INCLUDE_DIRS})
-
-
+# Find public dependencies of package
+# find_package(... REQUIRED)
 

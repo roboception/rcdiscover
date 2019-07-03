@@ -34,7 +34,16 @@
 cmake_minimum_required (VERSION 2.8.12)
 
 project(rcdiscover)
+
+include(cmake/install_dirs.cmake)
+include(cmake/project_name.cmake)
 include(cmake/project_version.cmake)
+
+# For CMake Version >= 3.0: issue FATAL_ERROR if link dependency contains
+# double-colons but is not an imported target.
+if (POLICY CMP0028)
+  cmake_policy(SET CMP0028 NEW)
+endif ()
 
 enable_testing()
 
@@ -104,7 +113,7 @@ add_subdirectory(doc)
 # - Define information for packaging -
 if (INSTALL_RCDISCOVER_SHARED_LIB)
   set(PROJECT_LIBRARIES rcdiscover)
-  install(FILES package.xml COMPONENT dev DESTINATION share/${PROJECT_NAME_LOWER})
+  install(FILES package.xml COMPONENT dev DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME_LOWER})
 endif()
 
 include(cmake/configure_link_libs.cmake)
@@ -122,7 +131,7 @@ endif ()
   # don't install rpfilter sysctl for gui package (would conflict with cli package)
 if (UNIX AND NOT RCDISCOVER_GUI_ONLY_DEB)
   # install example sysctl config to disable reverse path filtering
-  install(FILES debian/50-rcdiscover-rpfilter.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/share/rcdiscover)
+  install(FILES debian/50-rcdiscover-rpfilter.conf DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/rcdiscover)
   # ask if this config should be applied when installing this as debian package
   set(CONFIG_FILE "${PROJECT_BINARY_DIR}/config")
   set(POSTINST_FILE "${PROJECT_BINARY_DIR}/postinst")

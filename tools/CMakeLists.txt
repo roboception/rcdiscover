@@ -46,7 +46,7 @@ if (INSTALL_RCDISCOVER_CLI)
     rcdiscover-cli/rcdiscover_force_ip.cc
     rcdiscover-cli/rcdiscover_reset.cc
     rcdiscover-cli/cli_utils.cc)
-  target_link_libraries(rcdiscover-cli rcdiscover_static)
+  target_link_libraries(rcdiscover-cli ${PROJECT_NAMESPACE}::rcdiscover_static)
 
   if (WIN32)
     target_link_libraries(rcdiscover-cli iphlpapi.lib ws2_32.lib)
@@ -66,7 +66,7 @@ if(INSTALL_RCDISCOVER_GUI)
   set(wxWidgets_USE_UNICODE ON)
   find_package(wxWidgets REQUIRED COMPONENTS html adv core base)
   include(${wxWidgets_USE_FILE})
-
+  
   set(rcdiscover-gui-src
     rcdiscover-gui.cc
     rcdiscover-gui/event-ids.cc
@@ -98,7 +98,7 @@ if(INSTALL_RCDISCOVER_GUI)
     PRIVATE
       ${wxWidgets_INCLUDE_DIRS}
   )
-  target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
+  target_link_libraries(rcdiscover-gui ${PROJECT_NAMESPACE}::rcdiscover_static ${wxWidgets_LIBRARIES})
 
   if (WIN32)
     target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib uxtheme)
