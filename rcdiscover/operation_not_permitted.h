@@ -33,8 +33,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef OPERATION_NOT_PERMITTED_H
-#define OPERATION_NOT_PERMITTED_H
+#ifndef RCDISCOVER_OPERATION_NOT_PERMITTED_H
+#define RCDISCOVER_OPERATION_NOT_PERMITTED_H
 
 #include <stdexcept>
 
@@ -52,4 +52,4 @@ class OperationNotPermitted : public std::runtime_error
 
 }
 
-#endif // OPERATION_NOT_PERMITTED_H
+#endif // RCDISCOVER_OPERATION_NOT_PERMITTED_H

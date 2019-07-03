@@ -32,6 +32,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef RCDISCOVER_GIGE_PING_H
+#define RCDISCOVER_GIGE_PING_H
+
+
 
 #include "deviceinfo.h"
 
@@ -46,3 +50,5 @@ namespace rcdiscover
 bool checkReachabilityOfSensor(const DeviceInfo &info);
 
 }
+
+#endif // RCDISCOVER_GIGE_PING_H

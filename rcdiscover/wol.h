@@ -33,8 +33,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WOL_H
-#define WOL_H
+#ifndef RCDISCOVER_WOL_H
+#define RCDISCOVER_WOL_H
 
 #include <array>
 #include <vector>
@@ -127,4 +127,4 @@ class WOL
 
 }
 
-#endif // WOL_H
+#endif // RCDISCOVER_WOL_H

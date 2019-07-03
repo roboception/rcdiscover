@@ -8,8 +8,8 @@
 *
 * Author: Raphael Schaller
 */
-#ifndef GIGE_REQUEST_COUNTER_H
-#define GIGE_REQUEST_COUNTER_H
+#ifndef RCDISCOVER_GIGE_REQUEST_COUNTER_H
+#define RCDISCOVER_GIGE_REQUEST_COUNTER_H
 
 #include <cstdint>
 #include <tuple>
@@ -32,4 +32,4 @@ class GigERequestCounter
 
 }
 
-#endif // GIGE_REQUEST_COUNTER_H
+#endif // RCDISCOVER_GIGE_REQUEST_COUNTER_H

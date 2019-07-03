@@ -33,8 +33,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef WOL_EXCEPTION_H
-#define WOL_EXCEPTION_H
+#ifndef RCDISCOVER_WOL_EXCEPTION_H
+#define RCDISCOVER_WOL_EXCEPTION_H
 
 #include <stdexcept>
 
@@ -59,4 +59,4 @@ class WOLException : public std::runtime_error
 
 }
 
-#endif // WOL_EXCEPTION_H
+#endif // RCDISCOVER_WOL_EXCEPTION_H
