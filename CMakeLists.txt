@@ -1,6 +1,6 @@
 # rcdiscover - the network discovery tool for rc_visard
 #
-# Copyright (c) 2017 Roboception GmbH
+# Copyright (c) 2019 Roboception GmbH
 # All rights reserved
 #
 # Author: Heiko Hirschmueller
@@ -38,16 +38,6 @@ include(cmake/project_version.cmake)
 
 enable_testing()
 
-# - Find manditory packages -
-
-find_package(Threads REQUIRED)
-
-set(wxWidgets_USE_STATIC ON)
-set(wxWidgets_USE_UNICODE ON)
-find_package(wxWidgets COMPONENTS html adv core base)
-if(wxWidgets_FOUND)
-    include(${wxWidgets_USE_FILE})
-endif(wxWidgets_FOUND)
 
 # - Configuration for code optimization -
 
@@ -80,60 +70,47 @@ if (WIN32)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static")
 endif ()
 
-# - Build individual parts -
-
-add_subdirectory(rcdiscover)
-set(PROJECT_LIBRARIES rc_discover)
-
 # by default install commandline and gui tools
 option(INSTALL_RCDISCOVER_CLI "install rcdiscover commandline tool" ON)
-option(INSTALL_RCDISCOVER_GUI "install rcdiscover-gui GUI tool" ON)
+option(INSTALL_RCDISCOVER_SHARED_LIB "install rcdiscover shared library" ON)
+option(INSTALL_RCDISCOVER_GUI "install rcdiscover-gui GUI tool" OFF)
 
 if (UNIX)
   # workaround to build two debian packages: rcdiscover and rcdiscover-gui:
   # - building package without extra cmake options builds one debian package with everything
   # - building package with -DRCDISCOVER_CLI_ONLY_DEB=ON builds rcdiscover-cli package only with cmdline tool
   # - building package with -DRCDISCOVER_GUI_ONLY_DEB=ON will build the rcdiscover-gui deb which recommends rcdiscover-cli
-  option(RCDISCOVER_CLI_ONLY_DEB "build debian package 'rcdiscover' with only cmdline tool" OFF)
   option(RCDISCOVER_GUI_ONLY_DEB "build debian package 'rcdiscover-gui' with only gui tool" OFF)
-
-  if (RCDISCOVER_CLI_ONLY_DEB AND RCDISCOVER_GUI_ONLY_DEB)
-    message(FATAL_ERROR "Can't enable RCDISCOVER_CLI_ONLY_DEB and RCDISCOVER_GUI_ONLY_DEB at the same time!")
-  endif ()
-
-  if (RCDISCOVER_CLI_ONLY_DEB)
-    # build the rcdiscover debian package
-    # force installing of only the cmdline tool
-    set(INSTALL_RCDISCOVER_CLI ON CACHE BOOL "Override option" FORCE)
-    set(INSTALL_RCDISCOVER_GUI OFF CACHE BOOL "Override option" FORCE)
-  endif()
 
   if (RCDISCOVER_GUI_ONLY_DEB)
     # build rcdiscover-gui debian package
     # force installing of only gui tool
     set(INSTALL_RCDISCOVER_CLI OFF CACHE BOOL "Override option" FORCE)
+    set(INSTALL_RCDISCOVER_SHARED_LIB OFF CACHE BOOL "Override option" FORCE)
     set(INSTALL_RCDISCOVER_GUI ON CACHE BOOL "Override option" FORCE)
   endif ()
 endif ()
 
+# - Build individual parts -
+add_subdirectory(rcdiscover)
 add_subdirectory(tools)
 
 # add a target to generate API documentation with Doxygen
-
 add_subdirectory(doc)
 
 # - Define information for packaging -
+if (INSTALL_RCDISCOVER_SHARED_LIB)
+  set(PROJECT_LIBRARIES rcdiscover)
+  install(FILES package.xml COMPONENT dev DESTINATION share/${PROJECT_NAME_LOWER})
+endif()
 
-install(FILES package.xml COMPONENT dev DESTINATION share/${PROJECT_NAME_LOWER})
-
+include(cmake/configure_link_libs.cmake)
 
 if (RCDISCOVER_GUI_ONLY_DEB)
   set(CPACK_PACKAGE_NAME "rcdiscover-gui")
   set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "rcdiscover-cli")
   set(CPACK_DEBIAN_PACKAGE_CONFLICTS "rcdiscover")
-endif ()
-
-if (RCDISCOVER_CLI_ONLY_DEB)
+else()
   set(CPACK_PACKAGE_NAME "rcdiscover-cli")
   set(CPACK_DEBIAN_PACKAGE_CONFLICTS "rcdiscover")
 endif ()

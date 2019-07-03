@@ -1,6 +1,6 @@
 # rcdiscover - the network discovery tool for rc_visard
 #
-# Copyright (c) 2017 Roboception GmbH
+# Copyright (c) 2019 Roboception GmbH
 # All rights reserved
 #
 # Author: Heiko Hirschmueller
@@ -73,35 +73,39 @@ else (WIN32)
 endif (WIN32)
 
 # Static library
-add_library(rc_discover_static STATIC ${rcdiscover_src})
-add_library(${PROJECT_NAMESPACE}::rcdiscover_static ALIAS rc_discover_static)
-
-target_include_directories(rc_discover_static
+add_library(rcdiscover_static STATIC ${rcdiscover_src})
+add_library(${PROJECT_NAMESPACE}::rcdiscover_static ALIAS rcdiscover_static)
+if (UNIX)
+    target_link_libraries (rcdiscover_static PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+endif(UNIX)
+target_include_directories(rcdiscover_static
         PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 
 # Install shared library
-add_library(rc_discover SHARED ${rcdiscover_src})
-add_library(${PROJECT_NAMESPACE}::rc_discover_shared ALIAS rc_discover)
-target_include_directories(rc_discover
-    PUBLIC
-      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
+if (INSTALL_RCDISCOVER_SHARED_LIB)
+  message("Installing shared library: rcdiscover")
+  add_library(rcdiscover SHARED ${rcdiscover_src})
+  add_library(${PROJECT_NAMESPACE}::rcdiscover  ALIAS rcdiscover )
+  target_include_directories(rcdiscover
+          PUBLIC
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 
-set_target_properties(rc_discover PROPERTIES SOVERSION ${abiversion})
-target_compile_options(rc_discover PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
-if (UNIX)
-  target_link_libraries (rc_discover ${CMAKE_THREAD_LIBS_INIT})
-endif(UNIX)
+  set_target_properties(rcdiscover PROPERTIES SOVERSION ${abiversion})
+  target_compile_options(rcdiscover PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
+  if (UNIX)
+    target_link_libraries (rcdiscover ${CMAKE_THREAD_LIBS_INIT})
+  endif(UNIX)
 
-
-install(TARGETS rc_discover
-        EXPORT PROJECTTargets
-        COMPONENT bin
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES ${rcdiscover_hh} COMPONENT dev DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rc_discover)
+  install(TARGETS rcdiscover
+          EXPORT PROJECTTargets
+          COMPONENT bin
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(FILES ${rcdiscover_hh} COMPONENT dev DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rcdiscover)
+endif()

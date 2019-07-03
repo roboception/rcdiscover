@@ -55,15 +55,15 @@ variables:
   script:
     - mkdir build && cd build
     - if [ -n "$ROS_DISTRO" ]; then
-        cmake -DRCDISCOVER_CLI_ONLY_DEB=ON -DRCDISCOVER_GUI_ONLY_DEB=OFF -DCMAKE_INSTALL_PREFIX="/opt/ros/$ROS_DISTRO" -DCMAKE_PREFIX_PATH="/opt/ros/$ROS_DISTRO" -DCMAKE_BUILD_TYPE=Release .. ;
-        make -j4 package
-        cmake -DRCDISCOVER_CLI_ONLY_DEB=OFF -DRCDISCOVER_GUI_ONLY_DEB=ON -DCMAKE_INSTALL_PREFIX="/opt/ros/$ROS_DISTRO" -DCMAKE_PREFIX_PATH="/opt/ros/$ROS_DISTRO" -DCMAKE_BUILD_TYPE=Release ..
-        make -j4 package
+        cmake -DRCDISCOVER_GUI_ONLY_DEB=OFF -DCMAKE_INSTALL_PREFIX="/opt/ros/$ROS_DISTRO" -DCMAKE_PREFIX_PATH="/opt/ros/$ROS_DISTRO" -DCMAKE_BUILD_TYPE=Release .. ;
+        make -j4 package ;
+        cmake -DRCDISCOVER_GUI_ONLY_DEB=ON -DCMAKE_INSTALL_PREFIX="/opt/ros/$ROS_DISTRO" -DCMAKE_PREFIX_PATH="/opt/ros/$ROS_DISTRO" -DCMAKE_BUILD_TYPE=Release .. ;
+        make -j4 package ;
       else
-        cmake -DRCDISCOVER_CLI_ONLY_DEB=ON -DRCDISCOVER_GUI_ONLY_DEB=OFF -DCMAKE_INSTALL_PREFIX="/usr" .. ;
-        make -j4 package
-        cmake -DRCDISCOVER_CLI_ONLY_DEB=OFF -DRCDISCOVER_GUI_ONLY_DEB=ON -DCMAKE_INSTALL_PREFIX="/usr" ..
-        make -j4 package
+        cmake -DRCDISCOVER_GUI_ONLY_DEB=OFF -DCMAKE_INSTALL_PREFIX="/usr" .. ;
+        make -j4 package ;
+        cmake -DRCDISCOVER_GUI_ONLY_DEB=ON -DCMAKE_INSTALL_PREFIX="/usr" .. ;
+        make -j4 package ;
       fi
     - if [ -z "$APT_REPO" ]; then export APT_REPO=testing; fi
     - upload_deb.sh $DISTRO_CODENAME-$APT_REPO *.deb
