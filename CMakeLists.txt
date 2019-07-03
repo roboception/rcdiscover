@@ -89,6 +89,9 @@ if (UNIX)
     set(INSTALL_RCDISCOVER_SHARED_LIB OFF CACHE BOOL "Override option" FORCE)
     set(INSTALL_RCDISCOVER_GUI ON CACHE BOOL "Override option" FORCE)
   endif ()
+elseif (WIN32)
+  set(INSTALL_RCDISCOVER_SHARED_LIB OFF CACHE BOOL "Override option" FORCE)
+  set(INSTALL_RCDISCOVER_GUI ON CACHE BOOL "Override option" FORCE)
 endif ()
 
 # - Build individual parts -
