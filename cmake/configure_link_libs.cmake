@@ -33,21 +33,21 @@ endforeach ()
 
 # configure and install the configuration files
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/PROJECTConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}Config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME_LOWER}
-    PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}ConfigVersion.cmake
-    VERSION ${RC_PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}Config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}ConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME_LOWER}
-    COMPONENT dev)
+if (PROJECT_LIBRARIES)
+  include(CMakePackageConfigHelpers)
+  configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/PROJECTConfig.cmake.in
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}Config.cmake
+      INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME_LOWER}
+      PATH_VARS CMAKE_INSTALL_INCLUDEDIR)
+  write_basic_package_version_file(
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}ConfigVersion.cmake
+      VERSION ${RC_PROJECT_VERSION}
+      COMPATIBILITY SameMajorVersion)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}Config.cmake
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME_UPPER}ConfigVersion.cmake
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME_LOWER}
+      COMPONENT dev)
 
-if (PROJECT_LIBRARIES OR PROJECT_STATIC_LIBRARIES)
   install(EXPORT PROJECTTargets
       NAMESPACE ${PROJECT_NAMESPACE}::
       FILE ${PROJECT_NAME_UPPER}Targets.cmake
