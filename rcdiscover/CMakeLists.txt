@@ -32,7 +32,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 project(rcdiscover CXX)
-include(GNUInstallDirs)
 
 if (UNIX)
   find_package( Threads REQUIRED)
