@@ -24,12 +24,20 @@ sudo apt-get install cmake libwxgtk3.0-dev
 ### Building rcdiscover
 
 It's required to do an out-of-source build:
+
 ```
 mkdir build
 cd build
 cmake ..
 make
 ```
+
+To build the gui as well, pass the CMAKE option `INSTALL_RCDISCOVER_GUI`
+
+```
+cmake -DINSTALL_RCDISCOVER_GUI=ON ..
+```
+
 Afterwards, the binaries can be found in `build/tools/`.
 
 ### Installation

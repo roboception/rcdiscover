@@ -86,9 +86,8 @@ option(INSTALL_RCDISCOVER_GUI "install rcdiscover-gui GUI tool" OFF)
 
 if (UNIX)
   # workaround to build two debian packages: rcdiscover and rcdiscover-gui:
-  # - building package without extra cmake options builds one debian package with everything
-  # - building package with -DRCDISCOVER_CLI_ONLY_DEB=ON builds rcdiscover-cli package only with cmdline tool
-  # - building package with -DRCDISCOVER_GUI_ONLY_DEB=ON will build the rcdiscover-gui deb which recommends rcdiscover-cli
+  # - building package without extra cmake options builds one debian package with shared lib and cmdline tools
+  # - building package with -DRCDISCOVER_GUI_ONLY_DEB=ON will build the rcdiscover-gui deb which recommends rcdiscover
   option(RCDISCOVER_GUI_ONLY_DEB "build debian package 'rcdiscover-gui' with only gui tool" OFF)
 
   if (RCDISCOVER_GUI_ONLY_DEB)
@@ -120,11 +119,9 @@ include(cmake/configure_link_libs.cmake)
 
 if (RCDISCOVER_GUI_ONLY_DEB)
   set(CPACK_PACKAGE_NAME "rcdiscover-gui")
-  set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "rcdiscover-cli")
-  set(CPACK_DEBIAN_PACKAGE_CONFLICTS "rcdiscover")
+  set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "rcdiscover")
 else()
-  set(CPACK_PACKAGE_NAME "rcdiscover-cli")
-  set(CPACK_DEBIAN_PACKAGE_CONFLICTS "rcdiscover")
+  set(CPACK_PACKAGE_NAME "rcdiscover")
 endif ()
 
 
