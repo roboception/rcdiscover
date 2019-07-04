@@ -106,9 +106,6 @@ endif ()
 add_subdirectory(rcdiscover)
 add_subdirectory(tools)
 
-# add a target to generate API documentation with Doxygen
-add_subdirectory(doc)
-
 # - Define information for packaging -
 if (INSTALL_RCDISCOVER_SHARED_LIB)
   set(PROJECT_LIBRARIES rcdiscover)
