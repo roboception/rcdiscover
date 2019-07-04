@@ -1,6 +1,6 @@
 # rcdiscover - the network discovery tool for rc_visard
 #
-# Copyright (c) 2017 Roboception GmbH
+# Copyright (c) 2019 Roboception GmbH
 # All rights reserved
 #
 # Author: Heiko Hirschmueller
@@ -38,31 +38,35 @@ project(tools CXX)
 #
 # rcdiscover commandline program
 #
-add_executable(rcdiscover
-  rcdiscover.cc
-  rcdiscover-cli/rcdiscover_discover.cc
-  rcdiscover-cli/rcdiscover_reconnect.cc
-  rcdiscover-cli/rcdiscover_force_ip.cc
-  rcdiscover-cli/rcdiscover_reset.cc
-  rcdiscover-cli/cli_utils.cc)
-target_link_libraries(rcdiscover rcdiscover_static)
-
-if (WIN32)
-  target_link_libraries(rcdiscover iphlpapi.lib ws2_32.lib)
-  set_target_properties(rcdiscover PROPERTIES LINK_FLAGS -mconsole)
-endif (WIN32)
-
 if (INSTALL_RCDISCOVER_CLI)
-  install(TARGETS rcdiscover COMPONENT bin DESTINATION bin)
+  add_executable(rcdiscover-cli
+    rcdiscover.cc
+    rcdiscover-cli/rcdiscover_discover.cc
+    rcdiscover-cli/rcdiscover_reconnect.cc
+    rcdiscover-cli/rcdiscover_force_ip.cc
+    rcdiscover-cli/rcdiscover_reset.cc
+    rcdiscover-cli/cli_utils.cc)
+  target_link_libraries(rcdiscover-cli ${PROJECT_NAMESPACE}::rcdiscover_static)
+
+  if (WIN32)
+    target_link_libraries(rcdiscover-cli iphlpapi.lib ws2_32.lib)
+    set_target_properties(rcdiscover-cli PROPERTIES LINK_FLAGS -mconsole)
+  endif(WIN32)
+  set_target_properties(rcdiscover-cli PROPERTIES OUTPUT_NAME "rcdiscover")
+  install(TARGETS rcdiscover-cli COMPONENT bin DESTINATION bin)
 endif ()
 
 
 #
 # rcdiscover-gui program
 #
-if(wxWidgets_FOUND)
-  message(STATUS ${wxWidgets_INCLUDE_DIRS})
-
+if(INSTALL_RCDISCOVER_GUI)
+  # - Find manditory packages -
+  set(wxWidgets_USE_STATIC ON)
+  set(wxWidgets_USE_UNICODE ON)
+  find_package(wxWidgets REQUIRED COMPONENTS html adv core base)
+  include(${wxWidgets_USE_FILE})
+  
   set(rcdiscover-gui-src
     rcdiscover-gui.cc
     rcdiscover-gui/event-ids.cc
@@ -94,28 +98,23 @@ if(wxWidgets_FOUND)
     PRIVATE
       ${wxWidgets_INCLUDE_DIRS}
   )
-  target_link_libraries(rcdiscover-gui rcdiscover_static ${wxWidgets_LIBRARIES})
+  target_link_libraries(rcdiscover-gui ${PROJECT_NAMESPACE}::rcdiscover_static ${wxWidgets_LIBRARIES})
 
   if (WIN32)
     target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib uxtheme)
     set_target_properties(rcdiscover-gui PROPERTIES LINK_FLAGS -mwindows)
   endif (WIN32)
 
-  if (INSTALL_RCDISCOVER_GUI)
-    install(TARGETS rcdiscover-gui COMPONENT bin DESTINATION bin)
+  install(TARGETS rcdiscover-gui COMPONENT bin DESTINATION bin)
 
-    if (UNIX AND NOT APPLE)
-      if (NOT CMAKE_INSTALL_DATADIR)
-        set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX}/share)
-      endif ()
-      install(FILES rcdiscover-gui/resources/rcdiscover-gui.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-      install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME rcdiscover-gui.png)
-      install(FILES rcdiscover-gui/resources/logo_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME rcdiscover-gui.png)
-      install(FILES rcdiscover-gui/resources/logo_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME rcdiscover-gui.png)
-      install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps RENAME rcdiscover-gui.png)
+  if (UNIX AND NOT APPLE)
+    if (NOT CMAKE_INSTALL_DATADIR)
+      set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX}/share)
     endif ()
+    install(FILES rcdiscover-gui/resources/rcdiscover-gui.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps RENAME rcdiscover-gui.png)
   endif ()
-
-else(wxWidgets_FOUND)
-  MESSAGE(WARNING "wxWidgets not found! Not building GUI application")
-endif(wxWidgets_FOUND)
+endif(INSTALL_RCDISCOVER_GUI)

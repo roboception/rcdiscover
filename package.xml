@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>rcdiscover</name>
+    <version>0.9.2</version>
+    <description>
+        This package contains tools for the discovery of rc_visard sensors via GigE Vision.
+    </description>
+
+    <maintainer email="felix.ruess@roboception.de">Felix Ruess</maintainer>
+
+    <author email="heiko.hirschmueller@roboception.de">Heiko Hirschmueller</author>
+    <author email="raphael.schaller@roboception.de">Raphael Schaller</author>
+
+    <license>BSD</license>
+
+    <url type="repository">https://github.com/roboception/rcdiscover</url>
+    <url type="bugtracker">https://github.com/roboception/rcdiscover/issues</url>
+
+    <buildtool_depend>cmake</buildtool_depend>
+    <build_export_depend>catkin</build_export_depend>
+
+    <doc_depend>doxygen</doc_depend>
+    <export>
+        <build_type>cmake</build_type>
+    </export>
+</package>

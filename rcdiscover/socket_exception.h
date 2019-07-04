@@ -33,6 +33,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef RCDISCOVER_SOCKETEXCEPTION_H
+#define RCDISCOVER_SOCKETEXCEPTION_H
+
 #include <stdexcept>
 
 namespace rcdiscover
@@ -86,3 +89,5 @@ class NetworkUnreachableException : public SocketException
 };
 
 }
+
+#endif // RCDISCOVER_SOCKETEXCEPTION_H

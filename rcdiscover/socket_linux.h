@@ -33,8 +33,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SOCKET_LINUX_H
-#define SOCKET_LINUX_H
+#ifndef RCDISCOVER_SOCKET_LINUX_H
+#define RCDISCOVER_SOCKET_LINUX_H
 
 #include "socket.h"
 
@@ -150,4 +150,4 @@ class SocketLinux : public Socket<SocketLinux>
 
 }
 
-#endif // SOCKET_LINUX_H
+#endif // RCDISCOVER_SOCKET_LINUX_H

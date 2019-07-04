@@ -33,8 +33,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef RCDISCOVER_UTILS_H
+#define RCDISCOVER_UTILS_H
 
 #include <iomanip>
 #include <sstream>
@@ -190,4 +190,4 @@ inline bool wildcardMatch(std::string::const_iterator str_first,
   return false;
 }
 
-#endif // UTILS_H
+#endif // RCDISCOVER_UTILS_H
