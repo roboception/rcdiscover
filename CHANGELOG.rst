@@ -2,6 +2,15 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.0 (2019-06-04)
+------------------
+
+* fix wildcard matching
+* allow filtering by interface
+* print interface on which the device was found
+* also build shared lib for use in other packages
+* make it possible to release as ROS third party package
+
 0.9.2 (2019-01-10)
 ------------------
 
