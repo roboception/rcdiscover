@@ -107,7 +107,7 @@ variables:
 ##############
 gen_dox:
   <<: *amd64_bionic_job
-  image: ros:melodic-base
+  image: ros:melodic-ros-core
   variables:
     TESTING_DEBS: "true"
   stage: deploy
