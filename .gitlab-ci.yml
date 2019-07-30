@@ -38,6 +38,12 @@ variables:
     - amd64
     - docker
 
+.armhf_bionic_t: &armhf_bionic_job
+  image: registry.roboception.de/tools/docker_images:armhf-bionic-buildimage
+  tags:
+    - armhf
+    - docker
+
 #############
 # Templates
 #############
@@ -144,6 +150,10 @@ test:bionic:amd64:
   <<: *amd64_bionic_job
   extends: .test
 
+test:bionic:armhf:
+  <<: *armhf_bionic_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
 package_testing:trusty:amd64:
@@ -166,6 +176,10 @@ package_testing:bionic:amd64:
   <<: *amd64_bionic_job
   extends: .package_testing
 
+package_testing:bionic:armhf:
+  <<: *armhf_bionic_job
+  extends: .package_testing
+
 # Deploy stable (only for releases, version tags)
 #################################################
 package_stable:trusty:amd64:
@@ -186,6 +200,10 @@ package_stable:xenial:armhf:
 
 package_stable:bionic:amd64:
   <<: *amd64_bionic_job
+  extends: .package_stable
+
+package_stable:bionic:armhf:
+  <<: *armhf_bionic_job
   extends: .package_stable
 
 # Build and push as docker image
