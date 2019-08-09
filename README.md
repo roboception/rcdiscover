@@ -32,10 +32,10 @@ cmake ..
 make
 ```
 
-To build the gui as well, pass the CMAKE option `INSTALL_RCDISCOVER_GUI`
+To disable building the gui, pass the CMAKE option `BUILD_RCDISCOVER_GUI=OFF`
 
 ```
-cmake -DINSTALL_RCDISCOVER_GUI=ON ..
+cmake -DBUILD_RCDISCOVER_GUI=OFF ..
 ```
 
 Afterwards, the binaries can be found in `build/tools/`.

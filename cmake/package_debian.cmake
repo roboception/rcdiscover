@@ -28,6 +28,17 @@ set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}-0+${STAMP}")
 set(CPACK_GENERATOR "DEB")
 #set(CPACK_DEBIAN_PACKAGE_DEBUG ON)
 
+# default to generating one debian package per COMPONENT on cmake >= 3.6
+if (NOT DEFINED CPACK_DEB_COMPONENT_INSTALL)
+  if (NOT (CMAKE_VERSION VERSION_LESS "3.6"))
+    set(CPACK_DEB_COMPONENT_INSTALL ON)
+  endif ()
+endif ()
+if (CPACK_DEB_COMPONENT_INSTALL)
+  message(STATUS "CPACK_DEB_COMPONENT_INSTALL is on")
+  set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+endif ()
+
 if (NOT CPACK_DEBIAN_PACKAGE_ARCHITECTURE)
 # if architecture is already set (e.g. to "all"), this is not needed
 # add ~distribution-codename (e.g. ~trusty or ~xenial) to end of package version
@@ -90,8 +101,14 @@ if(EXCLUSIVE_CUSTOMER)
   set(CPACK_PACKAGE_NAME "${CPACK_PACKAGE_NAME}-${CUSTOMER_SUFFIX}")
 endif()
 
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-message(STATUS "CPACK_PACKAGE_FILE_NAME: " ${CPACK_PACKAGE_FILE_NAME})
+set(CPACK_DEBIAN_BIN_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
+
+if (CMAKE_VERSION VERSION_LESS "3.6.0")
+  set(CPACK_DEBIAN_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+  message(STATUS "setting CPACK_PACKAGE_FILE_NAME: " ${CPACK_PACKAGE_FILE_NAME})
+else ()
+  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+endif ()
 
 #########################################
 ## things you might need to change ??? ##
