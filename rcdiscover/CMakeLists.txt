@@ -84,8 +84,8 @@ target_include_directories(rcdiscover_static
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 
 # Install shared library
-if (INSTALL_RCDISCOVER_SHARED_LIB)
-  message("Installing shared library: rcdiscover")
+if (BUILD_RCDISCOVER_SHARED_LIB)
+  message(STATUS "Building shared library: rcdiscover")
   add_library(rcdiscover SHARED ${rcdiscover_src})
   add_library(${PROJECT_NAMESPACE}::rcdiscover  ALIAS rcdiscover )
   target_include_directories(rcdiscover

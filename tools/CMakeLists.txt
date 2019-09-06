@@ -38,7 +38,7 @@ project(tools CXX)
 #
 # rcdiscover commandline program
 #
-if (INSTALL_RCDISCOVER_CLI)
+if (BUILD_RCDISCOVER_CLI)
   add_executable(rcdiscover-cli
     rcdiscover.cc
     rcdiscover-cli/rcdiscover_discover.cc
@@ -60,13 +60,13 @@ endif ()
 #
 # rcdiscover-gui program
 #
-if(INSTALL_RCDISCOVER_GUI)
+if(BUILD_RCDISCOVER_GUI)
   # - Find manditory packages -
   set(wxWidgets_USE_STATIC ON)
   set(wxWidgets_USE_UNICODE ON)
   find_package(wxWidgets REQUIRED COMPONENTS html adv core base)
   include(${wxWidgets_USE_FILE})
-  
+
   set(rcdiscover-gui-src
     rcdiscover-gui.cc
     rcdiscover-gui/event-ids.cc
@@ -105,16 +105,30 @@ if(INSTALL_RCDISCOVER_GUI)
     set_target_properties(rcdiscover-gui PROPERTIES LINK_FLAGS -mwindows)
   endif (WIN32)
 
-  install(TARGETS rcdiscover-gui COMPONENT bin DESTINATION bin)
+  install(TARGETS rcdiscover-gui COMPONENT gui DESTINATION bin)
 
   if (UNIX AND NOT APPLE)
     if (NOT CMAKE_INSTALL_DATADIR)
       set(CMAKE_INSTALL_DATADIR ${CMAKE_INSTALL_PREFIX}/share)
     endif ()
-    install(FILES rcdiscover-gui/resources/rcdiscover-gui.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
-    install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps RENAME rcdiscover-gui.png)
-    install(FILES rcdiscover-gui/resources/logo_64.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps RENAME rcdiscover-gui.png)
-    install(FILES rcdiscover-gui/resources/logo_128.png DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps RENAME rcdiscover-gui.png)
-    install(FILES rcdiscover-gui/resources/logo_32.png DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/rcdiscover-gui.desktop
+            COMPONENT gui
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+    install(FILES rcdiscover-gui/resources/logo_32.png
+            COMPONENT gui
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/32x32/apps
+            RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_64.png
+            COMPONENT gui
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps
+            RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_128.png
+            COMPONENT gui
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/128x128/apps
+            RENAME rcdiscover-gui.png)
+    install(FILES rcdiscover-gui/resources/logo_32.png
+            COMPONENT gui
+            DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps
+            RENAME rcdiscover-gui.png)
   endif ()
-endif(INSTALL_RCDISCOVER_GUI)
+endif(BUILD_RCDISCOVER_GUI)
