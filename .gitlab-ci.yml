@@ -65,7 +65,7 @@ variables:
       else
         cmake .. ;
       fi
-      make -j4 package
+    - make -j4 package
     - if [ -z "$APT_REPO" ]; then export APT_REPO=testing; fi
     - upload_deb.sh $DISTRO_CODENAME-$APT_REPO *.deb
 
