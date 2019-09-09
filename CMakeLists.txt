@@ -115,10 +115,8 @@ execute_process(COMMAND chmod 755 "${CONFIG_FILE}")
 execute_process(COMMAND chmod 755 "${POSTINST_FILE}")
 execute_process(COMMAND chmod 755 "${POSTRM_FILE}")
 execute_process(COMMAND chmod 644 "${TEMPLATES_FILE}")
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${POSTINST_FILE};${POSTRM_FILE};${TEMPLATES_FILE};${CONFIG_FILE}")
-
-# optionally specify dependencies of the debian package here (comma separated!)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "debconf")
+set(CPACK_DEBIAN_BIN_PACKAGE_CONTROL_EXTRA "${POSTINST_FILE};${POSTRM_FILE};${TEMPLATES_FILE};${CONFIG_FILE}")
+set(CPACK_DEBIAN_BIN_PACKAGE_DEPENDS "debconf")
 
 # make dev and gui components depend on bin with rpfilter.conf
 set(CPACK_COMPONENT_DEV_DEPENDS "bin")
