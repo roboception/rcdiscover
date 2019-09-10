@@ -102,24 +102,6 @@ include(cmake/configure_link_libs.cmake)
 
 # install example sysctl config to disable reverse path filtering
 install(FILES debian/50-rcdiscover-rpfilter.conf COMPONENT bin DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/rcdiscover)
-# ask if this config should be applied when installing this as debian package
-set(CONFIG_FILE "${PROJECT_BINARY_DIR}/config")
-set(POSTINST_FILE "${PROJECT_BINARY_DIR}/postinst")
-set(POSTRM_FILE "${PROJECT_BINARY_DIR}/postrm")
-set(TEMPLATES_FILE "${PROJECT_BINARY_DIR}/templates")
-configure_file(${PROJECT_SOURCE_DIR}/debian/config.in ${CONFIG_FILE})
-configure_file(${PROJECT_SOURCE_DIR}/debian/postinst.in ${POSTINST_FILE})
-configure_file(${PROJECT_SOURCE_DIR}/debian/postrm.in ${POSTRM_FILE})
-configure_file(${PROJECT_SOURCE_DIR}/debian/templates.in ${TEMPLATES_FILE})
-execute_process(COMMAND chmod 755 "${CONFIG_FILE}")
-execute_process(COMMAND chmod 755 "${POSTINST_FILE}")
-execute_process(COMMAND chmod 755 "${POSTRM_FILE}")
-execute_process(COMMAND chmod 644 "${TEMPLATES_FILE}")
-set(CPACK_DEBIAN_BIN_PACKAGE_CONTROL_EXTRA "${POSTINST_FILE};${POSTRM_FILE};${TEMPLATES_FILE};${CONFIG_FILE}")
-set(CPACK_DEBIAN_BIN_PACKAGE_DEPENDS "debconf")
 
-# make dev and gui components depend on bin with rpfilter.conf
-set(CPACK_COMPONENT_DEV_DEPENDS "bin")
-set(CPACK_COMPONENT_GUI_DEPENDS "bin")
 
 include(cmake/package_debian.cmake)
