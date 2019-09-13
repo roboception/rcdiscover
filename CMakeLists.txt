@@ -81,7 +81,11 @@ endif ()
 
 option(BUILD_RCDISCOVER_CLI "build rcdiscover commandline tool" ON)
 option(BUILD_RCDISCOVER_SHARED_LIB "build rcdiscover shared library" ON)
-option(BUILD_RCDISCOVER_GUI "build rcdiscover-gui GUI tool" ON)
+if ($ENV{ROS_DISTRO})
+  option(BUILD_RCDISCOVER_GUI "build rcdiscover-gui GUI tool" OFF)
+else ()
+  option(BUILD_RCDISCOVER_GUI "build rcdiscover-gui GUI tool" ON)
+endif ()
 
 if (WIN32)
   set(BUILD_RCDISCOVER_SHARED_LIB OFF CACHE BOOL "Override option" FORCE)

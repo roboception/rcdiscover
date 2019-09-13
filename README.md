@@ -38,6 +38,8 @@ To disable building the gui, pass the CMAKE option `BUILD_RCDISCOVER_GUI=OFF`
 cmake -DBUILD_RCDISCOVER_GUI=OFF ..
 ```
 
+Note: If a ROS environment is detected this is OFF by default.
+
 Afterwards, the binaries can be found in `build/tools/`.
 
 ### Installation
