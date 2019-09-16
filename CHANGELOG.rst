@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.1 (2019-09-16)
+------------------
+
+* rename CMAKE options from `INSTALL_x` to `BUILD_x`
+* improve debian packaging via CPack
+
 1.0.0 (2019-06-04)
 ------------------
 

@@ -100,8 +100,9 @@ endif()
 include(cmake/configure_link_libs.cmake)
 
 
-# install example sysctl config to disable reverse path filtering
-install(FILES debian/50-rcdiscover-rpfilter.conf COMPONENT bin DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/rcdiscover)
-
+if (UNIX)
+  # install example sysctl config to disable reverse path filtering
+  install(FILES debian/50-rcdiscover-rpfilter.conf COMPONENT bin DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/rcdiscover)
+endif ()
 
 include(cmake/package_debian.cmake)
