@@ -51,7 +51,7 @@ variables:
   stage: test
   script:
     - mkdir build && cd build
-    - cmake ..
+    - cmake -DBUILD_RCDISCOVER_GUI=ON ..
     - make -j 4
     - CTEST_OUTPUT_ON_FAILURE=1 make test
 
@@ -61,9 +61,9 @@ variables:
   script:
     - mkdir build && cd build
     - if [ -n "$ROS_DISTRO" ]; then
-        cmake -DCMAKE_INSTALL_PREFIX="/opt/ros/$ROS_DISTRO" -DCMAKE_PREFIX_PATH="/opt/ros/$ROS_DISTRO" -DCMAKE_BUILD_TYPE=Release .. ;
+        cmake -DBUILD_RCDISCOVER_GUI=ON -DCMAKE_INSTALL_PREFIX="/opt/ros/$ROS_DISTRO" -DCMAKE_PREFIX_PATH="/opt/ros/$ROS_DISTRO" -DCMAKE_BUILD_TYPE=Release .. ;
       else
-        cmake -DCMAKE_INSTALL_PREFIX="/usr" .. ;
+        cmake -DBUILD_RCDISCOVER_GUI=ON -DCMAKE_INSTALL_PREFIX="/usr" .. ;
       fi
     - make -j4 package
     - if [ -z "$APT_REPO" ]; then export APT_REPO=testing; fi
