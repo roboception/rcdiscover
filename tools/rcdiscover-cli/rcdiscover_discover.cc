@@ -56,6 +56,7 @@ static void printHelp(std::ostream &os, const std::string &command)
   os << "-f serial=<serial> Filter by serial number\n";
   os << "-f mac=<mac>       Filter by MAC address\n";
   os << "-f iface=<mac>     Filter by interface name\n";
+  os << "-f model=<model>   Filter by model name\n";
   os << "--iponly           Show only the IP addresses of discovered sensors\n";
   os << "--serialonly       Show only the serial number of discovered sensors\n";
 }

@@ -54,6 +54,7 @@ static void printHelp(std::ostream &os, const std::string &command)
   os << "-f serial=<serial> Filter by serial number\n";
   os << "-f mac=<mac>       Filter by MAC address\n";
   os << "-f iface=<mac>     Filter by interface name\n";
+  os << "-f model=<model>   Filter by model name\n";
   os << "-y                 Assume 'yes' for all queries\n";
 }
 

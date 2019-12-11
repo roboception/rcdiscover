@@ -66,6 +66,10 @@ int parseFilterArguments(int argc, char **argv, DeviceFilter &filter)
   {
     filter.iface.push_back(p.substr(6));
   }
+  else if (p.compare(0, 6, "model=") == 0)
+  {
+    filter.model.push_back(p.substr(6));
+  }
   else
   {
     throw std::invalid_argument("Unknown option for parameter -f: " + p);
@@ -98,6 +102,8 @@ bool filterDevice(const rcdiscover::DeviceInfo &device_info,
   if (!matches_filter(mac, filter.mac)) return false;
   const auto &iface = device_info.getIfaceName();
   if (!matches_filter(iface, filter.iface)) return false;
+  const auto &model = device_info.getModelName();
+  if (!matches_filter(model, filter.model)) return false;
   return true;
 }
 
