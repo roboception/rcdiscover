@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.2 (2019-12-12)
+------------------
+
+* Added filtering by model name in command line tool
+* Do not append alternative interface to output of cli if --serialonly or --iponly is given
+
 1.0.1 (2019-09-16)
 ------------------
 
