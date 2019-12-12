@@ -188,7 +188,7 @@ void printDeviceTable(std::ostream &oss,
   {
     if (last_info)
     {
-      if (info.getMAC() == last_info->getMAC())
+      if (info.getMAC() == last_info->getMAC() && !iponly && !serialonly)
       {
         // append this interface to the existing interface list
         to_be_printed.back().back() += "," + info.getIfaceName();
