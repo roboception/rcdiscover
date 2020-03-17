@@ -1,5 +1,5 @@
 /*
- * rcdiscover - the network discovery tool for rc_visard
+ * rcdiscover - the network discovery tool for Roboception devices
  *
  * Copyright (c) 2017 Roboception GmbH
  * All rights reserved
@@ -57,7 +57,7 @@ class SocketLinux;
 #endif
 
 /**
- * @brief Class for Magic Packet (Wake-on-Lan (WOL)) reset of rc_visard.
+ * @brief Class for Magic Packet (Wake-on-Lan (WOL)) reset of device.
  */
 class WOL
 {
@@ -71,14 +71,14 @@ class WOL
   public:
     /**
      * @brief Constructor.
-     * @param hardware_addr MAC-address of rc_visard
+     * @param hardware_addr MAC-address of device
      * @param port destination UDP port
      */
     WOL(uint64_t hardware_addr, uint16_t port) noexcept;
 
     /**
      * @brief Constructor.
-     * @param hardware_addr MAC-address of rc_visard
+     * @param hardware_addr MAC-address of device
      * @param port destination UDP port
      */
     WOL(std::array<uint8_t, 6> hardware_addr, uint16_t port) noexcept;

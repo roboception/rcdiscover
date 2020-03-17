@@ -5,11 +5,11 @@
 </HEAD>
 <BODY>
 <H1>rcdiscover</H1>
-<H2><a name="discovery" id="discovery">Discovery of <em>rc_visard</em> devices</a></H2>
+<H2><a name="discovery" id="discovery">Discovery of Roboception devices</a></H2>
 <p>
     Devices that are powered up and connected to the local network or
     directly to a computer can be found using the standard GigE Vision®
-    discovery mechanism. At startup, all available <em>rc_visard</em> devices
+    discovery mechanism. At startup, all available devices
     are listed with their name, serial number, current IP, and unique MAC
     address. The discovery tool finds all devices reachable by global
     broadcasts. Misconfigured devices that are located in different subnets
@@ -74,9 +74,9 @@
 <H2><a name="forceip" id="forceip">Assigning a temporary IP address</a></H2>
 
 <p>
-    In case an <em>rc_visard</em> is not reachable from the computer, it can
+    In case a device is not reachable from the computer, it can
     be assigned a temporary IP address by clicking the <em>Set temporary
-    IP address</em> button. In the popup, the <em>rc_visard</em> can then
+    IP address</em> button. In the popup, the device can then
     either be selected from the drop down menu or one can enter its MAC address,
     which is printed on the device label, manually.
 </p>
@@ -91,7 +91,7 @@
 
 <p>
     If this operation was successful, after clicking
-    <em>Rerun discovery</em>, the <em>rc_visard</em> will be listed
+    <em>Rerun discovery</em>, the device will be listed
     with its new IP address.
 </p>
 
@@ -104,20 +104,19 @@
     reconfigure the network permanently.
 </p>
 
-<H2><a name="reconnect" id="">Reconnecting an <em>rc_visard</em></a></H2>
+<H2><a name="reconnect" id="">Reconnecting a device</a></H2>
 
 <p>
     With the <em>reconnect</em> functionality of rcdiscover, a reinitialization
-    of an <em>rc_visard</em>'s network interface can be triggered. This is
+    of a device's network interface can be triggered. This is
     comparable with an unplugging and replugging of the network cable.
-    Reconnecting an <em>rc_visard</em> is especially useful in
-    two scenarios:
+    Reconnecting a device is especially useful in two scenarios:
 </p>
 
 <p>
-    First, if a temporary IP address has been assigned to an <em>rc_visard</em>
+    First, if a temporary IP address has been assigned to a device
     by above procedure, reconnecting causes the assignment to be undone;
-    hence, the IP address is reset to the <em>rc_visard</em>'s
+    hence, the IP address is reset to the device's
     previous IP address.
 </p>
 
@@ -125,7 +124,7 @@
     Second, after changing the persistent network settings using
     a standard GigE Vision 2.0 client, such as gc_config in the rc_genicam_api
     package, a reconnect applies the new settings.
-    This avoids the need for restarting the <em>rc_visard</em> or
+    This avoids the need for restarting the device or
     manually replugging its network cable.
 </p>
 

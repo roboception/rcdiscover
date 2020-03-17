@@ -1,4 +1,4 @@
-# rcdiscover - the network discovery tool for rc_visard
+# rcdiscover - the network discovery tool for Roboception devices
 #
 # Copyright (c) 2019 Roboception GmbH
 # All rights reserved

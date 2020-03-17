@@ -1,11 +1,11 @@
 Discovery of roboception sensors
 ================================
 
-This package contains tools for the discovery of rc_visard sensors via
-GigE Vision.
+This package contains tools for the discovery of Roboception devices
+(e.g. rc_visard and rc_cube) via GigE Vision.
 
-- `rcdiscover`: console application for discovering rc_visards
-- `rcdiscover-gui`: graphical application for discovering rc_visards and
+- `rcdiscover`: console application for discovering Roboception devices
+- `rcdiscover-gui`: graphical application for discovering Roboception devices and
   sending magic packets for resetting of parameters
 
 

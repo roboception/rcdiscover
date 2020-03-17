@@ -27,7 +27,7 @@ ReconnectDialog::ReconnectDialog(
     wxWindow *parent, wxWindowID id,
     const wxPoint &pos, long style,
     const wxString &name) :
-  SensorCommandDialog(help_ctrl, parent, id, "Reconnect rc_visard", 0,
+  SensorCommandDialog(help_ctrl, parent, id, "Reconnect device", 0,
                       pos, style, name)
 {
   auto *const panel = getPanel();
@@ -68,7 +68,7 @@ void ReconnectDialog::onReconnectButton(wxCommandEvent &)
     rcdiscover::ForceIP force_ip;
 
     std::ostringstream oss;
-    oss << "Are you sure to reconnect rc_visard with MAC-address "
+    oss << "Are you sure to reconnect device with MAC-address "
         << mac_string << "?";
     const int answer = wxMessageBox(oss.str(), "", wxYES_NO);
 

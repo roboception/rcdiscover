@@ -1,5 +1,5 @@
 /*
- * rcdiscover - the network discovery tool for rc_visard
+ * rcdiscover - the network discovery tool for Roboception devices
  *
  * Copyright (c) 2017 Roboception GmbH
  * All rights reserved
@@ -43,9 +43,9 @@ namespace rcdiscover
 {
 
 /**
- * @brief Check whether an rc_visard is reachable via ICMP.
- * @param info DeviceInfo of rc_visard
- * @return whether the rc_visard is reachable
+ * @brief Check whether an device is reachable via ICMP.
+ * @param info DeviceInfo of device
+ * @return whether the device is reachable
  */
 bool checkReachabilityOfSensor(const DeviceInfo &info);
 

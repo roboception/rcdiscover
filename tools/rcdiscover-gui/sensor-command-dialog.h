@@ -47,16 +47,16 @@ class SensorCommandDialog : public wxDialog
 
   public:
     /**
-     * @brief Set list of discovered rc_visards to provide a drop down menu
+     * @brief Set list of discovered devices to provide a drop down menu
      * to the user.
-     * @param sensor_list list of rc_visards
+     * @param sensor_list list of devices
      */
     void setDiscoveredSensors(const wxDataViewListModel *sensor_list);
 
     /**
-     * @brief Select a specific rc_visard of the list set by
+     * @brief Select a specific device of the list set by
      * setDiscoveredSensors.
-     * @param row row of rc_visard list
+     * @param row row of device list
      */
     void setActiveSensor(const unsigned int row);
 
@@ -75,13 +75,13 @@ class SensorCommandDialog : public wxDialog
 
   private:
     /**
-     * @brief Event handler for selection of an rc_visard from drop down menu.
+     * @brief Event handler for selection of an device from drop down menu.
      * @param event event
      */
     void onSensorSelected(wxCommandEvent &event);
 
     /**
-     * @brief Fill MAC address according to selected rc_visard.
+     * @brief Fill MAC address according to selected device.
      */
     void fillMac();
 

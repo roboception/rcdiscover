@@ -278,7 +278,7 @@ void ForceIpDialog::onForceIpButton(wxCommandEvent &)
     rcdiscover::ForceIP force_ip;
 
     std::ostringstream oss;
-    oss << "Are you sure to set the IP address of rc_visard with MAC-address "
+    oss << "Are you sure to set the IP address of the device with MAC-address "
         << mac_string << "?";
     const int answer = wxMessageBox(oss.str(), "", wxYES_NO);
 

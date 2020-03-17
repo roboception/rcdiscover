@@ -1,5 +1,5 @@
 /*
- * rcdiscover - the network discovery tool for rc_visard
+ * rcdiscover - the network discovery tool for Roboception devices
  *
  * Copyright (c) 2017 Roboception GmbH
  * All rights reserved
@@ -54,7 +54,7 @@ class ReconnectDialog;
 class AboutDialog;
 
 /**
- * @brief Main window in which the table of discovered rc_visards is displayed.
+ * @brief Main window in which the table of discovered devices is displayed.
  */
 class DiscoverFrame : public wxFrame
 {
@@ -99,7 +99,7 @@ class DiscoverFrame : public wxFrame
     void onDiscoverButton(wxCommandEvent &);
 
     /**
-     * @brief Event handler for completed rc_visard discovery.
+     * @brief Event handler for completed device discovery.
      * @param event event
      */
     void onDiscoveryCompleted(wxThreadEvent &event);
@@ -110,7 +110,7 @@ class DiscoverFrame : public wxFrame
     void onHelpDiscovery(wxCommandEvent &);
 
     /**
-     * @brief Event handler for erroneous rc_visard discovery.
+     * @brief Event handler for erroneous device discovery.
      * @param event event
      */
     void onDiscoveryError(wxThreadEvent &event);
@@ -131,13 +131,13 @@ class DiscoverFrame : public wxFrame
     void onReconnectButton(wxCommandEvent &);
 
     /**
-     * @brief Event handler for double click on an rc_visard.
+     * @brief Event handler for double click on an device.
      * @param event event
      */
     void onDeviceDoubleClick(wxDataViewEvent &event);
 
     /**
-     * @brief Event handler for right mouse button click on rc_visard.
+     * @brief Event handler for right mouse button click on device.
      * @param event event
      */
     void onDataViewContextMenu(wxDataViewEvent &event);
@@ -183,20 +183,20 @@ class DiscoverFrame : public wxFrame
     void onAbout(wxCommandEvent &);
 
     /**
-     * @brief Open rc_visard reset dialog.
-     * @param row row of currently selected rc_visard in the table
+     * @brief Open device reset dialog.
+     * @param row row of currently selected device in the table
      */
     void openResetDialog(int row);
 
     /**
      * @brief Open Force IP dialog.
-     * @param row row of currently selected rc_visard in the table
+     * @param row row of currently selected device in the table
      */
     void openForceIpDialog(int row);
 
     /**
      * @brief Open Reconnect dialog.
-     * @param row row of currently selected rc_visard in the table
+     * @param row row of currently selected device in the table
      */
     void openReconnectDialog(int row);
 

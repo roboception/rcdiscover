@@ -4,4 +4,4 @@ Default: true
 Description: Would you like to disable Reverse Path Filtering on this machine?
  Reverse Path Filtering is a security feature that helps to prevent IP
  address spoofing. However, if enabled, it may not always be possible to
- discover Roboception rc_visards located in different subnets than this host.
+ discover Roboception devices located in different subnets than this host.

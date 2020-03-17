@@ -3,7 +3,7 @@
     <name>rcdiscover</name>
     <version>1.0.2</version>
     <description>
-        This package contains tools for the discovery of rc_visard sensors via GigE Vision.
+        This package contains tools for the discovery of Roboception devices via GigE Vision.
     </description>
 
     <maintainer email="felix.ruess@roboception.de">Felix Ruess</maintainer>

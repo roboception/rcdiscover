@@ -1,5 +1,5 @@
 /*
- * rcdiscover - the network discovery tool for rc_visard
+ * rcdiscover - the network discovery tool for Roboception devices
  *
  * Copyright (c) 2017 Roboception GmbH
  * All rights reserved
@@ -41,7 +41,7 @@
 class wxWindow;
 
 /**
- * @brief Thread in which the discovery of rc_visards is run.
+ * @brief Thread in which the discovery of devices is run.
  */
 class DiscoverThread : public wxThread
 {
