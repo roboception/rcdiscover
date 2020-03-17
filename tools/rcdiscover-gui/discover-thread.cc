@@ -74,24 +74,23 @@ wxThread::ExitCode DiscoverThread::Entry()
                                 });
     infos.erase(it, infos.end());
 
-    std::vector<std::future<bool>> reachable;
-    for (rcdiscover::DeviceInfo &info : infos)
-    {
-      if (!info.isValid())
-      {
-        continue;
-      }
-      reachable.push_back(std::async(std::launch::async, [&info]
-      {
-        return checkReachabilityOfSensor(info);
-      }));
-    }
+    std::vector<std::future<bool>> reachable(infos.size());
+    std::transform(
+        infos.begin(), infos.end(), reachable.begin(),
+        [](const rcdiscover::DeviceInfo &info) {
+          return info.isValid()
+                     ? std::async(
+                           std::launch::async,
+                           [&info] { return checkReachabilityOfSensor(info); })
+                     : std::future<bool>{};
+        });
 
-    rcdiscover::DeviceInfo *last_info = nullptr;
+    const rcdiscover::DeviceInfo *last_info = nullptr;
 
     size_t i = 0;
-    for (rcdiscover::DeviceInfo &info : infos)
+    for (auto info_it = infos.cbegin(); info_it != infos.cend(); ++info_it, ++i)
     {
+      const auto& info = *info_it;
       if (!info.isValid())
       {
         continue;
@@ -125,8 +124,6 @@ wxThread::ExitCode DiscoverThread::Entry()
               reachable[i].get() ? L"\u2713" : L"\u2717");
 
       device_list.push_back(std::move(data));
-
-      ++i;
     }
   }
   catch (const std::exception &ex)
