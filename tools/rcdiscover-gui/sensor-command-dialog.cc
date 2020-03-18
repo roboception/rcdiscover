@@ -81,7 +81,8 @@ SensorCommandDialog::SensorCommandDialog(wxHtmlHelpController *help_ctrl,
 }
 
 void SensorCommandDialog::setDiscoveredSensors(
-    const wxDataViewListModel *sensor_list)
+    const wxDataViewListModel *sensor_list,
+    const std::vector<bool>& show)
 {
   sensor_list_ = sensor_list;
 
@@ -95,18 +96,18 @@ void SensorCommandDialog::setDiscoveredSensors(
     unsigned int sensors_row = 0;
     for (typename std::decay<decltype(rows)>::type i = 0; i < rows; ++i)
     {
-      wxVariant hostname{};
-      wxVariant mac{};
-      sensor_list->GetValueByRow(hostname, i, DiscoverFrame::NAME);
-      sensor_list->GetValueByRow(mac, i, DiscoverFrame::MAC);
-      const auto s = wxString::Format("%s - %s",
-                                      hostname.GetString(),
-                                      mac.GetString());
-      sensors_->Append(s);
-      row_map_.emplace(i, sensors_row + 1);
-      row_map_inv_.emplace(sensors_row + 1, i);
-
-      ++sensors_row;
+      if (show.empty() || show[i])
+      {
+        wxVariant hostname{};
+        wxVariant mac{};
+        sensor_list->GetValueByRow(hostname, i, DiscoverFrame::NAME);
+        sensor_list->GetValueByRow(mac, i, DiscoverFrame::MAC);
+        const auto s = wxString::Format("%s - %s", hostname.GetString(), mac.GetString());
+        sensors_->Append(s);
+        row_map_.emplace(i, sensors_row + 1);
+        row_map_inv_.emplace(sensors_row + 1, i);
+        ++sensors_row;
+      }
     }
   }
 
@@ -117,8 +118,16 @@ void SensorCommandDialog::setActiveSensor(const unsigned int row)
 {
   clear();
 
-  sensors_->Select(row_map_.at(static_cast<int>(row)));
-  fillMac();
+  const auto found = row_map_.find(static_cast<int>(row));
+  if (found != row_map_.cend())
+  {
+    sensors_->Select(found->second);
+    fillMac();
+  }
+  else
+  {
+    sensors_->Select(0);
+  }
 }
 
 wxBoxSizer *SensorCommandDialog::getVerticalBox()

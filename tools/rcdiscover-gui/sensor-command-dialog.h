@@ -15,6 +15,7 @@
 
 #include <array>
 #include <unordered_map>
+#include <vector>
 
 class wxChoice;
 class wxTextCtrl;
@@ -51,7 +52,8 @@ class SensorCommandDialog : public wxDialog
      * to the user.
      * @param sensor_list list of devices
      */
-    void setDiscoveredSensors(const wxDataViewListModel *sensor_list);
+    void setDiscoveredSensors(const wxDataViewListModel *sensor_list,
+                              const std::vector<bool>& show = {});
 
     /**
      * @brief Select a specific device of the list set by
