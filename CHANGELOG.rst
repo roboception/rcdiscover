@@ -2,6 +2,13 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.3 (2020-03-22)
+------------------
+
+* fix mapping of reachability flag in the GUI
+* more generic naming as it can also be used for other GEV devices
+* only show rc_visards in "reset" dialog
+
 1.0.2 (2019-12-12)
 ------------------
 
