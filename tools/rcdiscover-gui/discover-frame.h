@@ -131,10 +131,16 @@ class DiscoverFrame : public wxFrame
     void onReconnectButton(wxCommandEvent &);
 
     /**
-     * @brief Event handler for double click on an device.
+     * @brief Event handler for double click on a device.
      * @param event event
      */
     void onDeviceDoubleClick(wxDataViewEvent &event);
+
+    /**
+     * @brief Event handler for selection of a device.
+     * @param event event
+     */
+    void onDeviceSelection(wxDataViewEvent &event);
 
     /**
      * @brief Event handler for right mouse button click on device.

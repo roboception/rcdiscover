@@ -69,6 +69,26 @@
 #include "resources/logo_128.xpm"
 #include "resources/logo_32_rotate.h"
 
+static bool isMadeByRc(const wxVector<wxVariant> &device)
+{
+  return device[DiscoverFrame::MANUFACTURER].GetString() == ROBOCEPTION;
+}
+
+static bool isMadeByRc(const wxDataViewListCtrl &device_list, unsigned int row)
+{
+  return device_list.GetTextValue(row, DiscoverFrame::MANUFACTURER) == ROBOCEPTION;
+}
+
+static bool isRcVisard(const wxVector<wxVariant> &device)
+{
+  return isMadeByRc(device) && device[DiscoverFrame::MODEL].GetString().StartsWith(RC_VISARD);
+}
+
+static bool isRcVisard(const wxDataViewListCtrl &device_list, unsigned int row)
+{
+  return isMadeByRc(device_list, row) && device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_VISARD);
+}
+
 DiscoverFrame::DiscoverFrame(const wxString& title,
                 const wxPoint& pos) :
   wxFrame(NULL, wxID_ANY, title, pos, wxSize(1080,350)),
@@ -256,6 +276,9 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
           wxEVT_DATAVIEW_ITEM_ACTIVATED,
           wxDataViewEventHandler(DiscoverFrame::onDeviceDoubleClick));
   Connect(ID_DataViewListCtrl,
+          wxEVT_DATAVIEW_SELECTION_CHANGED,
+          wxDataViewEventHandler(DiscoverFrame::onDeviceSelection));
+  Connect(ID_DataViewListCtrl,
           wxEVT_DATAVIEW_ITEM_CONTEXT_MENU,
           wxDataViewEventHandler(DiscoverFrame::onDataViewContextMenu));
   Connect(ID_OpenWebGUI,
@@ -385,13 +408,10 @@ void DiscoverFrame::updateDeviceList(const std::vector<wxVector<wxVariant>> &d)
       return true;
     }();
 
-    const bool manufactured_by_rc = d[MANUFACTURER].GetString() == ROBOCEPTION;
-    if (matches_filter && (!only_rc_sensors_ || manufactured_by_rc))
+    if (matches_filter && (!only_rc_sensors_ || isMadeByRc(d)))
     {
       device_list_->AppendItem(d);
-
-      const bool is_rc_visard = manufactured_by_rc && d[MODEL].GetString().StartsWith(RC_VISARD);
-      show_in_reset_dialog.push_back(is_rc_visard);
+      show_in_reset_dialog.push_back(isRcVisard(d));
     }
   }
 
@@ -442,6 +462,19 @@ void DiscoverFrame::onDeviceDoubleClick(wxDataViewEvent &event)
   openWebGUI(row);
 }
 
+void DiscoverFrame::onDeviceSelection(wxDataViewEvent &event)
+{
+  const auto item = event.GetItem();
+  const auto row = device_list_->ItemToRow(item);
+
+  if (row == wxNOT_FOUND)
+  {
+    return;
+  }
+
+  reset_button_->Enable(isRcVisard(*device_list_, row));
+}
+
 void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
 {
   menu_event_item_.reset(new std::pair<int, int>(
@@ -461,18 +494,19 @@ void DiscoverFrame::onDataViewContextMenu(wxDataViewEvent &event)
   menu.Append(ID_CopyIP, "Copy IP address");
   menu.Append(ID_CopyMac, "Copy MAC address");
 
-  const auto manufacturer = device_list_->GetTextValue(
-                        static_cast<unsigned int>(menu_event_item_->first),
-                        MANUFACTURER);
-  if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
+  if (isMadeByRc(*device_list_, static_cast<unsigned int>(menu_event_item_->first)))
   {
     menu.AppendSeparator();
     menu.Append(ID_OpenWebGUI, "Open &WebGUI");
     menu.AppendSeparator();
-    menu.Append(ID_ResetButton, "Reset");
-    menu.Append(ID_ForceIpButton, "Set temporary IP");
-    menu.Append(ID_ReconnectButton, "Reconnect");
+    if (isRcVisard(*device_list_, static_cast<unsigned int>(menu_event_item_->first)))
+    {
+      menu.Append(ID_ResetButton, "Reset");
+    }
   }
+
+  menu.Append(ID_ForceIpButton, "Set temporary IP");
+  menu.Append(ID_ReconnectButton, "Reconnect");
 
   PopupMenu(&menu);
 }
@@ -631,8 +665,7 @@ void DiscoverFrame::openReconnectDialog(const int row)
 
 void DiscoverFrame::openWebGUI(int row)
 {
-  const auto manufacturer = device_list_->GetTextValue(row, MANUFACTURER);
-  if (manufacturer == ROBOCEPTION || manufacturer == KUKA)
+  if (isMadeByRc(*device_list_, row))
   {
     const auto ip_wxstring = device_list_->GetTextValue(
         static_cast<unsigned int>(row), IP);
