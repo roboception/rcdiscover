@@ -121,7 +121,7 @@ mingw32-make -f makefile.gcc SHARED=0 BUILD=release -j4 CXXFLAGS="-mtune=generic
 cd rcdiscover
 mkdir build-mingw32
 cd build-mingw32
-cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DwxWidgets_ROOT_DIR=<path to WxWidgets root folder> ..
+cmake -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_RCDISCOVER_GUI=ON -DwxWidgets_ROOT_DIR=<path to WxWidgets root folder> ..
 mingw32-make
 ```
 
