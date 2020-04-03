@@ -19,7 +19,6 @@
 void registerResources();
 
 const static std::string ROBOCEPTION = "Roboception GmbH";
-const static std::string KUKA = "KUKA";
 const static std::string RC_VISARD = "rc_visard";
 
 #endif /* REGISTER_RESOURCES */
