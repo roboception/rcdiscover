@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.4 (2020-04-04)
+------------------
+
+* only enable reset button and context menu entry for rc_visard devices
+* remove catkin build_export_depend from package.xml
+
 1.0.3 (2020-03-22)
 ------------------
 
