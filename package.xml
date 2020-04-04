@@ -17,7 +17,6 @@
     <url type="bugtracker">https://github.com/roboception/rcdiscover/issues</url>
 
     <buildtool_depend>cmake</buildtool_depend>
-    <build_export_depend>catkin</build_export_depend>
 
     <doc_depend>doxygen</doc_depend>
     <export>
