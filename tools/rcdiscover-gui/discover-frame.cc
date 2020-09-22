@@ -65,6 +65,7 @@
 #include <wx/html/helpctrl.h>
 #include <wx/cshelp.h>
 #include <wx/statline.h>
+#include <wx/persist/toplevel.h>
 
 #include "resources/logo_128.xpm"
 #include "resources/logo_32_rotate.h"
@@ -331,6 +332,8 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
   force_ip_dialog_ = new ForceIpDialog(help_ctrl_, panel, wxID_ANY);
   reconnect_dialog_ = new ReconnectDialog(help_ctrl_, panel, wxID_ANY);
   about_dialog_ = new AboutDialog(panel, wxID_ANY);
+
+  wxPersistentRegisterAndRestore(this, "discover_frame");
 
   // start discovery on startup
   wxCommandEvent evt;

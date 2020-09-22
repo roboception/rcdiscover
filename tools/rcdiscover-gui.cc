@@ -52,6 +52,11 @@ class RcDiscoverApp : public wxApp
 
     virtual bool OnInit() override
     {
+      if (!wxApp::OnInit())
+      {
+        return false;
+      }
+
       SetAppName("rcdiscover");
       SetVendorName("Roboception");
 
@@ -79,7 +84,7 @@ class RcDiscoverApp : public wxApp
       ::WSACleanup();
 #endif
 
-      return 0;
+      return wxApp::OnExit();
     }
 
     virtual bool OnExceptionInMainLoop() override
@@ -95,8 +100,9 @@ class RcDiscoverApp : public wxApp
         error_msg += ": ";
         error_msg += ex.what();
         wxMessageBox(error_msg, "Error", wxOK | wxICON_ERROR);
-        return true;
       }
+
+      return wxApp::OnExceptionInMainLoop();
     }
 
   private:
