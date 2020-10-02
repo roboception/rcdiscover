@@ -44,6 +44,12 @@ variables:
     - armhf
     - docker
 
+.amd64_focal_t: &amd64_focal_job
+  image: registry.roboception.de/tools/docker_images:focal-buildimage
+  tags:
+    - amd64
+    - docker
+
 #############
 # Templates
 #############
@@ -73,6 +79,8 @@ variables:
   extends: .package
   only:
     - master
+  except:
+    - tags
   variables:
     TESTING_DEBS: "true"
     APT_REPO: "testing"
@@ -149,6 +157,10 @@ test:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .test
 
+test:focal:amd64:
+  <<: *amd64_focal_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
 package_testing:trusty:amd64:
@@ -175,6 +187,10 @@ package_testing:bionic:armhf:
   <<: *armhf_bionic_job
   extends: .package_testing
 
+package_testing:focal:amd64:
+  <<: *amd64_focal_job
+  extends: .package_testing
+
 # Deploy stable (only for releases, version tags)
 #################################################
 package_stable:trusty:amd64:
@@ -199,6 +215,10 @@ package_stable:bionic:amd64:
 
 package_stable:bionic:armhf:
   <<: *armhf_bionic_job
+  extends: .package_stable
+
+package_stable:focal:amd64:
+  <<: *amd64_focal_job
   extends: .package_stable
 
 # Build and push as docker image
