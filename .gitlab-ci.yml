@@ -1,5 +1,6 @@
 before_script:
   - export DISTRO_CODENAME=`lsb_release -cs` && echo Using distro $DISTRO_CODENAME
+  - export ARCH_NAME=`uname -m` && echo Running on architecture $ARCH_NAME
   - apt-get update -yq && apt-get install -y lintian git
   - if [ "$ARCH_NAME" = "x86_64" -a "$DISTRO_CODENAME" = "focal" ]; then apt-get install -y libwxgtk3.0-gtk3-dev; else apt-get install -y libwxgtk3.0-dev; fi
 
