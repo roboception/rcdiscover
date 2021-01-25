@@ -72,22 +72,26 @@
 
 static bool isMadeByRc(const wxVector<wxVariant> &device)
 {
-  return device[DiscoverFrame::MANUFACTURER].GetString() == ROBOCEPTION;
+  return device[DiscoverFrame::MANUFACTURER].GetString() == ROBOCEPTION ||
+    device[DiscoverFrame::MODEL].GetString().StartsWith(RC_VISARD) ||
+    device[DiscoverFrame::MODEL].GetString().StartsWith(RC_CUBE);
 }
 
 static bool isMadeByRc(const wxDataViewListCtrl &device_list, unsigned int row)
 {
-  return device_list.GetTextValue(row, DiscoverFrame::MANUFACTURER) == ROBOCEPTION;
+  return device_list.GetTextValue(row, DiscoverFrame::MANUFACTURER) == ROBOCEPTION ||
+    device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_VISARD) ||
+    device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_CUBE);
 }
 
 static bool isRcVisard(const wxVector<wxVariant> &device)
 {
-  return isMadeByRc(device) && device[DiscoverFrame::MODEL].GetString().StartsWith(RC_VISARD);
+  return device[DiscoverFrame::MODEL].GetString().StartsWith(RC_VISARD);
 }
 
 static bool isRcVisard(const wxDataViewListCtrl &device_list, unsigned int row)
 {
-  return isMadeByRc(device_list, row) && device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_VISARD);
+  return device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_VISARD);
 }
 
 DiscoverFrame::DiscoverFrame(const wxString& title,
@@ -137,12 +141,12 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
     auto *button_box = new wxBoxSizer(wxHORIZONTAL);
     discover_button_ = new wxButton(panel, ID_DiscoverButton, "Rerun Discovery");
     button_box->Add(discover_button_, 1);
-    
+
     button_box->AddSpacer(10);
     button_box->Add(new wxStaticLine(panel, wxID_ANY, wxDefaultPosition,
                     wxSize(-1,30), wxLI_VERTICAL));
     button_box->AddSpacer(10);
-    
+
     int w, h;
     discover_button_->GetSize(&w, &h);
     auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox,
@@ -549,7 +553,7 @@ void DiscoverFrame::onCopy(wxMenuEvent &evt)
 
   const auto row = static_cast<unsigned int>(menu_event_item_->first);
   const auto cell = device_list_->GetTextValue(row, column);
-  
+
   if (wxTheClipboard->Open())
   {
     wxTheClipboard->SetData(new wxTextDataObject(cell));
