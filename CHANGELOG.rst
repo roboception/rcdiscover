@@ -2,6 +2,11 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.0 (2021-02-05)
+------------------
+
+* Treat all devices as comming from Roboception if model starts with either rc_visard or rc_cube
+
 1.0.5 (2020-10-02)
 ------------------
 
