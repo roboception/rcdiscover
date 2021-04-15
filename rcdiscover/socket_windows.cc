@@ -66,17 +66,17 @@ static std::map<int, std::string> getInterfaceNames()
   adapter_info = static_cast<IP_ADAPTER_INFO *>(malloc(sizeof(IP_ADAPTER_INFO)));
   ULONG buflen = sizeof(IP_ADAPTER_INFO);
 
-  if(GetAdaptersInfo(adapter_info, &buflen) == ERROR_BUFFER_OVERFLOW) 
+  if(GetAdaptersInfo(adapter_info, &buflen) == ERROR_BUFFER_OVERFLOW)
   {
     free(adapter_info);
     adapter_info = static_cast<IP_ADAPTER_INFO *>(malloc(buflen));
   }
 
   std::map<int, std::string> result;
-  if(GetAdaptersInfo(adapter_info, &buflen) == NO_ERROR) 
+  if(GetAdaptersInfo(adapter_info, &buflen) == NO_ERROR)
   {
     PIP_ADAPTER_INFO adapter = adapter_info;
-    while (adapter) 
+    while (adapter)
     {
       result.emplace(adapter->Index, adapter->AdapterName);
       adapter = adapter->Next;
@@ -91,7 +91,7 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
   std::vector<SocketWindows> sockets;
 
   const auto interface_names = getInterfaceNames();
-  
+
   {
     // limited broadcast
 
@@ -122,7 +122,7 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
     for (unsigned int i = 0; i < table->dwNumEntries; ++i)
     {
       PMIB_IPFORWARDROW row = &table->table[i];
-        
+
       if (row->dwForwardDest == getBroadcastAddr() &&
           row->dwForwardMask == ULONG_MAX &&
           row->dwForwardType == MIB_IPROUTE_TYPE_DIRECT)
@@ -142,13 +142,13 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
       }
     }
   }
-  
+
   {
-    // directed broadcast 
-    
+    // directed broadcast
+
     PMIB_IPADDRTABLE table = nullptr;
     ULONG table_size = 0;
-  
+
     int result = NO_ERROR;
     for (int i = 0; i < 5; ++i)
     {
@@ -169,21 +169,21 @@ std::vector<SocketWindows> SocketWindows::createAndBindForAllInterfaces(
       throw SocketException("Error while getting ip addr table",
                             ::WSAGetLastError());
     }
-    
+
     for (unsigned int i = 0; i < table->dwNumEntries; ++i)
     {
       PMIB_IPADDRROW row = &table->table[i];
-      
+
       if (row->dwAddr == htonl(INADDR_LOOPBACK))
       {
         continue;
       }
-      
+
       const auto iface = interface_names.find(row->dwIndex);
       if (iface != interface_names.end())
       {
         const ULONG baddr = row->dwAddr | (~row->dwMask);
-        
+
         sockets.emplace_back(SocketWindows::create(baddr, port, iface->second));
 
         sockaddr_in src_addr;
@@ -274,9 +274,16 @@ void SocketWindows::sendImpl(const std::vector<uint8_t>& sendbuf)
              sizeof(dst_addr_),
              nullptr,
              nullptr) == SOCKET_ERROR)
-   {
-     throw SocketException("Error while sending data", ::WSAGetLastError());
-   }
+  {
+    int err = ::WSAGetLastError();
+    // WSAENETUNREACH=10051, WSAEHOSTUNREACH=10065
+    if (err == WSAENETUNREACH || err == WSAEHOSTUNREACH)
+    {
+      throw NetworkUnreachableException(
+            "Error while sending data - network unreachable", err);
+    }
+    throw SocketException("Error while sending data", err);
+  }
 }
 
 void SocketWindows::enableBroadcastImpl()

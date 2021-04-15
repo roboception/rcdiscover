@@ -238,7 +238,7 @@ void SocketLinux::sendImpl(const std::vector<uint8_t>& sendbuf)
               reinterpret_cast<const sockaddr *>(&dst_addr_),
               static_cast<socklen_t>(sizeof(sockaddr_in))) == -1)
    {
-     if (errno == 101)
+     if (errno == ENETUNREACH)
      {
        throw NetworkUnreachableException(
              "Error while sending data - network unreachable", errno);
