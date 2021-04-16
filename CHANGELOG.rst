@@ -2,6 +2,11 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2021-04-16)
+------------------
+
+* Ignore network unreachable socket error under Windows
+
 1.1.0 (2021-02-05)
 ------------------
 
