@@ -2,8 +2,8 @@ before_script:
   - export DISTRO_CODENAME=`lsb_release -cs` && echo Using distro $DISTRO_CODENAME
   - export ARCH_NAME=`uname -m` && echo Running on architecture $ARCH_NAME
   - export DEBIAN_FRONTEND=noninteractive
-  - apt-get update -yq && apt-get install -y lintian git
-  - if [ "$DISTRO_CODENAME" = "focal" ]; then apt-get install -y libwxgtk3.0-gtk3-dev; else apt-get install -y libwxgtk3.0-dev; fi
+  - if [ "$DISTRO_CODENAME" = "focal" ]; then WXGTK=libwxgtk3.0-gtk3-dev; else WXGTK=libwxgtk3.0-dev; fi
+  - apt-get update -yq && apt-get install -y --no-install-recommends lintian git $WXGTK
 
 variables:
   GET_SOURCES_ATTEMPTS: 3
