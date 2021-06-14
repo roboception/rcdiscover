@@ -2,6 +2,11 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2021-06-14)
+------------------
+
+* update cmake files and packaging, requires cmake >= 3.1
+
 1.1.1 (2021-04-16)
 ------------------
 
