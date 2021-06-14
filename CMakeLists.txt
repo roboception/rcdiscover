@@ -31,13 +31,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.1)
 
 project(rcdiscover)
 
-include(cmake/install_dirs.cmake)
-include(cmake/project_name.cmake)
 include(cmake/project_version.cmake)
+include(GNUInstallDirs)
 
 # For CMake Version >= 3.0: issue FATAL_ERROR if link dependency contains
 # double-colons but is not an imported target.

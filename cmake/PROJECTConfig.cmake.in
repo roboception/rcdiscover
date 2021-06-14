@@ -1,4 +1,4 @@
-# Config file for @PROJECT_NAME_LOWER@
+# Config file for @PROJECT_NAME@
 #
 # It defines the following variables:
 #
@@ -16,5 +16,4 @@ set(@PROJECT_NAME_UPPER@_STATIC_LIBRARIES @PROJECT_STATIC_LIBRARIES@)
 set(@PROJECT_NAME_UPPER@_LIBRARIES @PROJECT_LIBRARIES@)
 
 # Find public dependencies of package
-# find_package(... REQUIRED)
-
+@RC_PUBLIC_BUILD_DEPENDENCIES_STR@
