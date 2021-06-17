@@ -83,6 +83,8 @@ target_include_directories(rcdiscover_static
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 
+target_compile_features(rcdiscover_static PUBLIC cxx_std_11)
+
 # Install shared library
 if (BUILD_RCDISCOVER_SHARED_LIB)
   message(STATUS "Building shared library: rcdiscover")
@@ -94,6 +96,7 @@ if (BUILD_RCDISCOVER_SHARED_LIB)
         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>)
 
+  target_compile_features(rcdiscover PUBLIC cxx_std_11)
   set_target_properties(rcdiscover PROPERTIES SOVERSION ${abiversion})
   target_compile_options(rcdiscover PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
   if (UNIX)

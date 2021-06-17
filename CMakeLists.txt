@@ -63,12 +63,6 @@ if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-Werror)
 endif ()
 
-if (CMAKE_VERSION VERSION_LESS "3.1.0")
-  add_definitions(-std=c++11)
-else ()
-  set(CMAKE_CXX_STANDARD 11)
-endif ()
-
 if (WIN32)
   add_definitions(-DWIN32)
   set(CMAKE_C_FLAGS "-mtune=generic -mno-abm")
