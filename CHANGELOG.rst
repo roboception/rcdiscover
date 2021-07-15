@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.3 (2021-07-15)
+------------------
+
+* use target_compile_features instead of CMAKE_CXX_STANDARD
+* fix installation destination for package.xml
+
 1.1.2 (2021-06-14)
 ------------------
 

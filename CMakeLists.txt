@@ -87,7 +87,7 @@ add_subdirectory(tools)
 # - Define information for packaging -
 if (BUILD_RCDISCOVER_SHARED_LIB)
   set(PROJECT_LIBRARIES rcdiscover)
-  install(FILES package.xml COMPONENT bin DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME_LOWER})
+  install(FILES package.xml COMPONENT bin DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/rcdiscover)
 endif()
 
 include(cmake/configure_link_libs.cmake)
