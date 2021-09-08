@@ -8,6 +8,7 @@ This package contains tools for the discovery of Roboception devices
 - `rcdiscover-gui`: graphical application for discovering Roboception devices and
   sending magic packets for resetting of parameters
 
+**Installation:** You can find some prebuilt packages for Linux or Windows on the [releases](https://github.com/roboception/rcdiscover/releases) page. Alternatively follow the compilation steps in the next sections.
 
 Compiling on Linux
 ------------------
