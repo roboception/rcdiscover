@@ -17,10 +17,12 @@ For compilation of `rcdiscover` cmake is required.
 
 `rcdiscover-gui` additionally requires [WxWidgets](http://www.wxwidgets.org/).
 
-To install this under Debian/Ubuntu:
+To install this under Debian/Ubuntu >= 20.04.0:
 ```
-sudo apt-get install cmake libwxgtk3.0-dev
+sudo apt-get install cmake libwxgtk3.0-gtk3-dev
 ```
+
+In older distributions, the package is called libwxgtk3.0-dev
 
 ### Building rcdiscover
 
