@@ -3,7 +3,7 @@ before_script:
   - export ARCH_NAME=`uname -m` && echo Running on architecture $ARCH_NAME
   - export DEBIAN_FRONTEND=noninteractive
   - if [ "$DISTRO_CODENAME" = "focal" ]; then WXGTK=libwxgtk3.0-gtk3-dev; else WXGTK=libwxgtk3.0-dev; fi
-  - apt-get update -yq && apt-get install -y --no-install-recommends lintian git wget $WXGTK
+  - apt-get update -yq && apt-get install -y --no-install-recommends lintian git $WXGTK wget fuse
 
 variables:
   GET_SOURCES_ATTEMPTS: 3
