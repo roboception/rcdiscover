@@ -129,7 +129,7 @@ build_appimage:
     - make -j 4 install DESTDIR=AppDir
     - export VERSION=`git describe --match "*[0-9].[0-9]*" HEAD`
     - export APPIMAGE_EXTRACT_AND_RUN=1
-    - ./linuxdeploy-x86_64.AppImage --appdir AppDir --output appimage
+    - ./linuxdeploy-x86_64.AppImage  --plugin gtk --appdir AppDir --output appimage
     - cd ..
     - mv build/rcdiscover*.AppImage .
   artifacts:
