@@ -73,15 +73,13 @@
 static bool isMadeByRc(const wxVector<wxVariant> &device)
 {
   return device[DiscoverFrame::MANUFACTURER].GetString() == ROBOCEPTION ||
-    device[DiscoverFrame::MODEL].GetString().StartsWith(RC_VISARD) ||
-    device[DiscoverFrame::MODEL].GetString().StartsWith(RC_CUBE);
+    device[DiscoverFrame::MODEL].GetString().StartsWith("rc_");
 }
 
 static bool isMadeByRc(const wxDataViewListCtrl &device_list, unsigned int row)
 {
   return device_list.GetTextValue(row, DiscoverFrame::MANUFACTURER) == ROBOCEPTION ||
-    device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_VISARD) ||
-    device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith(RC_CUBE);
+    device_list.GetTextValue(row, DiscoverFrame::MODEL).StartsWith("rc_");
 }
 
 static bool isRcVisard(const wxVector<wxVariant> &device)
@@ -150,7 +148,7 @@ DiscoverFrame::DiscoverFrame(const wxString& title,
     int w, h;
     discover_button_->GetSize(&w, &h);
     auto *only_rc_cbox = new wxCheckBox(panel, ID_OnlyRcCheckbox,
-                                        "Only Roboception devices",
+                                        "Only rc_... devices",
                                         wxDefaultPosition, wxSize(-1, h));
     only_rc_cbox->SetValue(only_rc_sensors_);
     button_box->Add(only_rc_cbox, 1);
