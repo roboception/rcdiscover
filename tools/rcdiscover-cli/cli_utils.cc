@@ -40,6 +40,7 @@
 
 #include <stdexcept>
 #include <array>
+#include <chrono>
 
 int parseFilterArguments(int argc, char **argv, DeviceFilter &filter)
 {
@@ -113,9 +114,15 @@ std::vector<rcdiscover::DeviceInfo> discoverWithFilter(
   rcdiscover::Discover discover;
   discover.broadcastRequest();
 
+  std::chrono::steady_clock::time_point tstart=std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point tend=tstart;
+
   std::vector<rcdiscover::DeviceInfo> infos;
-  while (discover.getResponse(infos, 100))
-  {}
+  while (discover.getResponse(infos, 100) ||
+    std::chrono::duration<double, std::milli>(tend-tstart).count() < 1000)
+  {
+    tend=std::chrono::steady_clock::now();
+  }
 
   std::sort(infos.begin(), infos.end());
   infos.erase(std::unique(infos.begin(), infos.end(),

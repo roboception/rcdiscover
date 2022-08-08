@@ -46,6 +46,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstring>
+#include <chrono>
 
 static void printHelp(std::ostream &os, const std::string &command)
 {
@@ -121,8 +122,14 @@ int runDiscover(const std::string &command, int argc, char **argv)
 
   // get all responses, sort them and remove multiple entries
 
-  while (discover.getResponse(infos, 100))
-  {}
+  std::chrono::steady_clock::time_point tstart=std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point tend=tstart;
+
+  while (discover.getResponse(infos, 100) ||
+    std::chrono::duration<double, std::milli>(tend-tstart).count() < 1000)
+  {
+    tend=std::chrono::steady_clock::now();
+  }
 
   std::sort(infos.begin(), infos.end());
   const auto it = std::unique(infos.begin(), infos.end(),
