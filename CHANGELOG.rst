@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.6 (2022-08-08)
+------------------
+
+* Always wait minimum of 1 seconds for getting responses to discovery request
+* CI, also build for jammy
+
 1.1.5 (2022-06-30)
 ------------------
 
