@@ -10,18 +10,6 @@ variables:
 #########################
 # Templates using anchors
 #########################
-.amd64_bionic_t: &amd64_bionic_job
-  image: registry.roboception.de/tools/docker_images:bionic-buildimage
-  tags:
-    - amd64
-    - docker
-
-.armhf_bionic_t: &armhf_bionic_job
-  image: registry.roboception.de/tools/docker_images:armhf-bionic-buildimage
-  tags:
-    - armhf
-    - docker
-
 .amd64_focal_t: &amd64_focal_job
   image: registry.roboception.de/tools/docker_images:focal-buildimage
   tags:
@@ -38,6 +26,12 @@ variables:
   image: registry.roboception.de/tools/docker_images:jammy-buildimage
   tags:
     - amd64
+    - docker
+
+.arm64_jammy_t: &arm64_jammy_job
+  image: registry.roboception.de/tools/docker_images:jammy-buildimage
+  tags:
+    - arm64
     - docker
 
 #############
@@ -121,38 +115,8 @@ gen_dox:
   tags:
     - docs
 
-build_appimage:
-  <<: *amd64_bionic_job
-  script:
-    - mkdir build && cd build
-    - wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-    - chmod 750 linuxdeploy-x86_64.AppImage
-    - wget "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
-    - chmod 750 linuxdeploy-plugin-gtk.sh
-    - apt-get install -y pkgconf librsvg2-dev libgtk-3-dev
-    - cmake -DBUILD_RCDISCOVER_GUI=ON -DBUILD_RCDISCOVER_CLI=OFF -DBUILD_RCDISCOVER_SHARED_LIB=OFF -DCMAKE_INSTALL_PREFIX="/usr" ..
-    - make -j 4 install DESTDIR=AppDir
-    - export VERSION=`git describe --match "*[0-9].[0-9]*" HEAD`
-    - export APPIMAGE_EXTRACT_AND_RUN=1
-    - ./linuxdeploy-x86_64.AppImage  --plugin gtk --appdir AppDir --output appimage
-    - cd ..
-    - mv build/rcdiscover*.AppImage .
-  artifacts:
-    paths:
-      - rcdiscover*.AppImage
-    expire_in: 1 week
-  when: manual
-
 # Test (on every commit)
 ########################
-test:bionic:amd64:
-  <<: *amd64_bionic_job
-  extends: .test
-
-test:bionic:armhf:
-  <<: *armhf_bionic_job
-  extends: .test
-
 test:focal:amd64:
   <<: *amd64_focal_job
   extends: .test
@@ -165,16 +129,12 @@ test:jammy:amd64:
   <<: *amd64_jammy_job
   extends: .test
 
+test:jammy:arm64:
+  <<: *arm64_jammy_job
+  extends: .test
+
 # Deploy testing (only on master)
 #################################
-package_testing:bionic:amd64:
-  <<: *amd64_bionic_job
-  extends: .package_testing
-
-package_testing:bionic:armhf:
-  <<: *armhf_bionic_job
-  extends: .package_testing
-
 package_testing:focal:amd64:
   <<: *amd64_focal_job
   extends: .package_testing
@@ -187,16 +147,12 @@ package_testing:jammy:amd64:
   <<: *amd64_jammy_job
   extends: .package_testing
 
+package_testing:jammy:arm64:
+  <<: *arm64_jammy_job
+  extends: .package_testing
+
 # Deploy stable (only for releases, version tags)
 #################################################
-package_stable:bionic:amd64:
-  <<: *amd64_bionic_job
-  extends: .package_stable
-
-package_stable:bionic:armhf:
-  <<: *armhf_bionic_job
-  extends: .package_stable
-
 package_stable:focal:amd64:
   <<: *amd64_focal_job
   extends: .package_stable
@@ -207,6 +163,10 @@ package_stable:focal:armhf:
 
 package_stable:jammy:amd64:
   <<: *amd64_jammy_job
+  extends: .package_stable
+
+test_release:jammy:arm64:
+  <<: *arm64_jammy_job
   extends: .package_stable
 
 # Build and push as docker image
