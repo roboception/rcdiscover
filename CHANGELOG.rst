@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.7 (2024-03-12)
+------------------
+
+* CI: remove bionic and appimage, add arm64 jammy
+* fix include cstdint for newer gcc versions
+
 1.1.6 (2022-08-08)
 ------------------
 
