@@ -36,6 +36,7 @@
 #ifndef RCDISCOVER_UTILS_H
 #define RCDISCOVER_UTILS_H
 
+#include <cstdint>
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>

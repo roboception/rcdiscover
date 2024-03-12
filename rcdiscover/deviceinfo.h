@@ -38,7 +38,7 @@
 
 #include <string>
 #include <tuple>
-#include <stdint.h>
+#include <cstdint>
 
 namespace rcdiscover
 {
