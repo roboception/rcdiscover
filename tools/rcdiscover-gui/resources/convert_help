@@ -1,0 +1,4 @@
+#!/bin/bash
+
+xxd -i help.html > help.h
+

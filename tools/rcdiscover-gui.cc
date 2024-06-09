@@ -1,112 +1,156 @@
 /*
- * rcdiscover - the network discovery tool for Roboception devices
+ * Roboception GmbH
+ * Munich, Germany
+ * www.roboception.com
  *
- * Copyright (c) 2017 Roboception GmbH
+ * Copyright (c) 2024 Roboception GmbH
  * All rights reserved
  *
- * Author: Raphael Schaller
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its contributors
- * may be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Author: Heiko Hirschmueller
  */
 
-#include "rcdiscover-gui/discover-frame.h"
-#include "rcdiscover-gui/resources.h"
+#include "rcdiscover-gui/discover_window.h"
+#include "rcdiscover-gui/resources/logo_128.xpm"
 
-#include <sstream>
+#include <FL/Fl.H>
+#include <FL/Fl_Pixmap.H>
+#include <FL/Fl_RGB_Image.H>
+#include <FL/fl_ask.H>
 
-#include "wx/app.h"
-#include "wx/msgdlg.h"
+#include <string>
+#include <map>
+#include <fstream>
 
-class RcDiscoverApp : public wxApp
+int main(int argc, char *argv[])
 {
-  public:
-    RcDiscoverApp() :
-      frame_(nullptr)
-    { }
+  int ret=0;
 
-    virtual ~RcDiscoverApp() = default;
+  // load configuration
 
-    virtual bool OnInit() override
-    {
-      if (!wxApp::OnInit())
-      {
-        return false;
-      }
+  std::string name;
 
-      SetAppName("rcdiscover");
-      SetVendorName("Roboception");
+  int width=1180;
+  int height=394;
+  int only_rc=1;
+  std::string filter;
 
+  try
+  {
 #ifdef WIN32
-      ::WSADATA wsaData;
-      int result;
-      if ((result = ::WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
+    const char *dir=getenv("USERPROFILE");
+
+    if (dir && dir[0] != '\0')
+    {
+      name=dir;
+      if (name[name.size()-1] != '\\')
       {
-        std::ostringstream oss;
-        oss << "WSAStartup failed: " << result;
-        wxMessageBox(oss.str(), "Error", wxOK | wxICON_ERROR);
+        name.append("\\");
       }
+
+      name.append("\\AppData");
+      _mkdir(name.c_str());
+      name.append("\\Local");
+      _mkdir(name.c_str());
+      name.append("\\rcdiscover");
+      _mkdir(name.c_str());
+      name.append("\\rcdiscover.txt");
+    }
+#else
+    const char *dir=getenv("HOME");
+
+    if (dir && dir[0] != '\0')
+    {
+      name=dir;
+      if (name[name.size()-1] != '/')
+      {
+        name.append("/");
+      }
+
+      name.append(".config");
+      mkdir(name.c_str(), 0777);
+      name.append("/rcdiscover");
+    }
 #endif
 
-      registerResources();
-
-      frame_ = new DiscoverFrame("rcdiscover", wxPoint(50,50));
-      frame_->Show(true);
-      return true;
-    }
-
-    virtual int OnExit() override
+    if (name.size() > 0)
     {
-#ifdef WIN32
-      ::WSACleanup();
-#endif
+      std::ifstream in(name);
 
-      return wxApp::OnExit();
-    }
-
-    virtual bool OnExceptionInMainLoop() override
-    {
-      try
+      std::string key;
+      std::string value;
+      while (in >> key >> value)
       {
-        throw;
-      }
-      catch (const std::exception &ex)
-      {
-        std::string error_msg = "Caught exception of type ";
-        error_msg += typeid(ex).name();
-        error_msg += ": ";
-        error_msg += ex.what();
-        wxMessageBox(error_msg, "Error", wxOK | wxICON_ERROR);
+        if (value.size() > 0)
+        {
+          if (key == "width") width=std::stoi(value);
+          if (key == "height") height=std::stoi(value);
+          if (key == "only_rc") only_rc=std::stoi(value);
+          if (key == "filter") filter=value;
+        }
       }
 
-      return wxApp::OnExceptionInMainLoop();
+      in.close();
+    }
+  }
+  catch (...)
+  {
+    // allowed to fail
+  }
+
+  try
+  {
+    // some theme settings
+
+    Fl::background(248, 248, 248);
+//    Fl::visible_focus(false);
+
+    // create main window
+
+    DiscoverWindow *window=new DiscoverWindow(width, height, only_rc, filter);
+
+    // set icon
+
+    Fl_Pixmap icon_xpm(logo_128_xpm);
+    Fl_RGB_Image icon_rgb(&icon_xpm, FL_GRAY);
+    window->icon(&icon_rgb);
+    window->xclass("rcdiscover");
+
+    // show
+
+    Fl::lock();
+    window->show(argc, argv);
+    window->doDiscover();
+
+    ret=Fl::run();
+    Fl::unlock();
+
+    // store configuration
+
+    try
+    {
+      std::ofstream out(name);
+
+      out << "width " << window->w() << std::endl;
+      out << "height " << window->h() << std::endl;
+      out << "only_rc " << window->getOnlyRCValue() << std::endl;
+      out << "filter " << window->getFilterValue() << std::endl;
+
+      out.close();
+    }
+    catch (...)
+    {
+      // allowed to fail
     }
 
-  private:
-    wxWindow *frame_;
-};
+    // clean up resources
 
-wxIMPLEMENT_APP(RcDiscoverApp);
+    delete window;
+  }
+  catch (const std::exception &ex)
+  {
+    fl_alert("%s", ex.what());
+    ret=1;
+  }
+
+  return ret;
+}

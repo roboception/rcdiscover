@@ -44,9 +44,11 @@
 #include <iphlpapi.h>
 #include <icmpapi.h>
 
-#else
-
 #endif
+
+// ???
+#include <iostream>
+#include <unistd.h>
 
 namespace rcdiscover
 {
@@ -101,6 +103,10 @@ bool checkReachabilityOfSensor(const DeviceInfo &info)
   {
     throw std::runtime_error("Could not execute ping command.");
   }
+
+  // read and skip output of command for waiting until it is done
+  char buffer[80];
+  while (fread(buffer, 80, 1, in) > 0);
 
   const int exit_code = pclose(in);
 

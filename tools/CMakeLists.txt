@@ -62,47 +62,39 @@ endif ()
 #
 if(BUILD_RCDISCOVER_GUI)
   # - Find manditory packages -
-  set(wxWidgets_USE_STATIC ON)
-  set(wxWidgets_USE_UNICODE ON)
-  find_package(wxWidgets REQUIRED COMPONENTS html adv core base)
-  include(${wxWidgets_USE_FILE})
+  set(FLTK_SKIP_OPENGL ON)
+  set(FLTK_SKIP_FORMS ON)
+  set(FLTK_SKIP_IMAGES ON)
+  set(FLTK_SKIP_FLUID ON)
+  find_package(FLTK REQUIRED)
+
+  include_directories(${FLTK_INCLUDE_DIR})
 
   set(rcdiscover-gui-src
-    rcdiscover-gui.cc
-    rcdiscover-gui/event-ids.cc
-    rcdiscover-gui/discover-frame.cc
-    rcdiscover-gui/discover-thread.cc
-    rcdiscover-gui/sensor-command-dialog.cc
-    rcdiscover-gui/reset-dialog.cc
-    rcdiscover-gui/force-ip-dialog.cc
-    rcdiscover-gui/reconnect-dialog.cc
-    rcdiscover-gui/about-dialog.cc
-    rcdiscover-gui/resources.cc)
+    rcdiscover-gui/discover_window.cc
+    rcdiscover-gui/device_list.cc
+    rcdiscover-gui/reset_window.cc
+    rcdiscover-gui/set_tmp_ip_window.cc
+    rcdiscover-gui/reconnect_window.cc
+    rcdiscover-gui/help_window.cc
+    rcdiscover-gui/about_dialog.cc
+    rcdiscover-gui/device_choice.cc
+    rcdiscover-gui/input_mac.cc
+    rcdiscover-gui/input_ip.cc
+    rcdiscover-gui/input_filter.cc
+    rcdiscover-gui/logo.cc
+    rcdiscover-gui.cc)
 
   if (WIN32)
-    if(MINGW)
-      set(CMAKE_RC_COMPILER_INIT windres)
-      ENABLE_LANGUAGE(RC)
-      SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT> <INCLUDES>")
-    endif(MINGW)
-
-    add_executable(rcdiscover-gui
-      ${rcdiscover-gui-src}
-      rcdiscover-gui/resources/resources.rc)
-
+    add_executable(rcdiscover-gui WIN32 ${rcdiscover-gui-src})
   else (WIN32)
     add_executable(rcdiscover-gui ${rcdiscover-gui-src})
   endif (WIN32)
 
-  target_include_directories(rcdiscover-gui
-    PRIVATE
-      ${wxWidgets_INCLUDE_DIRS}
-  )
-  target_link_libraries(rcdiscover-gui ${PROJECT_NAMESPACE}::rcdiscover_static ${wxWidgets_LIBRARIES})
+  target_link_libraries(rcdiscover-gui ${PROJECT_NAMESPACE}::rcdiscover_static ${FLTK_LIBRARIES})
 
   if (WIN32)
-    target_link_libraries(rcdiscover-gui iphlpapi.lib ws2_32.lib uxtheme)
-    set_target_properties(rcdiscover-gui PROPERTIES LINK_FLAGS -mwindows)
+    target_link_libraries(rcdiscover-gui gdiplus)
   endif (WIN32)
 
   install(TARGETS rcdiscover-gui COMPONENT gui DESTINATION bin)

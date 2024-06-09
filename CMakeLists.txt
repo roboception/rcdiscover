@@ -60,7 +60,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
   add_definitions(-Wextra)
   add_definitions(-Wpedantic)
   add_definitions(-Wconversion)
-  add_definitions(-Werror)
+#  add_definitions(-Werror)
 endif ()
 
 if (WIN32)
