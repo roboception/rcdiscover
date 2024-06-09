@@ -121,7 +121,7 @@ void ReconnectWindow::isReconnect()
     {
       rcdiscover::ForceIP force_ip;
 
-      if (fl_choice_n("Are you sure to reconnect device with MAC-address %s?",
+      if (fl_choice("Are you sure to reconnect device with MAC-address %s?",
         "No", "Yes", 0, mac->value()) == 1)
       {
         force_ip.sendCommand(mac->getMAC(), 0, 0, 0);

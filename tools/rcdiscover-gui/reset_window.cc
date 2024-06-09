@@ -163,12 +163,12 @@ void sendUDPRequest(const char *mac_string, uint64_t mac_value, const char *func
       std::ostringstream reset_check_str;
       reset_check_str << "Are you sure to " << func_name <<
              " of rc_visard with MAC-address " << mac_string << "?";
-      int answer=fl_choice_n("%s", "No", "Yes", 0, reset_check_str.str().c_str());
+      int answer=fl_choice("%s", "No", "Yes", 0, reset_check_str.str().c_str());
 
       while (answer == 1)
       {
         wol.send({{0xEE, 0xEE, 0xEE, func_id}});
-        answer=fl_choice_n("Please check whether rc_visard's LED turned white and whether rc_visard is rebooting.",
+        answer=fl_choice("Please check whether rc_visard's LED turned white and whether rc_visard is rebooting.",
           "Close", "Try again", 0);
       }
     }

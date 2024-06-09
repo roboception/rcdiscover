@@ -179,7 +179,7 @@ void SetTmpIPWindow::isSet()
     {
       if ((ip->getIP() & subnet_mask->getIP()) != (default_gateway->getIP() & subnet_mask->getIP()))
       {
-        if (fl_choice_n("IP address and gateway appear to be in different subnets. ",
+        if (fl_choice("IP address and gateway appear to be in different subnets. ",
           "Cancel", "Proceed", 0) != 1)
         {
           return;
@@ -188,7 +188,7 @@ void SetTmpIPWindow::isSet()
 
       rcdiscover::ForceIP force_ip;
 
-      if (fl_choice_n("Are you sure to set the IP address of the device with MAC-address %s?",
+      if (fl_choice("Are you sure to set the IP address of the device with MAC-address %s?",
         "No", "Yes", 0, mac->value()) == 1)
       {
         force_ip.sendCommand(mac->getMAC(), ip->getIP(), subnet_mask->getIP(),
