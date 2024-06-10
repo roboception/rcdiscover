@@ -44,6 +44,9 @@ class DeviceList : public Fl_Table_Row
     void filterRCDevices(bool filter_rc);
     void filter(const char *filter_value);
 
+    void getSorting(int &sort_col, bool &sort_down);
+    void setSorting(int sort_col, bool sort_down);
+
   protected:
 
     int handle(int event);

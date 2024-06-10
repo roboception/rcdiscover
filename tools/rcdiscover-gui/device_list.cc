@@ -263,6 +263,25 @@ void DeviceList::filter(const char *_filter_value)
   redraw();
 }
 
+void DeviceList::getSorting(int &_sort_col, bool &_sort_down)
+{
+  if (_sort_col >= 0 && _sort_col < 8)
+  {
+    _sort_col=sort_col;
+    _sort_down=sort_down;
+  }
+}
+
+void DeviceList::setSorting(int _sort_col, bool _sort_down)
+{
+  sort_col=_sort_col;
+  sort_down=_sort_down;
+
+  updateDeviceIndices();
+  select_row(0, 0);
+  redraw();
+}
+
 int DeviceList::handle(int event)
 {
   // call handle of parent

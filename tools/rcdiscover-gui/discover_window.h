@@ -36,6 +36,9 @@ class DiscoverWindow : public Fl_Double_Window
     DiscoverWindow(int ww, int hh, int _only_rc, const std::string &_filter);
     ~DiscoverWindow();
 
+    void getSorting(int &sort_col, bool &sort_down) { list->getSorting(sort_col, sort_down); }
+    void setSorting(int sort_col, bool sort_down)  { list->setSorting(sort_col, sort_down); }
+
     int getOnlyRCValue() { return only_rc->value(); }
     const char *getFilterValue() { return filter->value(); }
 

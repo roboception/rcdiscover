@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
   int height=394;
   int only_rc=1;
   std::string filter;
+  int sort_col=0;
+  bool sort_down=true;
 
   try
   {
@@ -111,6 +113,8 @@ int main(int argc, char *argv[])
           if (key == "height") height=std::stoi(value);
           if (key == "only_rc") only_rc=std::stoi(value);
           if (key == "filter") filter=value;
+          if (key == "sort_col") sort_col=std::stoi(value);
+          if (key == "sort_down") sort_down=static_cast<bool>(std::stoi(value));
         }
       }
 
@@ -132,6 +136,7 @@ int main(int argc, char *argv[])
     // create main window
 
     DiscoverWindow *window=new DiscoverWindow(width, height, only_rc, filter);
+    window->setSorting(sort_col, sort_down);
 
     // set icon
 
@@ -155,10 +160,20 @@ int main(int argc, char *argv[])
     {
       std::ofstream out(name);
 
+      window->getSorting(sort_col, sort_down);
+
       out << "width " << window->w() << std::endl;
       out << "height " << window->h() << std::endl;
       out << "only_rc " << window->getOnlyRCValue() << std::endl;
-      out << "filter " << window->getFilterValue() << std::endl;
+
+      filter=window->getFilterValue();
+      if (filter.size() > 0)
+      {
+        out << "filter " << filter << std::endl;
+      }
+
+      out << "sort_col " << sort_col << std::endl;
+      out << "sort_down " << sort_down << std::endl;
 
       out.close();
     }
