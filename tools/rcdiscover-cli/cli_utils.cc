@@ -42,6 +42,11 @@
 #include <array>
 #include <chrono>
 
+#ifdef WIN32
+#undef min
+#undef max
+#endif
+
 int parseFilterArguments(int argc, char **argv, DeviceFilter &filter)
 {
   if (argc == 0)

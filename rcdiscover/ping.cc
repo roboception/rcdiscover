@@ -39,16 +39,12 @@
 #include "utils.h"
 
 #ifdef WIN32
-
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <icmpapi.h>
-
-#endif
-
-// ???
-#include <iostream>
+#else
 #include <unistd.h>
+#endif
 
 namespace rcdiscover
 {

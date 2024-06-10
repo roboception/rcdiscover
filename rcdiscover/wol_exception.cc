@@ -36,6 +36,7 @@
 #include "wol_exception.h"
 
 #include <stdexcept>
+#include <string>
 
 namespace rcdiscover
 {

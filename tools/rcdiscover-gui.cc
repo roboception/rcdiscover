@@ -21,8 +21,33 @@
 #include <map>
 #include <fstream>
 
+#ifdef WIN32
+#include <direct.h>
+#include <winsock2.h>
+#endif
+
+class WSA
+{
+  public:
+    WSA()
+    {
+#ifdef WIN32
+      WSADATA wsaData;
+      WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+    }
+
+    ~WSA()
+    {
+#ifdef WIN32
+      ::WSACleanup();
+#endif
+    }
+};
+
 int main(int argc, char *argv[])
 {
+  WSA wsa;
   int ret=0;
 
   // load configuration

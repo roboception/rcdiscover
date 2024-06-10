@@ -35,6 +35,8 @@
 
 #include "socket_exception.h"
 
+#include <string>
+
 namespace rcdiscover
 {
 

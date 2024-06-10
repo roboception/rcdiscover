@@ -261,7 +261,7 @@ void SocketWindows::sendImpl(const std::vector<uint8_t>& sendbuf)
   auto sb = sendbuf;
 
   WSABUF wsa_buffer;
-  wsa_buffer.len = sb.size();
+  wsa_buffer.len = static_cast<ULONG>(sb.size());
   wsa_buffer.buf = reinterpret_cast<char *>(sb.data());
 
   DWORD len;

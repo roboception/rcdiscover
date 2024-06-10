@@ -126,7 +126,7 @@ int runForceIP(const std::string &command, int argc, char **argv)
   {
     ip = string2ip(argv[i++]);
   }
-  catch (const std::exception &ex)
+  catch (const std::exception &)
   {
     std::cerr << "Cannot parse IP address" << std::endl;
     printHelp(std::cerr, command);
@@ -137,7 +137,7 @@ int runForceIP(const std::string &command, int argc, char **argv)
   {
     mask = string2ip(argv[i++]);
   }
-  catch (const std::exception &ex)
+  catch (const std::exception &)
   {
     std::cerr << "Cannot parse subnet mask" << std::endl;
     printHelp(std::cerr, command);
@@ -148,7 +148,7 @@ int runForceIP(const std::string &command, int argc, char **argv)
   {
     gateway = string2ip(argv[i++]);
   }
-  catch (const std::exception &ex)
+  catch (const std::exception &)
   {
     std::cerr << "Cannot parse default gateway" << std::endl;
     printHelp(std::cerr, command);

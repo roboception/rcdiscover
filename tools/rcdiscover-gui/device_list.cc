@@ -15,12 +15,6 @@
 #include <FL/fl_ask.H>
 #include <FL/filename.H>
 
-#ifdef WIN32
-#include <Windows.h>
-#undef min
-#undef max
-#endif
-
 #include <sstream>
 
 DeviceList::DeviceList(int x, int y, int w, int h) : Fl_Table_Row(x, y, w, h)
@@ -144,11 +138,11 @@ void DeviceList::add(const char *name, const char *manufacturer, const char *mod
 
     if (reachable)
     {
-      data.item[7]="\u2713";
+      data.item[7]=u8"\u2713";
     }
     else
     {
-      data.item[7]="\u2717";
+      data.item[7]=u8"\u2717";
     }
 
     data.reachable=reachable;

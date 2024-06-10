@@ -1,4 +1,5 @@
-#include <wx/msw/wx.rc>
+
+#include <Windows.h>
 
 icon ICON "logo_128.ico"
 
@@ -17,23 +18,23 @@ VS_VERSION_INFO VERSIONINFO
  FILEOS VOS__WINDOWS32
  FILETYPE VFT_APP
  FILESUBTYPE 0x0L
-{
+ BEGIN
     BLOCK "StringFileInfo"
-    {
+    BEGIN
         BLOCK "040904E4"
-        {
+        BEGIN
             VALUE "CompanyName",      "Roboception GmbH"
-            VALUE "FileDescription",  "rc_discover"
-            VALUE "FileVersion",      XSTR(PROJECT_VERSION)
-            VALUE "ProductVersion",   XSTR(PROJECT_VERSION)
-            VALUE "InternalName",     "rc_discover"
-            VALUE "LegalCopyright",   "Copyright (c) 2017, Roboception GmbH"
+            VALUE "FileDescription",  "rcdiscover"
+            VALUE "FileVersion",      PROJECT_VERSION
+            VALUE "ProductVersion",   PROJECT_VERSION
+            VALUE "InternalName",     "rcdiscover"
+            VALUE "LegalCopyright",   "2017-2024, Roboception GmbH"
             VALUE "OriginalFilename", "rcdiscover-gui.exe"
-            VALUE "ProductName",      "rc_discover"
-        }
-    }
+            VALUE "ProductName",      "rcdiscover"
+        END
+    END
     BLOCK "VarFileInfo"
-    {
+    BEGIN
         VALUE "Translation", 0x409, 1252
-    }
-}
+    END
+ END
