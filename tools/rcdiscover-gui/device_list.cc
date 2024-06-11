@@ -20,6 +20,7 @@
 DeviceList::DeviceList(int x, int y, int w, int h) : Fl_Table_Row(x, y, w, h)
 {
   type(SELECT_SINGLE);
+  color(FL_WHITE);
 
   tooltip("Double-click row to open WebGUI in browser.");
 
@@ -33,7 +34,7 @@ DeviceList::DeviceList(int x, int y, int w, int h) : Fl_Table_Row(x, y, w, h)
 
   cols(8);
   col_header(1);
-  col_header_height(28);
+  col_header_height(24);
   col_resize_min(10);
 
   col_width(0, 110);
@@ -49,7 +50,7 @@ DeviceList::DeviceList(int x, int y, int w, int h) : Fl_Table_Row(x, y, w, h)
 
   rows(0);
   row_header(0);
-  row_height_all(28);
+  row_height_all(24);
   row_resize(0);
 
   end();
@@ -422,7 +423,8 @@ void DeviceList::draw_cell(TableContext context, int ROW, int COL, int X, int Y,
 
         if (row_selected(ROW))
         {
-          fl_color(FL_SELECTION_COLOR);
+//          fl_color(FL_SELECTION_COLOR);
+          fl_color(0x0c84a200); // use Roboception color for selection
         }
         else if (device[index[ROW]].new_discovery)
         {
@@ -441,7 +443,7 @@ void DeviceList::draw_cell(TableContext context, int ROW, int COL, int X, int Y,
         }
         else
         {
-          fl_color(FL_GRAY0);
+          fl_color(0x20202000); // dark gray looks a bit better
         }
 
         if (COL < 7)
