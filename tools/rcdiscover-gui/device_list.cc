@@ -21,6 +21,8 @@ DeviceList::DeviceList(int x, int y, int w, int h) : Fl_Table_Row(x, y, w, h)
 {
   type(SELECT_SINGLE);
 
+  tooltip("Double-click row to open WebGUI in browser.");
+
   cb=0;
   user=0;
   new_discovery=false;
@@ -355,7 +357,7 @@ void DeviceList::draw_cell(TableContext context, int ROW, int COL, int X, int Y,
   switch (context)
   {
     case CONTEXT_STARTPAGE:
-      fl_font(FL_HELVETICA, 16);
+      fl_font(FL_HELVETICA, 14);
       break;
 
     case CONTEXT_RC_RESIZE:
