@@ -2,6 +2,16 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.0 (2024-06-10)
+------------------
+
+* rcdiscover-gui has been redeveloped from scratch for replacing wxWidgets by FLTK
+* Additionally to Debian packages for Ubuntu, rcdiscover-gui is now also available as AppImage
+* New features in rcdiscover-gui:
+  * The table is now updated immediately when discovery responses arrive instead of waiting until the last device responds
+  * Filtering and sorting settings are now persistent
+  * Newly discovered devices are highlighted in gray
+
 1.1.7 (2024-03-12)
 ------------------
 
