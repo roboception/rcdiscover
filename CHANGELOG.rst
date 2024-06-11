@@ -2,7 +2,7 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.0.0 (2024-06-10)
+2.0.0 (2024-06-11)
 ------------------
 
 * rcdiscover-gui has been redeveloped from scratch for replacing wxWidgets by FLTK
