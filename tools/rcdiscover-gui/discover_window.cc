@@ -442,9 +442,12 @@ void DiscoverWindow::discoverThread()
             ((info[k].getIP()>>8)&0xff) << '.'  << (info[k].getIP()&0xff);
 
           mac << std::hex << std::setw(2) << std::setfill('0') <<
-            ((info[k].getMAC()>>40)&0xff) << ':' << ((info[k].getMAC()>>32)&0xff) << ':' <<
-            ((info[k].getMAC()>>24)&0xff) << ':'  << ((info[k].getMAC()>>16)&0xff) << ':' <<
-            ((info[k].getMAC()>>8)&0xff) << ':'  << (info[k].getMAC()&0xff);
+            std::setw(2) << std::setfill('0') << ((info[k].getMAC()>>40)&0xff) << ':' <<
+            std::setw(2) << std::setfill('0') << ((info[k].getMAC()>>32)&0xff) << ':' <<
+            std::setw(2) << std::setfill('0') << ((info[k].getMAC()>>24)&0xff) << ':' <<
+            std::setw(2) << std::setfill('0') << ((info[k].getMAC()>>16)&0xff) << ':' <<
+            std::setw(2) << std::setfill('0') << ((info[k].getMAC()>>8)&0xff) << ':' <<
+            std::setw(2) << std::setfill('0') << (info[k].getMAC()&0xff);
 
           list->add(info[k].getUserName().c_str(),
             info[k].getManufacturerName().c_str(),
