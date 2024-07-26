@@ -448,11 +448,11 @@ void DeviceList::draw_cell(TableContext context, int ROW, int COL, int X, int Y,
 
         if (COL < 7)
         {
-          fl_draw(device[index[ROW]].item[COL].c_str(), X, Y, W, H, FL_ALIGN_LEFT);
+          fl_draw(device[index[ROW]].item[COL].c_str(), X+3, Y, W, H, FL_ALIGN_LEFT);
         }
         else
         {
-          fl_draw(device[index[ROW]].item[COL].c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+          fl_draw(device[index[ROW]].item[COL].c_str(), X+3, Y, W, H, FL_ALIGN_CENTER);
         }
 
         fl_color(color());
