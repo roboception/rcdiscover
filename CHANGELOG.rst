@@ -2,6 +2,12 @@
 Changelog for package rcdiscover
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.1 (2024-07-30)
+------------------
+
+* Added a bit space left of each cell
+* Fixed showing MAC address always with two characters and leading 0 if necessary
+
 2.0.0 (2024-06-11)
 ------------------
 
