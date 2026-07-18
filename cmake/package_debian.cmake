@@ -168,6 +168,24 @@ if (conffiles)
 endif ()
 
 # ask if example sysctl config should be applied when installing this as debian package
+#
+# postinst.in needs to know the prefix under which files are *actually*
+# placed inside the .deb. This is not necessarily CMAKE_INSTALL_PREFIX:
+# if CPACK_PACKAGING_INSTALL_PREFIX was not explicitly set, CPack's DEB
+# generator silently falls back to "/usr" whenever CMAKE_INSTALL_PREFIX is
+# "/usr/local" (packages must never install into /usr/local). Replicate
+# that fallback here (in a separate variable, so the "real" install()
+# rules and a plain "make install" are unaffected) so the substituted
+# path always matches where CPack really puts the files, even if
+# "-DCMAKE_INSTALL_PREFIX=/usr" was forgotten when configuring.
+if (CPACK_PACKAGING_INSTALL_PREFIX)
+  set(RCDISCOVER_PACKAGE_PREFIX ${CPACK_PACKAGING_INSTALL_PREFIX})
+elseif (CMAKE_INSTALL_PREFIX STREQUAL "/usr/local")
+  set(RCDISCOVER_PACKAGE_PREFIX "/usr")
+else ()
+  set(RCDISCOVER_PACKAGE_PREFIX ${CMAKE_INSTALL_PREFIX})
+endif ()
+
 set(CONFIG_FILE "${PROJECT_BINARY_DIR}/config")
 set(POSTINST_FILE "${PROJECT_BINARY_DIR}/postinst")
 set(POSTRM_FILE "${PROJECT_BINARY_DIR}/postrm")
