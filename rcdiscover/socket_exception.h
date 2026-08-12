@@ -37,6 +37,7 @@
 #define RCDISCOVER_SOCKETEXCEPTION_H
 
 #include <stdexcept>
+#include <string>
 
 namespace rcdiscover
 {

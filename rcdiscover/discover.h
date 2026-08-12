@@ -37,6 +37,7 @@
 #define RCDISCOVER_DISCOVER
 
 #include "deviceinfo.h"
+#include <string>
 
 #ifdef WIN32
 #include "socket_windows.h"

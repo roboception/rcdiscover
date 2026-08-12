@@ -40,12 +40,15 @@
 #include "utils.h"
 
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#ifdef __linux__
 #include <linux/if_packet.h>
 #include <netinet/ether.h>
+#endif
 #include <ifaddrs.h>
 #include <fcntl.h>
 
@@ -87,7 +90,13 @@ std::vector<SocketLinux> SocketLinux::createAndBindForAllInterfaces(
       addr != nullptr;
       addr = addr->ifa_next)
   {
-    auto baddr = addr->ifa_ifu.ifu_broadaddr;
+#ifdef __linux__
+    auto baddr = addr->ifa_broadaddr;
+#else
+    // BSD/macOS: struct ifaddrs has no ifa_ifu union; the broadcast address of
+    // a broadcast-capable AF_INET interface is carried in ifa_dstaddr.
+    auto baddr = addr->ifa_dstaddr;
+#endif
     if (addr->ifa_flags & IFF_UP &&
         addr->ifa_name != nullptr &&
         addr->ifa_addr != nullptr &&
@@ -275,13 +284,14 @@ void SocketLinux::enableNonBlockingImpl()
 
 void SocketLinux::bindToDevice(const std::string &device)
 {
+#ifdef __linux__
   if (::setsockopt(sock_,
                    SOL_SOCKET,
                    SO_BINDTODEVICE,
                    device.c_str(),
                    static_cast<socklen_t>(device.size())) == -1)
   {
-    if (errno == 1)
+    if (errno == EPERM)
     {
       throw OperationNotPermitted();
     }
@@ -289,6 +299,31 @@ void SocketLinux::bindToDevice(const std::string &device)
     throw SocketException("Error while binding to device \"" + device + "\"",
                           errno);
   }
+#else
+  // macOS/BSD have no SO_BINDTODEVICE; bind the socket to the interface by its
+  // index via IP_BOUND_IF, which is the platform equivalent for scoping a
+  // socket to a single interface.
+  const unsigned int if_index = ::if_nametoindex(device.c_str());
+  if (if_index == 0)
+  {
+    throw SocketException("Unknown device \"" + device + "\"", errno);
+  }
+
+  if (::setsockopt(sock_,
+                   IPPROTO_IP,
+                   IP_BOUND_IF,
+                   &if_index,
+                   sizeof(if_index)) == -1)
+  {
+    if (errno == EPERM)
+    {
+      throw OperationNotPermitted();
+    }
+
+    throw SocketException("Error while binding to device \"" + device + "\"",
+                          errno);
+  }
+#endif
 }
 
 }
