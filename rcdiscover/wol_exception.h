@@ -37,6 +37,7 @@
 #define RCDISCOVER_WOL_EXCEPTION_H
 
 #include <stdexcept>
+#include <string>
 
 namespace rcdiscover
 {

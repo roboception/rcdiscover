@@ -37,6 +37,7 @@
 #define RCDISCOVER_SOCKET_WINDOW_H
 
 #include "socket.h"
+#include <string>
 
 #include <winsock2.h>
 

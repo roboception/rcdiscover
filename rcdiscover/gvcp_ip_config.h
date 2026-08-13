@@ -37,6 +37,7 @@
 
 #ifdef WIN32
 #include "socket_windows.h"
+#include <string>
 #else
 #include "socket_linux.h"
 #endif
